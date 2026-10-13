@@ -3,7 +3,7 @@ import { HomeClient } from "@/components/home/HomeClient";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "PDFKit — Privacy-First PDF Utilities in Your Browser",
+  title: "PDFKit — Free Online PDF Tools",
   description:
     "All your PDF tools. One private workspace. 20 client-side PDF utilities to merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
   keywords: [

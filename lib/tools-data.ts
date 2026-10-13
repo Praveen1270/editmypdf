@@ -1,5 +1,29 @@
 export type ToolCategory = "organize" | "convert" | "layout" | "security";
 
+export type SidebarCategoryId =
+  | "scan-workflow"
+  | "page-management"
+  | "edit-annotate"
+  | "create-convert-pdf"
+  | "convert-other"
+  | "security-privacy"
+  | "collaborate-share";
+
+export interface SidebarCategoryDef {
+  id: SidebarCategoryId;
+  label: string;
+}
+
+export const SIDEBAR_CATEGORIES: SidebarCategoryDef[] = [
+  { id: "scan-workflow", label: "Scan & Workflow" },
+  { id: "page-management", label: "Page Management" },
+  { id: "edit-annotate", label: "Edit & Annotate" },
+  { id: "create-convert-pdf", label: "Create & Convert → PDF" },
+  { id: "convert-other", label: "Convert → Other" },
+  { id: "security-privacy", label: "Security & Privacy" },
+  { id: "collaborate-share", label: "Collaborate & Share" },
+];
+
 export interface ToolItem {
   id: string;
   name: string;
@@ -7,6 +31,7 @@ export interface ToolItem {
   href: string;
   category: ToolCategory;
   categoryName: string;
+  sidebarCategory: SidebarCategoryId;
   description: string;
   shortDesc: string;
   iconName: string;
@@ -33,6 +58,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/merge-pdf",
     category: "organize",
     categoryName: "Organize PDFs",
+    sidebarCategory: "page-management",
     description: "Combine multiple PDF documents into a single organized file with customizable page order. Processed locally in your browser.",
     shortDesc: "Combine multiple PDFs into one document.",
     iconName: "Files",
@@ -64,6 +90,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/split-pdf",
     category: "organize",
     categoryName: "Organize PDFs",
+    sidebarCategory: "page-management",
     description: "Extract specific page ranges or split every page into separate individual documents packaged into a convenient ZIP file.",
     shortDesc: "Extract pages or divide a document.",
     iconName: "Scissors",
@@ -94,6 +121,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/organize-pdf",
     category: "organize",
     categoryName: "Organize PDFs",
+    sidebarCategory: "page-management",
     description: "Visual PDF page organizer. View page thumbnails, reorder page sequence, duplicate pages, or delete unwanted pages.",
     shortDesc: "Reorder, duplicate, or delete pages visually.",
     iconName: "LayoutGrid",
@@ -125,6 +153,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/rotate-pdf",
     category: "organize",
     categoryName: "Organize PDFs",
+    sidebarCategory: "page-management",
     description: "Permanently adjust page rotation by 90°, 180°, or 270°. Select individual pages or rotate all pages at once with live thumbnail previews.",
     shortDesc: "Correct page orientation permanently.",
     iconName: "RotateCw",
@@ -155,6 +184,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/extract-pdf-pages",
     category: "organize",
     categoryName: "Organize PDFs",
+    sidebarCategory: "page-management",
     description: "Extract specific pages from a PDF document into a clean new document or individual files. Select pages visually or by range.",
     shortDesc: "Save selected pages into a new PDF.",
     iconName: "FolderOutput",
@@ -187,6 +217,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/compress-pdf",
     category: "convert",
     categoryName: "Convert and Compress",
+    sidebarCategory: "scan-workflow",
     description: "Reduce PDF document file size with three selectable compression presets while preserving vectors and text. Honest size accounting.",
     shortDesc: "Reduce file size without quality loss.",
     iconName: "Minimize2",
@@ -217,6 +248,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/pdf-to-images",
     category: "convert",
     categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
     description: "Convert PDF pages into high-resolution PNG or JPG images with custom scaling. Download individually or as a ZIP package.",
     shortDesc: "Export PDF pages as PNG or JPG images.",
     iconName: "Image",
@@ -247,6 +279,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/images-to-pdf",
     category: "convert",
     categoryName: "Convert and Compress",
+    sidebarCategory: "create-convert-pdf",
     description: "Convert photos and graphics into a standardized PDF with custom page sizes, orientations, and margins.",
     shortDesc: "Turn images into a single standardized PDF.",
     iconName: "FileImage",
@@ -278,6 +311,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/pdf-to-text",
     category: "convert",
     categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
     description: "Extract selectable text from PDF documents. Copy extracted text to your clipboard or download as a clean plain text (.txt) file.",
     shortDesc: "Extract readable text to copy or download as TXT.",
     iconName: "FileText",
@@ -309,6 +343,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/pdf-to-grayscale",
     category: "convert",
     categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
     description: "Convert color PDF documents to clean grayscale. Ideal for saving black-and-white printer ink and standardizing office documents.",
     shortDesc: "Convert color PDFs to monochrome grayscale.",
     iconName: "Palette",
@@ -341,6 +376,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/add-page-numbers",
     category: "layout",
     categoryName: "Edit Page Layout",
+    sidebarCategory: "edit-annotate",
     description: "Insert customizable page numbers, templates, positions, and formatting into any PDF with live placement preview.",
     shortDesc: "Add customizable numbering to PDF pages.",
     iconName: "Hash",
@@ -372,6 +408,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/watermark-pdf",
     category: "layout",
     categoryName: "Edit Page Layout",
+    sidebarCategory: "edit-annotate",
     description: "Stamp customized text watermarks across document pages with live opacity, rotation, and color control.",
     shortDesc: "Add customized text watermarks to pages.",
     iconName: "Stamp",
@@ -403,6 +440,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/add-text-to-pdf",
     category: "layout",
     categoryName: "Edit Page Layout",
+    sidebarCategory: "edit-annotate",
     description: "Place custom text notes, annotations, dates, or signatures onto specific PDF pages with visual placement controls.",
     shortDesc: "Add text overlays, notes, and annotations to pages.",
     iconName: "Type",
@@ -433,6 +471,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/crop-pdf",
     category: "layout",
     categoryName: "Edit Page Layout",
+    sidebarCategory: "page-management",
     description: "Adjust page boundaries and trim unwanted margins using numeric margin controls. Apply to all pages or specific pages.",
     shortDesc: "Trim margins and adjust page boundaries.",
     iconName: "Crop",
@@ -463,6 +502,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/resize-pdf",
     category: "layout",
     categoryName: "Edit Page Layout",
+    sidebarCategory: "page-management",
     description: "Change PDF page dimensions to standard sizes like A4, US Letter, A3, or Legal with automatic content scaling.",
     shortDesc: "Change page dimensions to A4, Letter, A3, etc.",
     iconName: "Maximize",
@@ -495,6 +535,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/protect-pdf",
     category: "security",
     categoryName: "Secure and Inspect",
+    sidebarCategory: "security-privacy",
     description: "Encrypt your PDF document locally with a password using industry-standard AES-256 (PDF 2.0 / ISO 32000-2) encryption.",
     shortDesc: "Encrypt PDFs locally with a strong password.",
     iconName: "Lock",
@@ -525,6 +566,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/unlock-pdf",
     category: "security",
     categoryName: "Secure and Inspect",
+    sidebarCategory: "security-privacy",
     description: "Remove password protection and encryption from your PDF document using your password. Processed 100% locally in your browser.",
     shortDesc: "Remove password protection using your password.",
     iconName: "Unlock",
@@ -555,6 +597,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/pdf-metadata-editor",
     category: "security",
     categoryName: "Secure and Inspect",
+    sidebarCategory: "security-privacy",
     description: "Inspect and edit PDF metadata properties including Title, Author, Subject, Keywords, Creator, and Producer. Strip all metadata for privacy.",
     shortDesc: "View, edit, or strip PDF metadata fields.",
     iconName: "FileSliders",
@@ -585,6 +628,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/pdf-page-counter",
     category: "security",
     categoryName: "Secure and Inspect",
+    sidebarCategory: "scan-workflow",
     description: "Inspect page counts, dimensions (pt, mm, in), standard paper sizes, encryption status, and metadata. Download a plain-text audit report.",
     shortDesc: "Inspect page count, dimensions & document properties.",
     iconName: "Binary",
@@ -616,6 +660,7 @@ export const PDF_TOOLS: ToolItem[] = [
     href: "/compare-pdfs",
     category: "security",
     categoryName: "Secure and Inspect",
+    sidebarCategory: "collaborate-share",
     description: "Load two PDF documents locally to compare page counts, file sizes, and text content line-by-line. Highlights detected differences.",
     shortDesc: "Compare two PDFs for text and structural changes.",
     iconName: "GitCompare",
@@ -640,3 +685,15 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
   },
 ];
+
+export function getToolsBySidebarCategory(categoryId: SidebarCategoryId): ToolItem[] {
+  return PDF_TOOLS.filter((t) => t.sidebarCategory === categoryId);
+}
+
+export function getSidebarCategoryCounts(): Record<SidebarCategoryId, number> {
+  const counts: Partial<Record<SidebarCategoryId, number>> = {};
+  for (const cat of SIDEBAR_CATEGORIES) {
+    counts[cat.id] = PDF_TOOLS.filter((t) => t.sidebarCategory === cat.id).length;
+  }
+  return counts as Record<SidebarCategoryId, number>;
+}

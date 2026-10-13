@@ -19,7 +19,7 @@ export function ThemeToggle({ className = "", showLabel = false }: ThemeTogglePr
         type="button"
         disabled
         aria-label="Toggle visual theme"
-        className={`flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-base text-text-secondary opacity-60 ${className}`}
+        className={`flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground opacity-60 ${className}`}
       >
         <span className="h-4 w-4" />
       </button>
@@ -35,7 +35,7 @@ export function ThemeToggle({ className = "", showLabel = false }: ThemeTogglePr
       onClick={toggleTheme}
       aria-label={label}
       title={label}
-      className={`group relative flex h-9 min-w-9 items-center justify-center gap-2 rounded-lg border border-border bg-surface-base px-2.5 text-text-primary transition-colors hover:bg-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${className}`}
+      className={`group relative flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 text-foreground transition hover:bg-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${className}`}
     >
       {isDark ? (
         <Sun className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:rotate-45" />
@@ -43,7 +43,7 @@ export function ThemeToggle({ className = "", showLabel = false }: ThemeTogglePr
         <Moon className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:-rotate-12" />
       )}
       {showLabel && (
-        <span className="text-xs font-medium text-text-secondary group-hover:text-text-primary">
+        <span className="text-xs font-medium text-foreground">
           {isDark ? "Light" : "Dark"}
         </span>
       )}

@@ -1,9 +1,11 @@
-const CACHE_NAME = 'pdfkit-v1';
+const CACHE_NAME = 'pdfkit-v2';
 
 const PRECACHE_ASSETS = [
   '/',
   '/offline',
   '/manifest.webmanifest',
+  '/logo.png',
+  '/icon.png',
   '/favicon.ico',
   '/favicon-16x16.png',
   '/favicon-32x32.png',

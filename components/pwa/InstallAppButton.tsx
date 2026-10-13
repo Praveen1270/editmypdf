@@ -8,7 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
-export function InstallAppButton({ className = "", compact = false }: { className?: string; compact?: boolean }) {
+export function InstallAppButton({ className = "", compact = false, id }: { className?: string; compact?: boolean; id?: string }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -73,7 +73,7 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
   // If already running inside installed standalone app, show subtle monochrome status
   if (isStandalone || installed) {
     return (
-      <div className={`inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-secondary ${className}`}>
+      <div id={id} className={`inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-secondary ${className}`}>
         <Check className="h-3.5 w-3.5 text-text-primary" />
         <span>Installed</span>
       </div>
@@ -83,6 +83,7 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
   return (
     <>
       <button
+        id={id}
         type="button"
         onClick={handleInstallClick}
         aria-label="Install PDFKit Application"

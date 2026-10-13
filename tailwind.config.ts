@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["selector", '[data-theme="dark"]'],
+  darkMode: ["selector", '[data-theme="dark"], .dark'],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,70 +10,98 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-family-stack)"],
+        sans: ["var(--font-sans)", "sans-serif"],
+        serif: ["var(--font-serif)", "serif"],
+        mono: ["var(--font-mono)", "monospace"],
       },
       colors: {
-        // Direct semantic design tokens
-        "text-primary": "var(--color-text-primary)",
-        "text-secondary": "var(--color-text-secondary)",
-        "text-tertiary": "var(--color-text-tertiary)",
-
-        "surface-base": "var(--color-surface-base)",
-        "surface-muted": "var(--color-surface-muted)",
-        "surface-raised": "var(--color-surface-raised)",
-        "surface-strong": "var(--color-surface-strong)",
-
-        "border-subtle": "var(--color-border)",
-        "border-strong": "var(--color-border-strong)",
-
-        "action-primary": "var(--color-action-primary)",
-        "action-primary-text": "var(--color-action-primary-text)",
-        "action-secondary": "var(--color-action-secondary)",
-        "action-secondary-text": "var(--color-action-secondary-text)",
-        "action-focus": "var(--color-focus)",
-
-        // Existing Tailwind aliases mapped strictly to monochrome tokens
-        background: "var(--color-surface-base)",
-        foreground: "var(--color-text-primary)",
-        muted: {
-          DEFAULT: "var(--color-surface-muted)",
-          foreground: "var(--color-text-secondary)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
         },
-        border: {
-          DEFAULT: "var(--color-border)",
-          strong: "var(--color-border-strong)",
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
         },
         primary: {
-          DEFAULT: "var(--color-action-primary)",
-          foreground: "var(--color-action-primary-text)",
-          hover: "var(--color-action-primary)",
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+          hover: "var(--primary)",
         },
         secondary: {
-          DEFAULT: "var(--color-action-secondary)",
-          foreground: "var(--color-action-secondary-text)",
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
         },
-        success: {
-          DEFAULT: "var(--color-text-primary)",
-          foreground: "var(--color-surface-base)",
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
         },
         destructive: {
-          DEFAULT: "var(--color-text-primary)",
-          foreground: "var(--color-surface-base)",
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
         },
+        border: {
+          DEFAULT: "var(--border)",
+          strong: "var(--ring)",
+        },
+        input: "var(--input)",
+        ring: "var(--ring)",
+        chart: {
+          1: "var(--chart-1)",
+          2: "var(--chart-2)",
+          3: "var(--chart-3)",
+          4: "var(--chart-4)",
+          5: "var(--chart-5)",
+        },
+        sidebar: {
+          DEFAULT: "var(--sidebar)",
+          foreground: "var(--sidebar-foreground)",
+          primary: "var(--sidebar-primary)",
+          "primary-foreground": "var(--sidebar-primary-foreground)",
+          accent: "var(--sidebar-accent)",
+          "accent-foreground": "var(--sidebar-accent-foreground)",
+          border: "var(--sidebar-border)",
+          ring: "var(--sidebar-ring)",
+        },
+
+        // Backward compatibility mappings for existing component tokens
+        "text-primary": "var(--foreground)",
+        "text-secondary": "var(--muted-foreground)",
+        "text-tertiary": "var(--muted-foreground)",
+        "surface-base": "var(--background)",
+        "surface-muted": "var(--muted)",
+        "surface-raised": "var(--secondary)",
+        "surface-strong": "var(--accent)",
+        "action-primary": "var(--primary)",
+        "action-primary-text": "var(--primary-foreground)",
+        "action-secondary": "var(--secondary)",
+        "action-secondary-text": "var(--secondary-foreground)",
+        "action-focus": "var(--ring)",
       },
       borderRadius: {
-        xs: "var(--radius-xs)",
-        sm: "var(--radius-sm)",
-        md: "var(--radius-md)",
+        DEFAULT: "var(--radius)",
+        sm: "calc(var(--radius) - 2px)",
+        md: "var(--radius)",
+        lg: "calc(var(--radius) + 2px)",
+        xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 8px)",
+        xs: "calc(var(--radius) - 4px)",
       },
       maxWidth: {
         content: "1120px",
       },
-      transitionDuration: {
-        instant: "var(--motion-duration-instant)",
+      boxShadow: {
+        theme: "var(--shadow-offset-x) var(--shadow-offset-y) var(--shadow-blur) var(--shadow-spread) var(--shadow-color)",
       },
     },
   },
   plugins: [],
 };
+
 export default config;

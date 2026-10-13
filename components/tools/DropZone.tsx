@@ -2,6 +2,8 @@
 
 import { useState, useRef, DragEvent, ChangeEvent } from "react";
 import { UploadCloud, AlertCircle } from "lucide-react";
+import { addRecentFile } from "@/lib/storage";
+import { PDF_TOOLS } from "@/lib/tools-data";
 
 interface DropZoneProps {
   accept?: string; // e.g. ".pdf", "image/*"
@@ -74,6 +76,25 @@ export function DropZone({
     }
 
     if (validFiles.length > 0) {
+      if (typeof window !== "undefined") {
+        try {
+          const path = window.location.pathname;
+          const matchedTool = PDF_TOOLS.find((t) => t.href === path);
+          const toolId = matchedTool ? matchedTool.id : "custom";
+          const toolName = matchedTool ? matchedTool.name : "PDFKit Tool";
+
+          for (const f of validFiles) {
+            addRecentFile({
+              name: f.name,
+              size: f.size,
+              toolId,
+              toolName,
+            });
+          }
+        } catch {
+          // ignore tracking error
+        }
+      }
       onFilesSelected(validFiles);
     }
   };
