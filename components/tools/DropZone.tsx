@@ -1,0 +1,129 @@
+"use client";
+
+import { useState, useRef, DragEvent, ChangeEvent } from "react";
+import { UploadCloud, AlertCircle } from "lucide-react";
+
+interface DropZoneProps {
+  accept?: string; // e.g. ".pdf", "image/*"
+  multiple?: boolean;
+  maxSizeBytes?: number; // default 150MB
+  onFilesSelected: (files: File[]) => void;
+  title?: string;
+  subtitle?: string;
+  disabled?: boolean;
+}
+
+export function DropZone({
+  accept = ".pdf",
+  multiple = false,
+  maxSizeBytes = 150 * 1024 * 1024, // 150MB safe browser limit
+  onFilesSelected,
+  title = "Drop your files here",
+  subtitle = "or browse files",
+  disabled = false,
+}: DropZoneProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const validateAndHandleFiles = (fileList: FileList | null) => {
+    setErrorMessage(null);
+    if (!fileList || fileList.length === 0) return;
+
+    const files = Array.from(fileList);
+    const validFiles: File[] = [];
+
+    for (const file of files) {
+      if (file.size > maxSizeBytes) {
+        setErrorMessage(
+          `"${file.name}" exceeds the recommended local memory limit (${Math.round(
+            maxSizeBytes / (1024 * 1024)
+          )}MB).`
+        );
+        return;
+      }
+
+      // Basic accept validation
+      if (accept === ".pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+        setErrorMessage(`"${file.name}" is not a valid PDF file.`);
+        return;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (validFiles.length > 0) {
+      onFilesSelected(validFiles);
+    }
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (disabled) return;
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (disabled) return;
+    validateAndHandleFiles(e.dataTransfer.files);
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    validateAndHandleFiles(e.target.files);
+    // Reset input value so re-selecting same file triggers change
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  return (
+    <div className="w-full">
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => !disabled && inputRef.current?.click()}
+        className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-all duration-200 ${
+          isDragOver
+            ? "border-primary bg-primary/5 ring-4 ring-primary/10"
+            : "border-border bg-muted/20 hover:border-muted-foreground/40 hover:bg-muted/40"
+        } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          multiple={multiple}
+          onChange={handleInputChange}
+          disabled={disabled}
+          className="hidden"
+        />
+
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted border border-border transition-transform group-hover:scale-105">
+          <UploadCloud className="h-6 w-6 text-muted-foreground group-hover:text-foreground" />
+        </div>
+
+        <div className="mt-4 text-center">
+          <p className="text-base font-semibold text-foreground">{title}</p>
+          <p className="mt-1 text-sm text-primary font-medium">{subtitle}</p>
+        </div>
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          {multiple ? "Select single or multiple files" : "Select one file"} · Processed 100% locally
+        </p>
+      </div>
+
+      {errorMessage && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+    </div>
+  );
+}
