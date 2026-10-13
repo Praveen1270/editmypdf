@@ -105,9 +105,9 @@ export default function RotatePdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `rotated-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `rotated-${file.name}` : "rotated.pdf"));
     }
   };
 
@@ -119,8 +119,9 @@ export default function RotatePdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`rotated-${file?.name}`}
+          filename={file ? `rotated-${file.name}` : "rotated.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes="Orientation saved successfully into a newly generated document."
           onDownload={handleDownload}
           onReset={handleReset}

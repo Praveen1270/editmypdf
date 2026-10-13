@@ -12,6 +12,11 @@
     border-color: #E5E7EB;
   }
 
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   body {
     background-color: #FFFFFF;
     color: #111111;

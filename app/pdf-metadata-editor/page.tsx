@@ -62,9 +62,9 @@ export default function PdfMetadataEditorPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `metadata-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `metadata-${file.name}` : "metadata-updated.pdf"));
     }
   };
 
@@ -76,8 +76,9 @@ export default function PdfMetadataEditorPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`metadata-${file?.name}`}
+          filename={file ? `metadata-${file.name}` : "metadata-updated.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully updated document metadata fields for ${file?.name}.`}
           onDownload={handleDownload}
           onReset={handleReset}

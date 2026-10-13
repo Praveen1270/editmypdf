@@ -89,9 +89,9 @@ export default function CropPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `cropped-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `cropped-${file.name}` : "cropped.pdf"));
     }
   };
 
@@ -103,8 +103,9 @@ export default function CropPdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`cropped-${file?.name}`}
+          filename={file ? `cropped-${file.name}` : "cropped.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully applied CropBox margin trim to ${file?.name}.`}
           onDownload={handleDownload}
           onReset={handleReset}

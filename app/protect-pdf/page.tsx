@@ -97,9 +97,9 @@ export default function ProtectPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `protected-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `protected-${file.name}` : "protected.pdf"));
     }
   };
 
@@ -111,8 +111,10 @@ export default function ProtectPdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`protected-${file?.name}`}
+          filename={file ? `protected-${file.name}` : "protected.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
+          password={password}
           notes="Protected with AES-256 encryption. Openable in Adobe Acrobat, Apple Preview, Google Chrome, and all standard PDF readers."
           onDownload={handleDownload}
           onReset={handleReset}

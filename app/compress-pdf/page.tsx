@@ -69,9 +69,9 @@ export default function CompressPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (result && file) {
-      downloadBytes(result.bytes, `compressed-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (result) {
+      downloadBytes(result.bytes, customFilename || (file ? `compressed-${file.name}` : "compressed.pdf"));
     }
   };
 
@@ -83,9 +83,10 @@ export default function CompressPdfPage() {
     >
       {result ? (
         <ResultCard
-          filename={`compressed-${file?.name}`}
+          filename={file ? `compressed-${file.name}` : "compressed.pdf"}
           filesize={result.compressedSize}
           reductionPercentage={result.reductionPercentage}
+          pdfBytes={result.bytes}
           notes={result.notes}
           onDownload={handleDownload}
           onReset={handleReset}

@@ -83,9 +83,9 @@ export default function ResizePdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `resized-${targetSize.toUpperCase()}-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `resized-${file.name}` : "resized.pdf"));
     }
   };
 
@@ -97,8 +97,9 @@ export default function ResizePdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`resized-${targetSize.toUpperCase()}-${file?.name}`}
+          filename={file ? `resized-${file.name}` : "resized.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully resized ${file?.pageCount} pages to ${targetSize.toUpperCase()}.`}
           onDownload={handleDownload}
           onReset={handleReset}

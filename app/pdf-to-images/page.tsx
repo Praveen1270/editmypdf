@@ -74,11 +74,15 @@ export default function PdfToImagesPage() {
     }
   };
 
+  const [zipFilename, setZipFilename] = useState<string>("converted-images.zip");
+
   const handleDownloadAllZip = async () => {
     if (!convertedImages || !file) return;
     try {
-      const zipName = `${file.name.replace(/\.pdf$/i, "")}-images.zip`;
-      const zip = await createImagesZip(convertedImages, zipName);
+      let clean = zipFilename.replace(/[\\/:*?"<>|\x00-\x1F]/g, "").trim();
+      if (!clean) clean = "converted-images.zip";
+      if (!clean.toLowerCase().endsWith(".zip")) clean = `${clean}.zip`;
+      const zip = await createImagesZip(convertedImages, clean);
       downloadBytes(zip.bytes, zip.filename, "application/zip");
     } catch (err: any) {
       setErrorMessage("Failed to generate ZIP bundle.");
@@ -97,6 +101,7 @@ export default function PdfToImagesPage() {
     setConvertedImages(null);
     setErrorMessage(null);
     setRangeInput("");
+    setZipFilename("converted-images.zip");
   };
 
   useEffect(() => {
@@ -121,24 +126,45 @@ export default function PdfToImagesPage() {
                 Converted Images ({convertedImages.length})
               </h3>
               <p className="text-xs text-muted-foreground">
-                Click any image to download individually, or save all pages as a ZIP.
+                Click any image to download individually, or save all pages into a ZIP archive.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={handleDownloadAllZip}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover"
-              >
-                <Archive className="h-4 w-4" />
-                <span>Download All (ZIP)</span>
-              </button>
-              <button
                 onClick={handleReset}
                 className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted"
               >
-                Convert Another
+                Start Again
               </button>
             </div>
+          </div>
+
+          {/* Editable Filename & Export ZIP Box */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 max-w-xl">
+            <label htmlFor="zip-name" className="block text-xs font-semibold text-foreground mb-1">
+              File name (for ZIP export)
+            </label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                id="zip-name"
+                type="text"
+                value={zipFilename}
+                onChange={(e) => setZipFilename(e.target.value)}
+                className="flex-1 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                placeholder="converted-images.zip"
+              />
+              <button
+                type="button"
+                onClick={handleDownloadAllZip}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover"
+              >
+                <Archive className="h-4 w-4" />
+                <span>Export ZIP</span>
+              </button>
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Packages all {convertedImages.length} converted images into a single ZIP file.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

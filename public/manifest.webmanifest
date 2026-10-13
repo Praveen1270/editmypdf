@@ -1,0 +1,32 @@
+{
+  "name": "PDFKit — Privacy-First PDF Tools",
+  "short_name": "PDFKit",
+  "description": "20 privacy-first PDF utilities in one workspace. Merge, split, compress, convert, rotate, and protect PDF files directly in your browser. 100% local processing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2563EB",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

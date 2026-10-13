@@ -84,9 +84,9 @@ export default function AddPageNumbersPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `numbered-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `numbered-${file.name}` : "numbered.pdf"));
     }
   };
 
@@ -102,8 +102,9 @@ export default function AddPageNumbersPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`numbered-${file?.name}`}
+          filename={file ? `numbered-${file.name}` : "numbered.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Added page numbers across ${file?.pageCount} pages.`}
           onDownload={handleDownload}
           onReset={handleReset}

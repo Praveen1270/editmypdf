@@ -68,9 +68,9 @@ export default function PdfToGrayscalePage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `grayscale-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `grayscale-${file.name}` : "grayscale.pdf"));
     }
   };
 
@@ -82,8 +82,9 @@ export default function PdfToGrayscalePage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`grayscale-${file?.name}`}
+          filename={file ? `grayscale-${file.name}` : "grayscale.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully converted ${file?.pageCount} pages to monochrome grayscale.`}
           onDownload={handleDownload}
           onReset={handleReset}

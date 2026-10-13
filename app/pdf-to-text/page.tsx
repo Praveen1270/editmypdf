@@ -60,12 +60,16 @@ export default function PdfToTextPage() {
     }
   };
 
+  const [outputFilename, setOutputFilename] = useState<string>("extracted-text.txt");
+
   const handleDownload = () => {
     if (!result || !file) return;
-    const baseName = file.name.replace(/\.pdf$/i, "");
+    let clean = outputFilename.replace(/[\\/:*?"<>|\x00-\x1F]/g, "").trim();
+    if (!clean) clean = "extracted-text.txt";
+    if (!clean.toLowerCase().endsWith(".txt")) clean = `${clean}.txt`;
     const encoder = new TextEncoder();
     const textBytes = encoder.encode(result.fullText);
-    downloadBytes(textBytes, `${baseName}-extracted.txt`, "text/plain;charset=utf-8");
+    downloadBytes(textBytes, clean, "text/plain;charset=utf-8");
   };
 
   const handleReset = () => {
@@ -73,6 +77,7 @@ export default function PdfToTextPage() {
     setResult(null);
     setErrorMessage(null);
     setCopied(false);
+    setOutputFilename("extracted-text.txt");
   };
 
   return (
@@ -141,7 +146,7 @@ export default function PdfToTextPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover disabled:opacity-50"
               >
                 <Download className="h-3.5 w-3.5" />
-                <span>Download .txt</span>
+                <span>Export .txt</span>
               </button>
 
               <button
@@ -149,9 +154,38 @@ export default function PdfToTextPage() {
                 className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 <RefreshCw className="h-3 w-3" />
-                <span>Reset</span>
+                <span>Start Again</span>
               </button>
             </div>
+          </div>
+
+          {/* Labeled File name field */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 max-w-md">
+            <label htmlFor="txt-filename" className="block text-xs font-semibold text-foreground mb-1">
+              File name
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="txt-filename"
+                type="text"
+                value={outputFilename}
+                onChange={(e) => setOutputFilename(e.target.value)}
+                className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                placeholder="extracted-text.txt"
+              />
+              <button
+                type="button"
+                onClick={handleDownload}
+                disabled={!result || !result.hasText}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover disabled:opacity-50 shrink-0"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Export</span>
+              </button>
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Saves text content as standard UTF-8 encoded plain text (.txt).
+            </p>
           </div>
 
           {/* Scanned PDF Notice if no text found */}

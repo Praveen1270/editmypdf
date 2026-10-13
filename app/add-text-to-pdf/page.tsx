@@ -93,9 +93,9 @@ export default function AddTextToPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `annotated-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `text-added-${file.name}` : "text-added.pdf"));
     }
   };
 
@@ -107,8 +107,9 @@ export default function AddTextToPdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`annotated-${file?.name}`}
+          filename={file ? `text-added-${file.name}` : "text-added.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully stamped text overlay onto ${file?.name}.`}
           onDownload={handleDownload}
           onReset={handleReset}

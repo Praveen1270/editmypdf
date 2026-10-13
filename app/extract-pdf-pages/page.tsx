@@ -120,11 +120,12 @@ export default function ExtractPdfPagesPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
+  const handleDownload = (customFilename?: string) => {
     if (result) {
+      const finalName = customFilename || (result.type === "zip" ? "extracted-pages.zip" : "extracted-pages.pdf");
       downloadBytes(
         result.bytes,
-        result.filename,
+        finalName,
         result.type === "zip" ? "application/zip" : "application/pdf"
       );
     }
@@ -138,8 +139,10 @@ export default function ExtractPdfPagesPage() {
     >
       {result ? (
         <ResultCard
-          filename={result.filename}
+          filename={result.type === "zip" ? "extracted-pages.zip" : "extracted-pages.pdf"}
           filesize={result.bytes.byteLength}
+          pdfBytes={result.type === "pdf" ? result.bytes : undefined}
+          fileExtension={result.type === "zip" ? ".zip" : ".pdf"}
           notes={
             result.type === "zip"
               ? `Extracted ${result.count} pages into individual files in a ZIP archive.`

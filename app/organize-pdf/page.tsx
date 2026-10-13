@@ -147,9 +147,9 @@ export default function OrganizePdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `organized-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `organized-${file.name}` : "organized.pdf"));
     }
   };
 
@@ -161,8 +161,9 @@ export default function OrganizePdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`organized-${file?.name}`}
+          filename={file ? `organized-${file.name}` : "organized.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully reorganized document to ${pageItems.length} pages.`}
           onDownload={handleDownload}
           onReset={handleReset}

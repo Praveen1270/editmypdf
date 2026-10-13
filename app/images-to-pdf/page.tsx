@@ -127,9 +127,9 @@ export default function ImagesToPdfPage() {
     };
   }, [images]);
 
-  const handleDownload = () => {
+  const handleDownload = (customFilename?: string) => {
     if (resultBytes) {
-      downloadBytes(resultBytes, outputFilename);
+      downloadBytes(resultBytes, customFilename || outputFilename || "images-to-pdf.pdf");
     }
   };
 
@@ -141,8 +141,9 @@ export default function ImagesToPdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={outputFilename}
+          filename="images-to-pdf.pdf"
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Converted ${images.length} photos into a standardized PDF.`}
           onDownload={handleDownload}
           onReset={handleReset}

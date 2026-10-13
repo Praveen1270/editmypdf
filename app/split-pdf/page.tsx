@@ -89,11 +89,12 @@ export default function SplitPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
+  const handleDownload = (customFilename?: string) => {
     if (result) {
+      const finalName = customFilename || (result.type === "zip" ? "split-pages.zip" : "split-pages.pdf");
       downloadBytes(
         result.bytes,
-        result.filename,
+        finalName,
         result.type === "zip" ? "application/zip" : "application/pdf"
       );
     }
@@ -107,8 +108,10 @@ export default function SplitPdfPage() {
     >
       {result ? (
         <ResultCard
-          filename={result.filename}
+          filename={result.type === "zip" ? "split-pages.zip" : "split-pages.pdf"}
           filesize={result.bytes.byteLength}
+          pdfBytes={result.type === "pdf" ? result.bytes : undefined}
+          fileExtension={result.type === "zip" ? ".zip" : ".pdf"}
           notes={
             result.type === "zip"
               ? `Packaged ${result.count} separated PDF files into a ZIP archive.`

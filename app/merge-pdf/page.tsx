@@ -104,9 +104,9 @@ export default function MergePdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
+  const handleDownload = (customFilename?: string) => {
     if (resultBytes) {
-      downloadBytes(resultBytes, outputFilename);
+      downloadBytes(resultBytes, customFilename || outputFilename || "merged.pdf");
     }
   };
 
@@ -118,8 +118,9 @@ export default function MergePdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={outputFilename}
+          filename="merged.pdf"
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully combined ${files.length} documents into one PDF.`}
           onDownload={handleDownload}
           onReset={handleReset}

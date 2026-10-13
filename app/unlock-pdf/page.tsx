@@ -79,10 +79,10 @@ export default function UnlockPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      const cleanName = file.name.replace(/^protected-/i, "");
-      downloadBytes(resultBytes, `unlocked-${cleanName}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      const cleanName = file ? file.name.replace(/^protected-/i, "") : "document.pdf";
+      downloadBytes(resultBytes, customFilename || `unlocked-${cleanName}`);
     }
   };
 
@@ -94,8 +94,9 @@ export default function UnlockPdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`unlocked-${file?.name.replace(/^protected-/i, "")}`}
+          filename={file ? `unlocked-${file.name.replace(/^protected-/i, "")}` : "unlocked.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes="Password protection successfully removed. You can now view and print the document freely without a password."
           onDownload={handleDownload}
           onReset={handleReset}

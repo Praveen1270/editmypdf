@@ -39,17 +39,22 @@ export default function PdfPageCounterPage() {
     }
   };
 
+  const [outputFilename, setOutputFilename] = useState<string>("document-report.txt");
+
   const handleDownloadReport = () => {
     if (!report) return;
+    let clean = outputFilename.replace(/[\\/:*?"<>|\x00-\x1F]/g, "").trim();
+    if (!clean) clean = "document-report.txt";
+    if (!clean.toLowerCase().endsWith(".txt")) clean = `${clean}.txt`;
     const encoder = new TextEncoder();
     const bytes = encoder.encode(report.plainTextReport);
-    const baseName = report.filename.replace(/\.pdf$/i, "");
-    downloadBytes(bytes, `${baseName}-audit-report.txt`, "text/plain;charset=utf-8");
+    downloadBytes(bytes, clean, "text/plain;charset=utf-8");
   };
 
   const handleReset = () => {
     setReport(null);
     setErrorMessage(null);
+    setOutputFilename("document-report.txt");
   };
 
   return (
@@ -92,15 +97,43 @@ export default function PdfPageCounterPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover"
               >
                 <Download className="h-3.5 w-3.5" />
-                <span>Download Report (.txt)</span>
+                <span>Export Report (.txt)</span>
               </button>
               <button
                 onClick={handleReset}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
               >
-                Inspect Another File
+                Start Again
               </button>
             </div>
+          </div>
+
+          {/* Labeled File name field */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 max-w-md">
+            <label htmlFor="report-filename" className="block text-xs font-semibold text-foreground mb-1">
+              File name
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="report-filename"
+                type="text"
+                value={outputFilename}
+                onChange={(e) => setOutputFilename(e.target.value)}
+                className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                placeholder="document-report.txt"
+              />
+              <button
+                type="button"
+                onClick={handleDownloadReport}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover shrink-0"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Export</span>
+              </button>
+            </div>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Exports comprehensive page dimension and metadata audit report as plain text (.txt).
+            </p>
           </div>
 
           {/* Quick Stats Grid */}

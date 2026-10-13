@@ -96,9 +96,9 @@ export default function WatermarkPdfPage() {
     setErrorMessage(null);
   };
 
-  const handleDownload = () => {
-    if (resultBytes && file) {
-      downloadBytes(resultBytes, `watermarked-${file.name}`);
+  const handleDownload = (customFilename?: string) => {
+    if (resultBytes) {
+      downloadBytes(resultBytes, customFilename || (file ? `watermarked-${file.name}` : "watermarked.pdf"));
     }
   };
 
@@ -110,8 +110,9 @@ export default function WatermarkPdfPage() {
     >
       {resultBytes ? (
         <ResultCard
-          filename={`watermarked-${file?.name}`}
+          filename={file ? `watermarked-${file.name}` : "watermarked.pdf"}
           filesize={resultBytes.byteLength}
+          pdfBytes={resultBytes}
           notes={`Successfully stamped watermark "${text}" onto PDF.`}
           onDownload={handleDownload}
           onReset={handleReset}
