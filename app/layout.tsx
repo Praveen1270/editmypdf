@@ -4,6 +4,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
+import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -119,6 +120,7 @@ export default function RootLayout({
             <AppShell>{children}</AppShell>
           </PwaProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
