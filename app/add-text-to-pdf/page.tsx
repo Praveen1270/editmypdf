@@ -63,22 +63,6 @@ export default function AddTextToPdfPage() {
     setErrorMessage(null);
 
     try {
-      // Determine coordinates
-      let x = customX;
-      let y = customY;
-
-      // Approximate coordinates based on standard Letter/A4 heights (~800pt)
-      if (positionPreset === "header") {
-        x = 54;
-        y = 750;
-      } else if (positionPreset === "footer") {
-        x = 54;
-        y = 40;
-      } else if (positionPreset === "center") {
-        x = 200;
-        y = 400;
-      }
-
       const pageIndices =
         targetMode === "all"
           ? Array.from({ length: file.pageCount }, (_, i) => i)
@@ -87,8 +71,9 @@ export default function AddTextToPdfPage() {
       const bytes = await addTextToPdf(file.bytes, {
         text,
         pageIndices,
-        x,
-        y,
+        positionPreset: positionPreset as any,
+        x: customX,
+        y: customY,
         fontSize,
         colorHex,
       });

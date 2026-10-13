@@ -32,10 +32,22 @@ export async function getPdfInfo(bytes: Uint8Array, password?: string): Promise<
     data: bytes.slice(), // pass a copy to avoid neutering ArrayBuffer
     password: password || undefined,
   });
-  const doc = await loadingTask.promise;
-  const pageCount = doc.numPages;
-  const fingerprint = doc.fingerprints?.[0] || String(Math.random());
-  return { pageCount, fingerprint };
+
+  try {
+    const doc = await loadingTask.promise;
+    try {
+      const pageCount = doc.numPages;
+      const fingerprint = doc.fingerprints?.[0] || String(Math.random());
+      return { pageCount, fingerprint };
+    } finally {
+      await doc.destroy();
+    }
+  } catch (err: any) {
+    if (err?.name === "PasswordException" || (err?.message && err.message.toLowerCase().includes("password"))) {
+      throw new Error("This document is password-protected. Please unlock it using the Unlock PDF tool first.");
+    }
+    throw err;
+  }
 }
 
 export async function renderPageToCanvas(
@@ -51,25 +63,30 @@ export async function renderPageToCanvas(
     password: password || undefined,
   });
   const doc = await loadingTask.promise;
-  const page = await doc.getPage(pageNumber);
 
-  const viewport = page.getViewport({ scale });
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
+  try {
+    const page = await doc.getPage(pageNumber);
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Could not acquire 2D canvas context.");
+    const viewport = page.getViewport({ scale });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
 
-  // Clear canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not acquire 2D canvas context.");
 
-  const renderContext = {
-    canvasContext: ctx,
-    viewport,
-  };
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  await page.render(renderContext).promise;
-  return { width: viewport.width, height: viewport.height };
+    const renderContext = {
+      canvasContext: ctx,
+      viewport,
+    };
+
+    await page.render(renderContext).promise;
+    return { width: viewport.width, height: viewport.height };
+  } finally {
+    await doc.destroy();
+  }
 }
 
 export async function renderPageToImageBlob(

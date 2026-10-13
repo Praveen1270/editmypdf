@@ -40,11 +40,17 @@ export function ResultCard({
             </p>
             {filesize !== undefined && (
               <p className="text-xs text-muted-foreground">
-                {formatFileSize(filesize)}
-                {reductionPercentage !== undefined && reductionPercentage > 0 && (
-                  <span className="ml-1.5 font-medium text-success">
-                    ({reductionPercentage}% smaller)
-                  </span>
+                <span>{formatFileSize(filesize)}</span>
+                {reductionPercentage !== undefined && (
+                  reductionPercentage > 0 ? (
+                    <span className="ml-1.5 font-medium text-success">
+                      ({reductionPercentage}% smaller)
+                    </span>
+                  ) : reductionPercentage === 0 ? (
+                    <span className="ml-1.5 font-medium text-muted-foreground">
+                      (Already optimized)
+                    </span>
+                  ) : null
                 )}
               </p>
             )}

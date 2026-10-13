@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowUp, ArrowDown, Trash2, Loader2, FileImage, FilePlus } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
@@ -120,6 +120,12 @@ export default function ImagesToPdfPage() {
     setResultBytes(null);
     setErrorMessage(null);
   };
+
+  useEffect(() => {
+    return () => {
+      images.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+    };
+  }, [images]);
 
   const handleDownload = () => {
     if (resultBytes) {

@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import { checkPdfEncryption } from "./security";
 
 export interface MergeSourceFile {
   id: string;
@@ -25,6 +26,11 @@ export async function mergePDFs(
     const file = files[i];
     onProgress?.(i + 1, files.length);
 
+    const enc = await checkPdfEncryption(file.bytes);
+    if (enc.encrypted) {
+      throw new Error(`"${file.name}" is password-protected. Please unlock it using the Unlock PDF tool first.`);
+    }
+
     try {
       const srcPdf = await PDFDocument.load(file.bytes, {
         ignoreEncryption: true,
@@ -33,7 +39,11 @@ export async function mergePDFs(
       const copiedPages = await mergedPdf.copyPages(srcPdf, pageIndices);
       copiedPages.forEach((page) => mergedPdf.addPage(page));
     } catch (err: any) {
-      throw new Error(`Failed to read "${file.name}": ${err?.message || "Invalid or encrypted PDF"}`);
+      const msg = err?.message || "";
+      if (msg.toLowerCase().includes("encrypt") || msg.toLowerCase().includes("password")) {
+        throw new Error(`"${file.name}" is password-protected. Please unlock it using the Unlock PDF tool first.`);
+      }
+      throw new Error(`Failed to read "${file.name}": ${msg || "Invalid PDF file"}`);
     }
   }
 

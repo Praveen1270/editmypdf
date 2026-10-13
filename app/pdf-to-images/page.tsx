@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Image as ImageIcon, Loader2, FileText, Download, Archive, Check } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
@@ -98,6 +98,14 @@ export default function PdfToImagesPage() {
     setErrorMessage(null);
     setRangeInput("");
   };
+
+  useEffect(() => {
+    return () => {
+      if (convertedImages) {
+        convertedImages.forEach((img) => URL.revokeObjectURL(img.dataUrl));
+      }
+    };
+  }, [convertedImages]);
 
   return (
     <ToolPageLayout

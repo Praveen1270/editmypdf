@@ -43,10 +43,31 @@ export function DropZone({
         return;
       }
 
-      // Basic accept validation
-      if (accept === ".pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-        setErrorMessage(`"${file.name}" is not a valid PDF file.`);
-        return;
+      // Format validation based on accept property
+      if (accept) {
+        const acceptedTokens = accept.split(",").map((s) => s.trim().toLowerCase());
+        const lowerName = file.name.toLowerCase();
+        const mimeType = (file.type || "").toLowerCase();
+
+        const matches = acceptedTokens.some((token) => {
+          if (token.startsWith(".")) {
+            return lowerName.endsWith(token);
+          }
+          if (token.endsWith("/*")) {
+            const prefix = token.replace("/*", "");
+            return mimeType.startsWith(prefix);
+          }
+          return mimeType === token;
+        });
+
+        if (!matches) {
+          if (accept === ".pdf") {
+            setErrorMessage(`"${file.name}" is not a valid PDF file.`);
+          } else {
+            setErrorMessage(`"${file.name}" does not match accepted format (${accept}).`);
+          }
+          return;
+        }
       }
 
       validFiles.push(file);

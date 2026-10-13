@@ -35,14 +35,21 @@ export async function cropPdf(
     const page = doc.getPage(idx);
     const { width, height } = page.getSize();
 
+    if (left + right >= width) {
+      throw new Error(
+        `Horizontal crop margins (${left + right} pt) exceed page width (${Math.round(width)} pt) on page ${idx + 1}.`
+      );
+    }
+    if (top + bottom >= height) {
+      throw new Error(
+        `Vertical crop margins (${top + bottom} pt) exceed page height (${Math.round(height)} pt) on page ${idx + 1}.`
+      );
+    }
+
     const cropX = Math.max(0, left);
     const cropY = Math.max(0, bottom);
-    const cropWidth = Math.max(50, width - left - right);
-    const cropHeight = Math.max(50, height - top - bottom);
-
-    if (cropWidth <= 0 || cropHeight <= 0) {
-      throw new Error(`Crop margins exceed page dimensions on page ${idx + 1}.`);
-    }
+    const cropWidth = width - left - right;
+    const cropHeight = height - top - bottom;
 
     page.setCropBox(cropX, cropY, cropWidth, cropHeight);
   }

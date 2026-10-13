@@ -29,9 +29,16 @@ export async function resizePdfPages(
 
   let baseDimensions: { width: number; height: number };
   if (pageSize === "custom") {
+    if (!customWidth || customWidth <= 0 || !customHeight || customHeight <= 0) {
+      throw new Error("Custom page dimensions must be greater than 0 points.");
+    }
     baseDimensions = { width: customWidth, height: customHeight };
   } else {
     baseDimensions = STANDARD_SIZES[pageSize];
+  }
+
+  if (!baseDimensions || baseDimensions.width <= 0 || baseDimensions.height <= 0) {
+    throw new Error("Invalid target page size.");
   }
 
   const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });

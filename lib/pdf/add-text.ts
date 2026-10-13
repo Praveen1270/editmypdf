@@ -1,10 +1,13 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
+export type TextPositionPreset = "header" | "footer" | "center" | "custom";
+
 export interface AddTextOptions {
   text: string;
   pageIndices: number[]; // 0-indexed page indices
-  x: number; // coordinate in PDF points from left
-  y: number; // coordinate in PDF points from bottom
+  positionPreset?: TextPositionPreset;
+  x?: number; // coordinate in PDF points from left
+  y?: number; // coordinate in PDF points from bottom
   fontSize?: number;
   colorHex?: string;
   opacity?: number;
@@ -27,7 +30,7 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
 }
 
 /**
- * Adds text overlays onto selected pages at specified coordinates.
+ * Adds text overlays onto selected pages at specified coordinates or presets.
  */
 export async function addTextToPdf(
   pdfBytes: Uint8Array,
@@ -36,8 +39,9 @@ export async function addTextToPdf(
   const {
     text,
     pageIndices,
-    x,
-    y,
+    positionPreset = "custom",
+    x = 54,
+    y = 54,
     fontSize = 14,
     colorHex = "#000000",
     opacity = 1.0,
@@ -59,13 +63,29 @@ export async function addTextToPdf(
     const page = doc.getPage(pageIdx);
     const { width, height } = page.getSize();
 
-    // Ensure coordinates stay within page boundary margins
-    const clampedX = Math.max(10, Math.min(x, width - 20));
-    const clampedY = Math.max(10, Math.min(y, height - 20));
+    const textWidth = font.widthOfTextAtSize(text, fontSize);
+    const textHeight = font.heightAtSize(fontSize);
+
+    let drawX = x;
+    let drawY = y;
+
+    if (positionPreset === "header") {
+      drawX = (width - textWidth) / 2;
+      drawY = height - 40 - textHeight;
+    } else if (positionPreset === "footer") {
+      drawX = (width - textWidth) / 2;
+      drawY = 40;
+    } else if (positionPreset === "center") {
+      drawX = (width - textWidth) / 2;
+      drawY = (height - textHeight) / 2;
+    } else {
+      drawX = Math.max(0, Math.min(drawX, width - 10));
+      drawY = Math.max(0, Math.min(drawY, height - 10));
+    }
 
     page.drawText(text, {
-      x: clampedX,
-      y: clampedY,
+      x: drawX,
+      y: drawY,
       size: fontSize,
       font,
       color,

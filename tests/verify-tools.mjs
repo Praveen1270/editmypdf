@@ -261,6 +261,79 @@ async function runTests() {
     assert(failedAsExpected, "Unlock PDF: Incorrect password was properly rejected with security error");
   }
 
+  // 18. Crop boundary validation
+  {
+    const sample = await createSamplePdf(1, "OversizedCrop");
+    let caughtCropError = false;
+    try {
+      await cropPdf(sample, {
+        margins: { top: 0, bottom: 0, left: 250, right: 250 }, // 500pt > 400pt width
+      });
+    } catch (err) {
+      if (err.message.includes("exceed page width")) {
+        caughtCropError = true;
+      }
+    }
+    assert(caughtCropError, "Crop PDF: Successfully caught and reported margin-exceeding-page error");
+  }
+
+  // 19. Resize custom dimension validation
+  {
+    const sample = await createSamplePdf(1, "InvalidResize");
+    let caughtResizeError = false;
+    try {
+      await resizePdfPages(sample, {
+        pageSize: "custom",
+        customWidth: 0,
+        customHeight: -100,
+      });
+    } catch (err) {
+      if (err.message.includes("greater than 0")) {
+        caughtResizeError = true;
+      }
+    }
+    assert(caughtResizeError, "Resize PDF: Successfully caught and rejected non-positive custom dimensions");
+  }
+
+  // 20. Add text with dynamic position presets
+  {
+    const sample = await createSamplePdf(2, "PresetTextDoc");
+    const headerPdf = await addTextToPdf(sample, {
+      text: "Document Header",
+      pageIndices: [0, 1],
+      positionPreset: "header",
+      fontSize: 12,
+    });
+    const headerDoc = await PDFDocument.load(headerPdf);
+    assert(headerDoc.getPageCount() === 2, "Add Text to PDF: Successfully applied dynamic 'header' preset");
+
+    const footerPdf = await addTextToPdf(sample, {
+      text: "Document Footer",
+      pageIndices: [0],
+      positionPreset: "footer",
+      fontSize: 10,
+    });
+    const footerDoc = await PDFDocument.load(footerPdf);
+    assert(footerDoc.getPageCount() === 2, "Add Text to PDF: Successfully applied dynamic 'footer' preset");
+  }
+
+  // 21. Merge PDF encrypted document rejection & guidance
+  {
+    let caughtMergeEncrypted = false;
+    try {
+      const normalDoc = await createSamplePdf(1, "Normal");
+      await mergePDFs([
+        { name: "normal.pdf", bytes: normalDoc },
+        { name: "locked.pdf", bytes: encryptedBytes },
+      ]);
+    } catch (err) {
+      if (err.message.includes("password-protected") && err.message.includes("Unlock PDF")) {
+        caughtMergeEncrypted = true;
+      }
+    }
+    assert(caughtMergeEncrypted, "Merge PDF: Successfully caught encrypted file and guided user to Unlock PDF tool");
+  }
+
   console.log(`\n🎉 All ${passed}/${total} automated verification tests PASSED!\n`);
 }
 
