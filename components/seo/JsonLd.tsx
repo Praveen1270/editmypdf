@@ -110,7 +110,7 @@ export function WebsiteJsonLd() {
     "name": "EditMyPDF",
     "url": baseUrl,
     "logo": `${baseUrl}/logo.svg`,
-    "sameAs": ["https://github.com/Praveen1270/pdfkit"],
+    "sameAs": ["https://github.com/Praveen1270/editmypdf"],
   };
 
   return (
