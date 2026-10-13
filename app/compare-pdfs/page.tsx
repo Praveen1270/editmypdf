@@ -121,7 +121,7 @@ export default function ComparePdfsPage() {
               <button
                 type="button"
                 onClick={handleDownloadReport}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-3 py-1.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export Report (.txt)</span>
@@ -147,13 +147,13 @@ export default function ComparePdfsPage() {
                 type="text"
                 value={outputFilename}
                 onChange={(e) => setOutputFilename(e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-medium text-foreground focus:border-border-strong focus:outline-none"
                 placeholder="comparison-report.txt"
               />
               <button
                 type="button"
                 onClick={handleDownloadReport}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-3 py-1.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90 shrink-0"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export</span>
@@ -166,7 +166,7 @@ export default function ComparePdfsPage() {
 
           {/* Quick Metrics Comparison */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
               <span className="text-xs text-muted-foreground">Page Count</span>
               <div className="mt-2 flex items-center justify-between text-sm">
                 <div>
@@ -180,7 +180,7 @@ export default function ComparePdfsPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
               <span className="text-xs text-muted-foreground">File Size</span>
               <div className="mt-2 flex items-center justify-between text-sm">
                 <div>
@@ -194,47 +194,47 @@ export default function ComparePdfsPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-white p-4">
-              <span className="text-xs text-muted-foreground">Text Changes</span>
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
+              <span className="text-xs text-text-secondary">Text Changes</span>
               <div className="mt-2 flex items-center gap-3 text-xs">
-                <span className="text-success font-semibold">+{summary.addedCount} added</span>
-                <span className="text-destructive font-semibold">-{summary.removedCount} removed</span>
+                <span className="text-text-primary font-bold">+{summary.addedCount} added</span>
+                <span className="text-text-secondary font-bold">-{summary.removedCount} removed</span>
               </div>
             </div>
           </div>
 
           {/* Scanned Warning if no text */}
           {(!summary.hasTextA || !summary.hasTextB) && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
-              <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
-              <p className="text-xs text-amber-700 leading-relaxed">
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-surface-raised p-4 text-text-primary">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-text-primary mt-0.5" />
+              <p className="text-xs text-text-secondary leading-relaxed">
                 <strong>Notice:</strong> One or both documents contain little or no selectable digital text. If these are scanned documents or bitmap images, text comparison will not detect graphical differences.
               </p>
             </div>
           )}
 
           {summary.isIdentical && (
-            <div className="flex items-center gap-2 rounded-xl border border-success/30 bg-success/10 p-4 text-xs font-medium text-success">
-              <CheckCircle2 className="h-4 w-4" />
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface-raised p-4 text-xs font-semibold text-text-primary">
+              <CheckCircle2 className="h-4 w-4 text-text-primary" />
               <span>Documents are identical in text content and page structure!</span>
             </div>
           )}
 
           {/* Line Diff View */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground mb-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-primary mb-2">
               Text Differences
             </h3>
-            <div className="max-h-96 overflow-y-auto rounded-xl border border-border bg-muted/10 p-3 font-mono text-xs">
+            <div className="max-h-96 overflow-y-auto rounded-xl border border-border bg-surface-raised p-3 font-mono text-xs">
               {summary.diffLines.map((line, idx) => (
                 <div
                   key={idx}
                   className={`px-2 py-0.5 rounded leading-relaxed whitespace-pre-wrap ${
                     line.type === "added"
-                      ? "bg-green-100/80 text-green-800 font-medium"
+                      ? "bg-surface-strong text-text-primary font-semibold"
                       : line.type === "removed"
-                      ? "bg-red-100/80 text-red-800 font-medium line-through"
-                      : "text-muted-foreground"
+                      ? "line-through text-text-tertiary bg-surface-raised/60"
+                      : "text-text-secondary"
                   }`}
                 >
                   <span className="inline-block w-4 opacity-50 select-none">
@@ -255,9 +255,9 @@ export default function ComparePdfsPage() {
                 Document A (Original)
               </label>
               {docA ? (
-                <div className="flex items-center justify-between rounded-xl border border-border bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-surface-raised p-4 shadow-sm">
                   <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-primary" />
+                    <FileText className="h-5 w-5 text-text-primary" />
                     <div>
                       <p className="font-medium text-xs text-foreground">{docA.name}</p>
                       <p className="text-[10px] text-muted-foreground">Ready for comparison</p>
@@ -287,9 +287,9 @@ export default function ComparePdfsPage() {
                 Document B (Modified)
               </label>
               {docB ? (
-                <div className="flex items-center justify-between rounded-xl border border-border bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between rounded-xl border border-border bg-surface-raised p-4 shadow-sm">
                   <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-primary" />
+                    <FileText className="h-5 w-5 text-text-primary" />
                     <div>
                       <p className="font-medium text-xs text-foreground">{docB.name}</p>
                       <p className="text-[10px] text-muted-foreground">Ready for comparison</p>
@@ -322,7 +322,7 @@ export default function ComparePdfsPage() {
 
           {isProcessing && (
             <div className="flex items-center justify-center gap-3 py-4 text-sm text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <Loader2 className="h-5 w-5 animate-spin text-text-primary" />
               <span>{progressStep || "Analyzing documents..."}</span>
             </div>
           )}
@@ -331,7 +331,7 @@ export default function ComparePdfsPage() {
             <button
               onClick={handleCompare}
               disabled={!docA || !docB || isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <GitCompare className="h-4 w-4" />
               <span>Compare PDFs</span>

@@ -124,11 +124,11 @@ export default function PdfToTextPage() {
                 type="button"
                 onClick={handleCopy}
                 disabled={!result || !result.hasText}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm hover:bg-muted disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm hover:bg-surface-raised disabled:opacity-50"
               >
                 {copied ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-success" />
+                    <Check className="h-3.5 w-3.5 text-text-primary" />
                     <span>Copied!</span>
                   </>
                 ) : (
@@ -143,7 +143,7 @@ export default function PdfToTextPage() {
                 type="button"
                 onClick={handleDownload}
                 disabled={!result || !result.hasText}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-3 py-1.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90 disabled:opacity-50"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export .txt</span>
@@ -160,7 +160,7 @@ export default function PdfToTextPage() {
           </div>
 
           {/* Labeled File name field */}
-          <div className="rounded-xl border border-border bg-muted/20 p-4 max-w-md">
+          <div className="rounded-xl border border-border bg-surface-raised p-4 max-w-md">
             <label htmlFor="txt-filename" className="block text-xs font-semibold text-foreground mb-1">
               File name
             </label>
@@ -170,14 +170,14 @@ export default function PdfToTextPage() {
                 type="text"
                 value={outputFilename}
                 onChange={(e) => setOutputFilename(e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-medium text-foreground focus:border-border-strong focus:outline-none"
                 placeholder="extracted-text.txt"
               />
               <button
                 type="button"
                 onClick={handleDownload}
                 disabled={!result || !result.hasText}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover disabled:opacity-50 shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-3 py-1.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90 disabled:opacity-50 shrink-0"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export</span>
@@ -190,11 +190,11 @@ export default function PdfToTextPage() {
 
           {/* Scanned PDF Notice if no text found */}
           {result && !result.hasText && (
-            <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-900">
-              <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-xl border border-border bg-surface-raised p-4 text-text-primary">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-text-primary mt-0.5" />
               <div className="text-xs space-y-1">
-                <p className="font-semibold">No selectable text found in this document</p>
-                <p className="text-amber-700 leading-relaxed">
+                <p className="font-semibold text-text-primary">No selectable text found in this document</p>
+                <p className="text-text-secondary leading-relaxed">
                   This PDF appears to consist of scanned bitmap images or non-selectable graphics without an embedded text layer. Scanned paper documents require Optical Character Recognition (OCR) to convert pixels into digital text characters.
                 </p>
               </div>

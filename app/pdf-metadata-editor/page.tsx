@@ -119,7 +119,7 @@ export default function PdfMetadataEditorPage() {
                 value={metadata.title}
                 onChange={(e) => setMetadata((m) => ({ ...m, title: e.target.value }))}
                 placeholder="e.g. Annual Financial Report"
-                className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               />
             </div>
 
@@ -132,7 +132,7 @@ export default function PdfMetadataEditorPage() {
                 value={metadata.author}
                 onChange={(e) => setMetadata((m) => ({ ...m, author: e.target.value }))}
                 placeholder="e.g. Jane Doe"
-                className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               />
             </div>
 
@@ -145,7 +145,7 @@ export default function PdfMetadataEditorPage() {
                 value={metadata.subject}
                 onChange={(e) => setMetadata((m) => ({ ...m, subject: e.target.value }))}
                 placeholder="e.g. Q4 Performance Analysis"
-                className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function PdfMetadataEditorPage() {
                 value={metadata.keywords}
                 onChange={(e) => setMetadata((m) => ({ ...m, keywords: e.target.value }))}
                 placeholder="e.g. finance, quarterly, audit"
-                className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               />
             </div>
 
@@ -171,7 +171,7 @@ export default function PdfMetadataEditorPage() {
                 value={metadata.creator}
                 onChange={(e) => setMetadata((m) => ({ ...m, creator: e.target.value }))}
                 placeholder="e.g. Microsoft Word / InDesign"
-                className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               />
             </div>
 
@@ -184,13 +184,13 @@ export default function PdfMetadataEditorPage() {
                 value={metadata.producer}
                 onChange={(e) => setMetadata((m) => ({ ...m, producer: e.target.value }))}
                 placeholder="e.g. Adobe PDF Library"
-                className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               />
             </div>
           </div>
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
@@ -200,7 +200,7 @@ export default function PdfMetadataEditorPage() {
               type="button"
               onClick={() => handleSave(true)}
               disabled={isProcessing}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-base px-4 py-2 text-xs font-semibold text-text-primary hover:bg-surface-raised disabled:opacity-50"
             >
               <ShieldAlert className="h-4 w-4" />
               <span>Strip All Metadata (Sanitize)</span>
@@ -210,14 +210,14 @@ export default function PdfMetadataEditorPage() {
               <button
                 onClick={handleReset}
                 disabled={isProcessing}
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleSave(false)}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
               >
                 {isProcessing ? (
                   <>

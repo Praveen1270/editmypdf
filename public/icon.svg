@@ -1,18 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2563EB" />
-      <stop offset="100%" stop-color="#1D4ED8" />
-    </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0F172A" flood-opacity="0.25" />
-    </filter>
-  </defs>
-  <!-- Background rounded squircle -->
-  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <!-- Monochrome Background rounded squircle -->
+  <rect width="512" height="512" rx="112" fill="#000000" />
   
   <!-- Main Document Body with folded corner -->
-  <g filter="url(#shadow)">
+  <g>
     <!-- Document base: width 240, height 320, centered at (256, 256) -->
     <!-- Bounds: X from 136 to 376, Y from 96 to 416 -->
     <!-- Fold cut: top-right corner from X: 304, Y: 96 to X: 376, Y: 168 -->
@@ -32,15 +23,16 @@
              L 304 152 
              A 16 16 0 0 0 320 168 
              L 376 168 Z" 
-          fill="#DBEAFE" />
+          fill="#E8E6E2" />
+    <path d="M 304 96 L 304 168 L 376 168" fill="none" stroke="#D6D3CF" stroke-width="2" />
   </g>
 
   <!-- Document Accent Lines & PDF Badge -->
-  <!-- Red accent badge for PDF mark -->
-  <rect x="176" y="220" width="160" height="44" rx="8" fill="#2563EB" />
+  <!-- Monochrome PDF mark badge -->
+  <rect x="176" y="220" width="160" height="44" rx="8" fill="#000000" />
   <text x="256" y="252" 
-        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" 
-        font-size="24" 
+        font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" 
+        font-size="22" 
         font-weight="800" 
         letter-spacing="2" 
         fill="#FFFFFF" 
@@ -48,7 +40,7 @@
         dominant-baseline="middle">PDF</text>
 
   <!-- Document text representation lines -->
-  <rect x="176" y="296" width="160" height="12" rx="6" fill="#93C5FD" />
-  <rect x="176" y="328" width="112" height="12" rx="6" fill="#BFDBFE" />
-  <rect x="176" y="360" width="140" height="12" rx="6" fill="#DBEAFE" />
+  <rect x="176" y="296" width="160" height="12" rx="6" fill="#D6D3CF" />
+  <rect x="176" y="328" width="112" height="12" rx="6" fill="#D6D3CF" />
+  <rect x="176" y="360" width="140" height="12" rx="6" fill="#E8E6E2" />
 </svg>

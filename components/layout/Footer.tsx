@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, Shield, CheckCircle2 } from "lucide-react";
+import { Shield } from "lucide-react";
 import { PDF_TOOLS } from "@/lib/tools-data";
 
 export function Footer() {
@@ -11,15 +11,15 @@ export function Footer() {
   );
 
   return (
-    <footer className="border-t border-border bg-muted/30 py-14 text-sm text-muted-foreground">
+    <footer className="border-t border-border bg-surface-muted py-14 text-sm text-text-secondary">
       <div className="mx-auto max-w-content px-4 sm:px-6">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand & Privacy Statement */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 font-bold text-foreground">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-white shadow-sm overflow-hidden">
+            <Link href="/" className="flex items-center gap-2.5 font-bold text-text-primary">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground text-background shadow-sm">
                 <svg
-                  className="h-4 w-4 text-white"
+                  className="h-3.5 w-3.5"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -27,28 +27,28 @@ export function Footer() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 >
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="white" stroke="#2563EB" />
-                  <polyline points="14 2 14 8 20 8" fill="#DBEAFE" stroke="#2563EB" />
-                  <line x1="8" y1="13" x2="16" y2="13" stroke="#2563EB" strokeWidth="2" />
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
                 </svg>
               </div>
-              <span className="font-extrabold tracking-tight">PDF<span className="text-primary">Kit</span></span>
+              <span className="font-extrabold tracking-tight">PDF<span className="font-semibold text-text-secondary">Kit</span></span>
             </Link>
-            <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-xs leading-relaxed text-text-secondary">
               20 private PDF utilities operating entirely inside your browser. No files, passwords, or data ever leave your device.
             </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-foreground font-semibold">
-              <Shield className="h-3.5 w-3.5 text-success" />
+            <div className="mt-4 flex items-center gap-1.5 text-xs text-text-primary font-semibold">
+              <Shield className="h-3.5 w-3.5 text-text-primary" />
               <span>100% Client-Side Processing</span>
             </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-[11px] text-text-tertiary">
               Self-hosted WebAssembly & Web Crypto. Zero tracking cookies.
             </p>
           </div>
 
           {/* Column 1: Organize & Layout Tools */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
               Organize & Layout
             </h4>
             <div className="mt-3 flex flex-col gap-1.5 text-xs">
@@ -56,7 +56,7 @@ export function Footer() {
                 <Link
                   key={tool.id}
                   href={tool.href}
-                  className="transition-colors hover:text-foreground"
+                  className="transition-colors hover:text-text-primary"
                 >
                   {tool.name}
                 </Link>
@@ -66,7 +66,7 @@ export function Footer() {
 
           {/* Column 2: Convert & Inspect Tools */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
               Convert & Inspect
             </h4>
             <div className="mt-3 flex flex-col gap-1.5 text-xs">
@@ -74,7 +74,7 @@ export function Footer() {
                 <Link
                   key={tool.id}
                   href={tool.href}
-                  className="transition-colors hover:text-foreground"
+                  className="transition-colors hover:text-text-primary"
                 >
                   {tool.name}
                 </Link>
@@ -84,47 +84,47 @@ export function Footer() {
 
           {/* Column 3: Trust & Security */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
               Knowledge & Trust
             </h4>
             <div className="mt-3 flex flex-col gap-1.5 text-xs">
-              <Link href="/how-it-works" className="transition-colors hover:text-foreground">
+              <Link href="/about" className="transition-colors hover:text-text-primary">
+                About PDFKit
+              </Link>
+              <Link href="/how-it-works" className="transition-colors hover:text-text-primary">
                 How It Works & Verification
               </Link>
-              <Link href="/security" className="transition-colors hover:text-foreground">
+              <Link href="/security" className="transition-colors hover:text-text-primary">
                 Security & Cryptography
               </Link>
-              <Link href="/faq" className="transition-colors hover:text-foreground">
+              <Link href="/faq" className="transition-colors hover:text-text-primary">
                 Frequently Asked Questions
               </Link>
-              <Link href="/accessibility" className="transition-colors hover:text-foreground">
+              <Link href="/accessibility" className="transition-colors hover:text-text-primary">
                 Accessibility Statement
-              </Link>
-              <Link href="/about" className="transition-colors hover:text-foreground">
-                About PDFKit
               </Link>
             </div>
           </div>
 
           {/* Column 4: Legal & Contact */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
               Legal & Support
             </h4>
             <div className="mt-3 flex flex-col gap-1.5 text-xs">
-              <Link href="/privacy-policy" className="transition-colors hover:text-foreground font-medium text-foreground">
+              <Link href="/privacy-policy" className="transition-colors hover:text-text-primary font-medium text-text-primary">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="transition-colors hover:text-foreground">
+              <Link href="/terms" className="transition-colors hover:text-text-primary">
                 Terms of Service
               </Link>
-              <Link href="/disclaimer" className="transition-colors hover:text-foreground">
+              <Link href="/disclaimer" className="transition-colors hover:text-text-primary">
                 Output Disclaimer
               </Link>
-              <Link href="/cookie-policy" className="transition-colors hover:text-foreground">
+              <Link href="/cookie-policy" className="transition-colors hover:text-text-primary">
                 Cookie & Storage Policy
               </Link>
-              <Link href="/contact" className="transition-colors hover:text-foreground">
+              <Link href="/contact" className="transition-colors hover:text-text-primary">
                 Contact & Feedback
               </Link>
             </div>
@@ -132,16 +132,16 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row text-xs text-muted-foreground">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row text-xs text-text-tertiary">
           <p>© {new Date().getFullYear()} PDFKit. Open standards, local memory, zero server uploads.</p>
           <div className="flex items-center gap-4">
-            <Link href="/privacy-policy" className="hover:text-foreground">Privacy</Link>
+            <Link href="/privacy-policy" className="hover:text-text-primary">Privacy</Link>
             <span>·</span>
-            <Link href="/terms" className="hover:text-foreground">Terms</Link>
+            <Link href="/terms" className="hover:text-text-primary">Terms</Link>
             <span>·</span>
-            <Link href="/contact" className="hover:text-foreground">Contact</Link>
+            <Link href="/contact" className="hover:text-text-primary">Contact</Link>
             <span>·</span>
-            <Link href="/sitemap.xml" className="hover:text-foreground">Sitemap</Link>
+            <Link href="/sitemap.xml" className="hover:text-text-primary">Sitemap</Link>
           </div>
         </div>
       </div>

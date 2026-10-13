@@ -3,9 +3,13 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 export const viewport: Viewport = {
-  themeColor: "#2563EB",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -95,15 +99,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="flex min-h-screen flex-col bg-white text-foreground selection:bg-primary/20">
-        <PwaProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </PwaProvider>
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('pdfkit-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className="flex min-h-screen flex-col bg-background text-foreground selection:bg-action-primary selection:text-action-primary-text">
+        <ThemeProvider>
+          <PwaProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </PwaProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
-

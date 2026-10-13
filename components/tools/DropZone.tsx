@@ -98,7 +98,6 @@ export function DropZone({
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     validateAndHandleFiles(e.target.files);
-    // Reset input value so re-selecting same file triggers change
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -109,10 +108,10 @@ export function DropZone({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !disabled && inputRef.current?.click()}
-        className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-all duration-200 ${
+        className={`group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 text-center transition-colors duration-150 ${
           isDragOver
-            ? "border-primary bg-primary/5 ring-4 ring-primary/10"
-            : "border-border bg-muted/20 hover:border-muted-foreground/40 hover:bg-muted/40"
+            ? "border-border-strong bg-surface-raised ring-2 ring-border-strong"
+            : "border-border bg-surface-muted/50 hover:border-border-strong hover:bg-surface-raised"
         } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
       >
         <input
@@ -125,23 +124,23 @@ export function DropZone({
           className="hidden"
         />
 
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted border border-border transition-transform group-hover:scale-105">
-          <UploadCloud className="h-6 w-6 text-muted-foreground group-hover:text-foreground" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-base border border-border group-hover:border-border-strong transition-transform group-hover:scale-105">
+          <UploadCloud className="h-6 w-6 text-text-secondary group-hover:text-text-primary" />
         </div>
 
         <div className="mt-4 text-center">
-          <p className="text-base font-semibold text-foreground">{title}</p>
-          <p className="mt-1 text-sm text-primary font-medium">{subtitle}</p>
+          <p className="text-base font-semibold text-text-primary">{title}</p>
+          <p className="mt-1 text-sm text-text-secondary font-medium">{subtitle}</p>
         </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="mt-3 text-xs text-text-tertiary">
           {multiple ? "Select single or multiple files" : "Select one file"} · Processed 100% locally
         </p>
       </div>
 
       {errorMessage && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-border-strong bg-surface-raised p-3 text-xs text-text-primary font-medium">
+          <AlertCircle className="h-4 w-4 shrink-0 text-text-primary" />
           <span>{errorMessage}</span>
         </div>
       )}

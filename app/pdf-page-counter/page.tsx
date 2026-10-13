@@ -94,7 +94,7 @@ export default function PdfPageCounterPage() {
               <button
                 type="button"
                 onClick={handleDownloadReport}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-3 py-1.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export Report (.txt)</span>
@@ -119,13 +119,13 @@ export default function PdfPageCounterPage() {
                 type="text"
                 value={outputFilename}
                 onChange={(e) => setOutputFilename(e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-medium text-foreground focus:border-border-strong focus:outline-none"
                 placeholder="document-report.txt"
               />
               <button
                 type="button"
                 onClick={handleDownloadReport}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-3 py-1.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90 shrink-0"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Export</span>
@@ -138,25 +138,25 @@ export default function PdfPageCounterPage() {
 
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                <Layers className="h-4 w-4" />
+                <Layers className="h-4 w-4 text-text-primary" />
                 <span>Total Pages</span>
               </div>
               <p className="mt-2 text-2xl font-bold text-foreground">{report.pageCount}</p>
             </div>
 
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                <HardDrive className="h-4 w-4" />
+                <HardDrive className="h-4 w-4 text-text-primary" />
                 <span>File Size</span>
               </div>
               <p className="mt-2 text-2xl font-bold text-foreground">{report.filesizeFormatted}</p>
             </div>
 
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                <FileText className="h-4 w-4" />
+                <FileText className="h-4 w-4 text-text-primary" />
                 <span>Primary Format</span>
               </div>
               <p className="mt-2 text-xl font-bold text-foreground">
@@ -164,9 +164,9 @@ export default function PdfPageCounterPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-xs">
-                <CheckCircle2 className="h-4 w-4 text-success" />
+                <CheckCircle2 className="h-4 w-4 text-text-primary" />
                 <span>Security</span>
               </div>
               <p className="mt-2 text-xl font-bold text-foreground">Unrestricted</p>
@@ -174,7 +174,7 @@ export default function PdfPageCounterPage() {
           </div>
 
           {/* Metadata Section */}
-          <div className="rounded-xl border border-border bg-muted/20 p-5">
+          <div className="rounded-xl border border-border bg-surface-raised p-5">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
               Embedded Metadata
             </h3>
@@ -213,7 +213,7 @@ export default function PdfPageCounterPage() {
             </h3>
             <div className="max-h-72 overflow-y-auto rounded-xl border border-border">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 bg-muted/50 border-b border-border text-muted-foreground font-semibold">
+                <thead className="sticky top-0 bg-surface-raised border-b border-border text-muted-foreground font-semibold">
                   <tr>
                     <th className="p-2.5">Page</th>
                     <th className="p-2.5">Format</th>
@@ -223,9 +223,9 @@ export default function PdfPageCounterPage() {
                     <th className="p-2.5">Inches (in)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border bg-white">
+                <tbody className="divide-y divide-border bg-surface-base">
                   {report.pages.map((p) => (
-                    <tr key={p.pageNumber} className="hover:bg-muted/10">
+                    <tr key={p.pageNumber} className="hover:bg-surface-raised">
                       <td className="p-2.5 font-medium text-foreground">#{p.pageNumber}</td>
                       <td className="p-2.5 text-foreground">{p.formatName}</td>
                       <td className="p-2.5 text-muted-foreground">{p.orientation}</td>

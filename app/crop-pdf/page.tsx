@@ -147,7 +147,7 @@ export default function CropPdfPage() {
 
           {/* Margin Configuration Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-xl border border-border bg-white p-5 space-y-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-5 space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
                 Margin Trim Settings (Points)
               </h3>
@@ -162,7 +162,7 @@ export default function CropPdfPage() {
                     onChange={(e) =>
                       setMargins((m) => ({ ...m, top: Math.max(0, parseInt(e.target.value) || 0) }))
                     }
-                    className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                 </div>
                 <div>
@@ -174,7 +174,7 @@ export default function CropPdfPage() {
                     onChange={(e) =>
                       setMargins((m) => ({ ...m, bottom: Math.max(0, parseInt(e.target.value) || 0) }))
                     }
-                    className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                 </div>
                 <div>
@@ -186,7 +186,7 @@ export default function CropPdfPage() {
                     onChange={(e) =>
                       setMargins((m) => ({ ...m, left: Math.max(0, parseInt(e.target.value) || 0) }))
                     }
-                    className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                 </div>
                 <div>
@@ -198,13 +198,13 @@ export default function CropPdfPage() {
                     onChange={(e) =>
                       setMargins((m) => ({ ...m, right: Math.max(0, parseInt(e.target.value) || 0) }))
                     }
-                    className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-white p-5 space-y-4">
+            <div className="rounded-xl border border-border bg-surface-raised p-5 space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
                 Target Pages
               </h3>
@@ -217,7 +217,7 @@ export default function CropPdfPage() {
                       name="applyMode"
                       checked={applyMode === "all"}
                       onChange={() => setApplyMode("all")}
-                      className="text-primary"
+                      className="accent-action-primary"
                     />
                     <span>All Pages ({file.pageCount})</span>
                   </label>
@@ -252,7 +252,7 @@ export default function CropPdfPage() {
           </div>
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
@@ -261,18 +261,18 @@ export default function CropPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleCrop}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin text-action-primary-text" />
                   <span>Cropping PDF...</span>
                 </>
               ) : (

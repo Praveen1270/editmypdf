@@ -9,8 +9,8 @@ def create_base_icon(size=512, maskable=False):
     scale = size / 512.0
     corner_radius = int(112 * scale) if not maskable else 0
 
-    # Background
-    bg_color = (37, 99, 235, 255) # #2563EB
+    # Monochrome Background (#000000)
+    bg_color = (0, 0, 0, 255)
     if maskable:
         # Full bleed square for maskable icon
         draw.rectangle([0, 0, size, size], fill=bg_color)
@@ -19,8 +19,6 @@ def create_base_icon(size=512, maskable=False):
         draw.rounded_rectangle([0, 0, size, size], radius=corner_radius, fill=bg_color)
 
     # Document coordinates
-    # On 512x512: doc is 240 wide, 320 high.
-    # For maskable, safe zone is inner 80%, so scale doc slightly down if maskable
     doc_scale = 0.8 if maskable else 1.0
     doc_w = int(240 * scale * doc_scale)
     doc_h = int(320 * scale * doc_scale)
@@ -35,10 +33,10 @@ def create_base_icon(size=512, maskable=False):
     draw.rounded_rectangle(
         [doc_x0, doc_y0 + shadow_offset, doc_x1, doc_y1 + shadow_offset],
         radius=int(20 * scale * doc_scale),
-        fill=(15, 23, 42, 60)
+        fill=(0, 0, 0, 100)
     )
 
-    # Document main polygon with cut corner at top right
+    # Document main polygon with cut corner at top right (white #ffffff)
     doc_poly = [
         (doc_x0, doc_y0),
         (doc_x1 - fold_size, doc_y0),
@@ -48,24 +46,28 @@ def create_base_icon(size=512, maskable=False):
     ]
     draw.polygon(doc_poly, fill=(255, 255, 255, 255))
 
-    # Fold flap in top right
+    # Fold flap in top right (#e8e6e2)
     flap_poly = [
         (doc_x1 - fold_size, doc_y0),
         (doc_x1 - fold_size, doc_y0 + fold_size),
         (doc_x1, doc_y0 + fold_size)
     ]
-    draw.polygon(flap_poly, fill=(219, 234, 254, 255)) # #DBEAFE
+    draw.polygon(flap_poly, fill=(232, 230, 226, 255))
     # Flap border line
-    draw.line([(doc_x1 - fold_size, doc_y0), (doc_x1 - fold_size, doc_y0 + fold_size), (doc_x1, doc_y0 + fold_size)], fill=(147, 197, 253, 255), width=int(2*scale))
+    draw.line(
+        [(doc_x1 - fold_size, doc_y0), (doc_x1 - fold_size, doc_y0 + fold_size), (doc_x1, doc_y0 + fold_size)],
+        fill=(214, 211, 207, 255),
+        width=int(2 * scale)
+    )
 
-    # PDF badge
+    # PDF badge (#000000)
     badge_w = int(160 * scale * doc_scale)
     badge_h = int(48 * scale * doc_scale)
     badge_x0 = int(doc_x0 + (doc_w - badge_w) / 2)
     badge_y0 = int(doc_y0 + 120 * scale * doc_scale)
     badge_x1 = badge_x0 + badge_w
     badge_y1 = badge_y0 + badge_h
-    draw.rounded_rectangle([badge_x0, badge_y0, badge_x1, badge_y1], radius=int(8*scale*doc_scale), fill=bg_color)
+    draw.rounded_rectangle([badge_x0, badge_y0, badge_x1, badge_y1], radius=int(8 * scale * doc_scale), fill=(0, 0, 0, 255))
 
     # Text "PDF" inside badge
     font_size = int(28 * scale * doc_scale)
@@ -82,7 +84,7 @@ def create_base_icon(size=512, maskable=False):
     text_y = badge_y0 + (badge_h - text_h) / 2 - (bbox[1] if hasattr(bbox, '__getitem__') else 0)
     draw.text((text_x, text_y), "PDF", font=font, fill=(255, 255, 255, 255))
 
-    # Accent decorative lines
+    # Accent decorative lines (monochrome neutrals)
     line_x0 = badge_x0
     line_w = badge_w
     line_h = max(2, int(10 * scale * doc_scale))
@@ -92,7 +94,7 @@ def create_base_icon(size=512, maskable=False):
         int(doc_y0 + 255 * scale * doc_scale)
     ]
     widths = [line_w, int(line_w * 0.7), int(line_w * 0.85)]
-    colors = [(147, 197, 253, 255), (191, 219, 254, 255), (219, 234, 254, 255)]
+    colors = [(214, 211, 207, 255), (214, 211, 207, 255), (232, 230, 226, 255)]
 
     for y, w, col in zip(y_lines, widths, colors):
         draw.rounded_rectangle([line_x0, y, line_x0 + w, y + line_h], radius=line_h // 2, fill=col)
@@ -133,4 +135,4 @@ fav_48.save(
     sizes=[(16, 16), (32, 32), (48, 48)]
 )
 
-print("Successfully generated all favicon and PWA icons in", public_dir)
+print("Successfully generated all monochrome favicon and PWA icons in", public_dir)

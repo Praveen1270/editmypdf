@@ -174,7 +174,7 @@ export default function RotatePdfPage() {
           </div>
 
           {/* Rotation Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-raised p-4">
             <span className="text-xs font-semibold text-foreground">
               Rotate Selected ({selectedPages.length} pages):
             </span>
@@ -183,7 +183,7 @@ export default function RotatePdfPage() {
                 type="button"
                 onClick={() => rotateSelected(-90)}
                 disabled={selectedPages.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-raised disabled:opacity-40"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 <span>90° Left</span>
@@ -192,7 +192,7 @@ export default function RotatePdfPage() {
                 type="button"
                 onClick={() => rotateSelected(90)}
                 disabled={selectedPages.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-raised disabled:opacity-40"
               >
                 <RotateCw className="h-3.5 w-3.5" />
                 <span>90° Right</span>
@@ -201,7 +201,7 @@ export default function RotatePdfPage() {
                 type="button"
                 onClick={() => rotateSelected(180)}
                 disabled={selectedPages.length === 0}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-surface-raised disabled:opacity-40"
               >
                 <RotateCw className="h-3.5 w-3.5" />
                 <span>180° Flip</span>
@@ -222,7 +222,7 @@ export default function RotatePdfPage() {
           />
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
@@ -238,14 +238,14 @@ export default function RotatePdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleApplyRotation}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <RotateCw className="h-4 w-4" />
               <span>Save & Download PDF</span>

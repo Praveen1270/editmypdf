@@ -101,7 +101,7 @@ export default function PdfToGrayscalePage() {
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
             <div className="flex items-center gap-3">
-              <FileText className="h-6 w-6 text-primary" />
+              <FileText className="h-6 w-6 text-foreground" />
               <div>
                 <p className="font-semibold text-foreground text-sm">{file.name}</p>
                 <p className="text-xs text-muted-foreground">
@@ -111,16 +111,16 @@ export default function PdfToGrayscalePage() {
             </div>
             <button
               onClick={handleReset}
-              className="text-xs font-medium text-muted-foreground hover:text-destructive"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground"
             >
               Choose different file
             </button>
           </div>
 
           {/* Grayscale settings and information */}
-          <div className="rounded-xl border border-border bg-muted/20 p-5 space-y-4">
+          <div className="rounded-xl border border-border bg-surface-raised p-5 space-y-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <Info className="h-5 w-5 text-text-primary shrink-0 mt-0.5" />
               <div className="text-xs space-y-1.5 text-muted-foreground">
                 <p className="font-semibold text-foreground">Client-Side Grayscale Conversion</p>
                 <p className="leading-relaxed">
@@ -134,14 +134,14 @@ export default function PdfToGrayscalePage() {
           </div>
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
 
           {isProcessing && (
             <div className="flex items-center justify-center gap-3 py-6 text-sm text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <Loader2 className="h-5 w-5 animate-spin text-text-primary" />
               <span>
                 Converting pages to grayscale...{" "}
                 {progress ? `(${progress.current} of ${progress.total})` : ""}
@@ -153,14 +153,14 @@ export default function PdfToGrayscalePage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleConvert}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Palette className="h-4 w-4" />
               <span>Convert to Grayscale</span>

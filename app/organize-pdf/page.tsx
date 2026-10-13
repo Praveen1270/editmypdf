@@ -201,7 +201,7 @@ export default function OrganizePdfPage() {
             {pageItems.map((item, idx) => (
               <div
                 key={item.id}
-                className="group flex flex-col justify-between rounded-xl border border-border bg-white p-2.5 shadow-sm transition hover:border-foreground/30"
+                className="group flex flex-col justify-between rounded-xl border border-border bg-surface-raised p-2.5 shadow-sm transition hover:border-border-strong"
               >
                 {/* Header label */}
                 <div className="flex items-center justify-between px-1 pb-1 text-xs">
@@ -212,7 +212,7 @@ export default function OrganizePdfPage() {
                 </div>
 
                 {/* Thumbnail representation */}
-                <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/20">
+                <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-surface-base">
                   <div
                     style={{ transform: `rotate(${item.rotation}deg)` }}
                     className="flex h-full w-full items-center justify-center transition-transform"
@@ -221,7 +221,7 @@ export default function OrganizePdfPage() {
                       <FileText className="h-8 w-8 text-muted-foreground/60" />
                       <span className="text-xs font-mono">#{item.originalIndex + 1}</span>
                       {item.rotation > 0 && (
-                        <span className="text-[10px] font-semibold text-primary">
+                        <span className="text-[10px] font-semibold text-text-primary">
                           {item.rotation}°
                         </span>
                       )}
@@ -303,14 +303,14 @@ export default function OrganizePdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={isProcessing || pageItems.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               <span>Save Organized PDF ({pageItems.length} pages)</span>

@@ -23,7 +23,7 @@ export default function WatermarkPdfPage() {
   const [opacity, setOpacity] = useState(0.25);
   const [fontSize, setFontSize] = useState(48);
   const [rotation, setRotation] = useState(45);
-  const [colorHex, setColorHex] = useState("#DC2626");
+  const [colorHex, setColorHex] = useState("#73716f");
   const [allPages, setAllPages] = useState(true);
   const [pageRangeStr, setPageRangeStr] = useState("");
 
@@ -147,7 +147,7 @@ export default function WatermarkPdfPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Controls */}
-            <div className="space-y-4 rounded-xl border border-border bg-white p-5">
+            <div className="space-y-4 rounded-xl border border-border bg-surface-raised p-5">
               <h3 className="text-sm font-semibold text-foreground">
                 Watermark Settings
               </h3>
@@ -161,7 +161,7 @@ export default function WatermarkPdfPage() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="e.g. CONFIDENTIAL, DRAFT"
-                  className="mt-1.5 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-medium"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus font-medium"
                 />
               </div>
 
@@ -175,8 +175,8 @@ export default function WatermarkPdfPage() {
                     onClick={() => handleApplyPreset("diagonal")}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                       preset === "diagonal"
-                        ? "border-primary bg-primary text-white"
-                        : "border-border bg-white text-foreground hover:bg-muted"
+                        ? "border-action-primary bg-action-primary text-action-primary-text"
+                        : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                     }`}
                   >
                     Diagonal
@@ -186,8 +186,8 @@ export default function WatermarkPdfPage() {
                     onClick={() => handleApplyPreset("center")}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                       preset === "center"
-                        ? "border-primary bg-primary text-white"
-                        : "border-border bg-white text-foreground hover:bg-muted"
+                        ? "border-action-primary bg-action-primary text-action-primary-text"
+                        : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                     }`}
                   >
                     Centered
@@ -197,8 +197,8 @@ export default function WatermarkPdfPage() {
                     onClick={() => handleApplyPreset("footer")}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                       preset === "footer"
-                        ? "border-primary bg-primary text-white"
-                        : "border-border bg-white text-foreground hover:bg-muted"
+                        ? "border-action-primary bg-action-primary text-action-primary-text"
+                        : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                     }`}
                   >
                     Footer
@@ -218,7 +218,7 @@ export default function WatermarkPdfPage() {
                     step={0.05}
                     value={opacity}
                     onChange={(e) => setOpacity(parseFloat(e.target.value))}
-                    className="mt-2 w-full accent-primary"
+                    className="mt-2 w-full accent-action-primary"
                   />
                 </div>
 
@@ -233,7 +233,7 @@ export default function WatermarkPdfPage() {
                     step={2}
                     value={fontSize}
                     onChange={(e) => setFontSize(parseInt(e.target.value, 10))}
-                    className="mt-2 w-full accent-primary"
+                    className="mt-2 w-full accent-action-primary"
                   />
                 </div>
               </div>
@@ -251,7 +251,7 @@ export default function WatermarkPdfPage() {
                     value={rotation}
                     disabled={preset === "footer"}
                     onChange={(e) => setRotation(parseInt(e.target.value, 10))}
-                    className="mt-2 w-full accent-primary disabled:opacity-40"
+                    className="mt-2 w-full accent-action-primary disabled:opacity-40"
                   />
                 </div>
 
@@ -264,7 +264,7 @@ export default function WatermarkPdfPage() {
                       type="color"
                       value={colorHex}
                       onChange={(e) => setColorHex(e.target.value)}
-                      className="h-8 w-12 cursor-pointer rounded border border-border p-0.5"
+                      className="h-8 w-12 cursor-pointer rounded border border-border p-0.5 bg-surface-base"
                     />
                     <span className="text-xs font-mono text-muted-foreground">{colorHex}</span>
                   </div>
@@ -279,7 +279,7 @@ export default function WatermarkPdfPage() {
                       name="pageSelection"
                       checked={allPages}
                       onChange={() => setAllPages(true)}
-                      className="text-primary focus:ring-primary"
+                      className="accent-action-primary"
                     />
                     <span>All Pages</span>
                   </label>
@@ -289,7 +289,7 @@ export default function WatermarkPdfPage() {
                       name="pageSelection"
                       checked={!allPages}
                       onChange={() => setAllPages(false)}
-                      className="text-primary focus:ring-primary"
+                      className="accent-action-primary"
                     />
                     <span>Custom Range</span>
                   </label>
@@ -300,14 +300,14 @@ export default function WatermarkPdfPage() {
                     value={pageRangeStr}
                     onChange={(e) => setPageRangeStr(e.target.value)}
                     placeholder="e.g. 1-3, 5"
-                    className="mt-2 w-full rounded-lg border border-border px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-2 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                 )}
               </div>
             </div>
 
             {/* Live Visual Preview */}
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-muted/20 p-6">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface-raised p-6">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                 Live Stamp Preview
               </span>
@@ -357,14 +357,14 @@ export default function WatermarkPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleApplyWatermark}
               disabled={isProcessing || !text.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Stamp className="h-4 w-4" />
               <span>Add Watermark</span>

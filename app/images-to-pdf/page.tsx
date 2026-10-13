@@ -179,7 +179,7 @@ export default function ImagesToPdfPage() {
             {images.map((img, idx) => (
               <div
                 key={img.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-white p-3 shadow-sm"
+                className="flex items-center justify-between rounded-lg border border-border bg-surface-raised p-3 shadow-sm"
               >
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded bg-muted">
@@ -235,7 +235,7 @@ export default function ImagesToPdfPage() {
           </div>
 
           {/* Options grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-xl border border-border bg-muted/20 p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-xl border border-border bg-surface-raised p-4">
             <div>
               <label className="block text-xs font-semibold text-foreground">
                 Page Size
@@ -243,7 +243,7 @@ export default function ImagesToPdfPage() {
               <select
                 value={pageSize}
                 onChange={(e) => setPageSize(e.target.value as PageSizeOption)}
-                className="mt-1.5 w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               >
                 <option value="a4">A4 Standard</option>
                 <option value="letter">US Letter</option>
@@ -259,7 +259,7 @@ export default function ImagesToPdfPage() {
                 value={orientation}
                 onChange={(e) => setOrientation(e.target.value as OrientationOption)}
                 disabled={pageSize === "fit"}
-                className="mt-1.5 w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus disabled:opacity-50"
               >
                 <option value="auto">Auto (Match Image)</option>
                 <option value="portrait">Portrait</option>
@@ -274,7 +274,7 @@ export default function ImagesToPdfPage() {
               <select
                 value={margin}
                 onChange={(e) => setMargin(e.target.value as MarginOption)}
-                className="mt-1.5 w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
               >
                 <option value="none">No Margin</option>
                 <option value="small">Small (20pt)</option>
@@ -290,7 +290,7 @@ export default function ImagesToPdfPage() {
                 value={fit}
                 onChange={(e) => setFit(e.target.value as ImageFitOption)}
                 disabled={pageSize === "fit"}
-                className="mt-1.5 w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+                className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus disabled:opacity-50"
               >
                 <option value="contain">Contain (Entire Image)</option>
                 <option value="cover">Cover (Fill Page)</option>
@@ -299,7 +299,7 @@ export default function ImagesToPdfPage() {
           </div>
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
@@ -318,14 +318,14 @@ export default function ImagesToPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleGeneratePdf}
               disabled={isProcessing || images.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <FileImage className="h-4 w-4" />
               <span>Create PDF ({images.length} images)</span>

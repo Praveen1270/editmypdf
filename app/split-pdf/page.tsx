@@ -160,8 +160,8 @@ export default function SplitPdfPage() {
                 onClick={() => setMode("extract-single")}
                 className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                   mode === "extract-single"
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-white hover:border-muted-foreground/30"
+                    ? "border-foreground bg-surface-raised ring-1 ring-border-strong"
+                    : "border-border bg-surface-base hover:border-border-strong"
                 }`}
               >
                 <div className="font-semibold text-sm text-foreground">
@@ -176,8 +176,8 @@ export default function SplitPdfPage() {
                 onClick={() => setMode("extract-separate")}
                 className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                   mode === "extract-separate"
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-white hover:border-muted-foreground/30"
+                    ? "border-foreground bg-surface-raised ring-1 ring-border-strong"
+                    : "border-border bg-surface-base hover:border-border-strong"
                 }`}
               >
                 <div className="font-semibold text-sm text-foreground">
@@ -192,8 +192,8 @@ export default function SplitPdfPage() {
                 onClick={() => setMode("split-all")}
                 className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                   mode === "split-all"
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-white hover:border-muted-foreground/30"
+                    ? "border-foreground bg-surface-raised ring-1 ring-border-strong"
+                    : "border-border bg-surface-base hover:border-border-strong"
                 }`}
               >
                 <div className="font-semibold text-sm text-foreground">
@@ -207,19 +207,19 @@ export default function SplitPdfPage() {
 
             {/* Range input */}
             {mode !== "split-all" && (
-              <div className="rounded-xl border border-border bg-white p-4">
+              <div className="rounded-xl border border-border bg-surface-raised p-4">
                 <label className="block text-xs font-semibold text-foreground">
                   Page Selection / Ranges
                 </label>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Example: <code className="bg-muted px-1 py-0.5 rounded">1-3, 5, 8-10</code> (Document has {file.pageCount} pages)
+                  Example: <code className="bg-surface-base border border-border px-1 py-0.5 rounded">1-3, 5, 8-10</code> (Document has {file.pageCount} pages)
                 </p>
                 <input
                   type="text"
                   value={rangeInput}
                   onChange={(e) => setRangeInput(e.target.value)}
                   placeholder="e.g. 1-3, 5"
-                  className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-2 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-sm text-foreground focus:border-border-strong focus:outline-none focus:ring-1 focus:ring-focus"
                 />
               </div>
             )}
@@ -245,14 +245,14 @@ export default function SplitPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleSplit}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Scissors className="h-4 w-4" />
               <span>Split PDF</span>

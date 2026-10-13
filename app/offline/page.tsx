@@ -13,7 +13,7 @@ export const metadata = {
 export default function OfflinePage() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-surface-raised text-text-primary">
         <WifiOff className="h-8 w-8" />
       </div>
 
@@ -25,7 +25,7 @@ export default function OfflinePage() {
         Because PDFKit processes documents 100% inside your browser using client-side WebAssembly, tools you have already opened remain functional without an internet connection.
       </p>
 
-      <div className="mt-6 flex items-center gap-2 rounded-full border border-success/30 bg-success/5 px-4 py-1.5 text-xs font-medium text-success">
+      <div className="mt-6 flex items-center gap-2 rounded-full border border-border bg-surface-raised px-4 py-1.5 text-xs font-medium text-text-primary">
         <Shield className="h-3.5 w-3.5" />
         <span>Client-side local processing is always active</span>
       </div>
@@ -33,7 +33,7 @@ export default function OfflinePage() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-action-primary px-6 py-2.5 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Return Home</span>

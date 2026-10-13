@@ -150,13 +150,13 @@ export default function PdfToImagesPage() {
                 type="text"
                 value={zipFilename}
                 onChange={(e) => setZipFilename(e.target.value)}
-                className="flex-1 rounded-lg border border-border bg-white px-3 py-2 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-surface-base px-3 py-2 text-xs font-medium text-foreground focus:border-border-strong focus:outline-none"
                 placeholder="converted-images.zip"
               />
               <button
                 type="button"
                 onClick={handleDownloadAllZip}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-action-primary px-4 py-2 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90"
               >
                 <Archive className="h-4 w-4" />
                 <span>Export ZIP</span>
@@ -171,7 +171,7 @@ export default function PdfToImagesPage() {
             {convertedImages.map((img) => (
               <div
                 key={img.pageNumber}
-                className="group flex flex-col justify-between rounded-xl border border-border bg-white p-2 shadow-sm transition hover:border-foreground/30"
+                className="group flex flex-col justify-between rounded-xl border border-border bg-surface-raised p-2 shadow-sm transition hover:border-border-strong"
               >
                 <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-muted/20">
                   <img
@@ -235,8 +235,8 @@ export default function PdfToImagesPage() {
                   onClick={() => setFormat("png")}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
                     format === "png"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   PNG (Lossless)
@@ -246,8 +246,8 @@ export default function PdfToImagesPage() {
                   onClick={() => setFormat("jpeg")}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
                     format === "jpeg"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   JPG (Compact)
@@ -265,8 +265,8 @@ export default function PdfToImagesPage() {
                   onClick={() => setScale(1.0)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
                     scale === 1.0
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   1x (72 DPI)
@@ -276,8 +276,8 @@ export default function PdfToImagesPage() {
                   onClick={() => setScale(1.5)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
                     scale === 1.5
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   1.5x (110 DPI)
@@ -287,8 +287,8 @@ export default function PdfToImagesPage() {
                   onClick={() => setScale(2.0)}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
                     scale === 2.0
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   2x (150 DPI)
@@ -297,24 +297,24 @@ export default function PdfToImagesPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-white p-4">
+          <div className="rounded-xl border border-border bg-surface-raised p-4">
             <label className="block text-xs font-semibold text-foreground">
               Pages to Convert (Optional)
             </label>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Leave blank to convert all {file.pageCount} pages, or specify ranges like <code className="bg-muted px-1 py-0.5 rounded">1-3, 5</code>.
+              Leave blank to convert all {file.pageCount} pages, or specify ranges like <code className="bg-surface-base border border-border px-1 py-0.5 rounded">1-3, 5</code>.
             </p>
             <input
               type="text"
               value={rangeInput}
               onChange={(e) => setRangeInput(e.target.value)}
               placeholder="e.g. 1-5 (all pages if empty)"
-              className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="mt-2 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-sm text-foreground focus:border-border-strong focus:outline-none focus:ring-1 focus:ring-focus"
             />
           </div>
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
@@ -333,14 +333,14 @@ export default function PdfToImagesPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleConvert}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <ImageIcon className="h-4 w-4" />
               <span>Convert to Images</span>

@@ -139,7 +139,7 @@ export default function AddPageNumbersPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Settings */}
-            <div className="space-y-4 rounded-xl border border-border bg-white p-5">
+            <div className="space-y-4 rounded-xl border border-border bg-surface-raised p-5">
               <h3 className="text-sm font-semibold text-foreground">
                 Numbering Settings
               </h3>
@@ -152,7 +152,7 @@ export default function AddPageNumbersPage() {
                   <select
                     value={position}
                     onChange={(e) => setPosition(e.target.value as PositionVertical)}
-                    className="mt-1.5 w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   >
                     <option value="bottom">Bottom of page</option>
                     <option value="top">Top of page</option>
@@ -166,7 +166,7 @@ export default function AddPageNumbersPage() {
                   <select
                     value={alignment}
                     onChange={(e) => setAlignment(e.target.value as AlignmentHorizontal)}
-                    className="mt-1.5 w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   >
                     <option value="center">Center</option>
                     <option value="right">Right</option>
@@ -184,11 +184,11 @@ export default function AddPageNumbersPage() {
                     type="text"
                     value={formatTemplate}
                     onChange={(e) => setFormatTemplate(e.target.value)}
-                    className="flex-1 rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="flex-1 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                   <select
                     onChange={(e) => e.target.value && setFormatTemplate(e.target.value)}
-                    className="rounded-lg border border-border bg-white px-2 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="rounded-lg border border-border bg-surface-base px-2 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   >
                     <option value="">Presets</option>
                     <option value="Page {n} of {total}">Page &#123;n&#125; of &#123;total&#125;</option>
@@ -317,14 +317,14 @@ export default function AddPageNumbersPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleApplyNumbers}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Hash className="h-4 w-4" />
               <span>Apply Page Numbers</span>

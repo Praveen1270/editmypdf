@@ -141,7 +141,7 @@ export default function ResizePdfPage() {
                 <select
                   value={targetSize}
                   onChange={(e) => setTargetSize(e.target.value as any)}
-                  className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                 >
                   <option value="a4">A4 (210 × 297 mm / 595 × 842 pt)</option>
                   <option value="letter">US Letter (8.5 × 11 in / 612 × 792 pt)</option>
@@ -160,7 +160,7 @@ export default function ResizePdfPage() {
                       min={50}
                       value={customWidth}
                       onChange={(e) => setCustomWidth(parseInt(e.target.value) || 612)}
-                      className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground"
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                     />
                   </div>
                   <div>
@@ -170,7 +170,7 @@ export default function ResizePdfPage() {
                       min={50}
                       value={customHeight}
                       onChange={(e) => setCustomHeight(parseInt(e.target.value) || 792)}
-                      className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-xs text-foreground"
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                     />
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function ResizePdfPage() {
                 <select
                   value={orientation}
                   onChange={(e) => setOrientation(e.target.value as any)}
-                  className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                 >
                   <option value="auto">Auto (Preserve source page orientation)</option>
                   <option value="portrait">Force Portrait</option>
@@ -193,7 +193,7 @@ export default function ResizePdfPage() {
                 </select>
               </div>
 
-              <div className="rounded-lg border border-border bg-muted/20 p-3 text-xs text-muted-foreground leading-relaxed">
+              <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-muted-foreground leading-relaxed">
                 <span className="font-semibold text-foreground">Vector-Accurate Scaling:</span> Page contents are scaled proportionally to fit inside the new page dimensions without clipping or text stretching.
               </div>
             </div>
@@ -219,14 +219,14 @@ export default function ResizePdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleResize}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Maximize className="h-4 w-4" />
               <span>Resize PDF Pages</span>

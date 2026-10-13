@@ -129,9 +129,9 @@ export default function UnlockPdfPage() {
             </button>
           </div>
 
-          <div className="max-w-md mx-auto space-y-4 rounded-xl border border-border bg-white p-6 shadow-sm">
+          <div className="max-w-md mx-auto space-y-4 rounded-xl border border-border bg-surface-raised p-6 shadow-sm">
             <div className="text-center">
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface-base text-text-primary">
                 <Unlock className="h-5 w-5" />
               </div>
               <h3 className="mt-3 text-base font-bold text-foreground">
@@ -151,7 +151,7 @@ export default function UnlockPdfPage() {
                   onKeyDown={(e) => e.key === "Enter" && handleUnlock()}
                   placeholder="Enter PDF password"
                   autoFocus
-                  className="w-full rounded-lg border border-border px-3 py-2 pr-10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full rounded-lg border border-border bg-surface-base px-3 py-2 pr-10 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                 />
                 <button
                   type="button"
@@ -163,20 +163,20 @@ export default function UnlockPdfPage() {
               </div>
             </div>
 
-            <div className="rounded-lg bg-muted/40 p-3 text-[11px] text-muted-foreground">
+            <div className="rounded-lg border border-border bg-surface-base p-3 text-[11px] text-muted-foreground">
               <strong>Notice:</strong> PDFKit strictly supports legitimate password decryption. We do not attempt brute-forcing, exploiting, or bypassing passwords.
             </div>
 
             {errorMessage && (
-              <div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
-                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 rounded-lg border border-border bg-surface-base p-3 text-xs text-text-primary">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-text-primary" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
             {isProcessing && (
               <div className="flex items-center justify-center gap-3 py-2 text-sm text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <Loader2 className="h-5 w-5 animate-spin text-text-primary" />
                 <span>Decrypting PDF in browser memory...</span>
               </div>
             )}
@@ -185,14 +185,14 @@ export default function UnlockPdfPage() {
               <button
                 onClick={handleReset}
                 disabled={isProcessing}
-                className="rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground hover:bg-muted"
+                className="rounded-lg border border-border bg-surface-base px-4 py-2 text-xs font-medium text-foreground hover:bg-surface-raised"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUnlock}
                 disabled={isProcessing || !password}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-5 py-2 text-xs font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
               >
                 <Unlock className="h-3.5 w-3.5" />
                 <span>Unlock & Decrypt</span>

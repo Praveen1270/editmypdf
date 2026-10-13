@@ -148,7 +148,7 @@ export default function ProtectPdfPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4 rounded-xl border border-border bg-white p-5">
+            <div className="space-y-4 rounded-xl border border-border bg-surface-raised p-5">
               <h3 className="text-sm font-semibold text-foreground">
                 Set Document Password
               </h3>
@@ -163,7 +163,7 @@ export default function ProtectPdfPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter document password"
-                    className="w-full rounded-lg border border-border px-3 py-2 pr-10 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded-lg border border-border bg-surface-base px-3 py-2 pr-10 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   />
                   <button
                     type="button"
@@ -184,7 +184,7 @@ export default function ProtectPdfPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat document password"
-                  className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                 />
               </div>
 
@@ -197,7 +197,7 @@ export default function ProtectPdfPage() {
                     type="checkbox"
                     checked={allowPrinting}
                     onChange={(e) => setAllowPrinting(e.target.checked)}
-                    className="rounded border-border text-primary focus:ring-primary"
+                    className="rounded border-border accent-action-primary"
                   />
                   <span>Allow high-resolution printing</span>
                 </label>
@@ -206,7 +206,7 @@ export default function ProtectPdfPage() {
                     type="checkbox"
                     checked={allowCopying}
                     onChange={(e) => setAllowCopying(e.target.checked)}
-                    className="rounded border-border text-primary focus:ring-primary"
+                    className="rounded border-border accent-action-primary"
                   />
                   <span>Allow copying text and graphics</span>
                 </label>
@@ -214,10 +214,10 @@ export default function ProtectPdfPage() {
             </div>
 
             {/* Technical explanation & guarantee */}
-            <div className="flex flex-col justify-between rounded-xl border border-border bg-muted/20 p-5">
+            <div className="flex flex-col justify-between rounded-xl border border-border bg-surface-raised p-5">
               <div>
                 <div className="flex items-center gap-2 text-foreground font-semibold text-xs">
-                  <ShieldCheck className="h-4 w-4 text-success" />
+                  <ShieldCheck className="h-4 w-4 text-text-primary" />
                   <span>AES-256 Browser Encryption</span>
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
@@ -241,7 +241,7 @@ export default function ProtectPdfPage() {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-border bg-white p-3 text-[11px] text-muted-foreground">
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-border bg-surface-base p-3 text-[11px] text-muted-foreground">
                 <Info className="h-3.5 w-3.5 shrink-0 text-foreground mt-0.5" />
                 <span>
                   Keep your password safe. Because processing is entirely local with zero cloud backdoors, lost passwords cannot be retrieved.
@@ -251,7 +251,7 @@ export default function ProtectPdfPage() {
           </div>
 
           {errorMessage && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+            <div className="rounded-lg border border-border bg-surface-raised p-3 text-xs text-text-primary">
               {errorMessage}
             </div>
           )}
@@ -267,14 +267,14 @@ export default function ProtectPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleProtect}
               disabled={isProcessing || !password}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Lock className="h-4 w-4" />
               <span>Encrypt & Protect PDF</span>

@@ -97,27 +97,29 @@ function ThumbnailItem({
         selectable ? "cursor-pointer" : ""
       } ${
         isSelected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-          : "border-border bg-white hover:border-muted-foreground/30"
+          ? "border-border-strong bg-surface-raised ring-2 ring-border-strong"
+          : "border-border bg-surface-base hover:border-border-strong"
       }`}
     >
-      <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-muted/40">
+      <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-surface-raised">
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="absolute inset-0 flex items-center justify-center bg-surface-base/80">
+            <Loader2 className="h-5 w-5 animate-spin text-text-secondary" />
           </div>
         )}
 
         <canvas
           ref={canvasRef}
-          className="max-h-full max-w-full object-contain transition-transform duration-200"
+          className="max-h-full max-w-full object-contain transition-transform duration-200 bg-white"
           style={{ transform: `rotate(${rotation}deg)` }}
         />
 
         {selectable && (
           <div
-            className={`absolute top-2 left-2 flex h-5 w-5 items-center justify-center rounded-full border text-white transition-colors ${
-              isSelected ? "border-primary bg-primary" : "border-border bg-white"
+            className={`absolute top-2 left-2 flex h-5 w-5 items-center justify-center rounded-full border text-action-primary-text transition-colors ${
+              isSelected
+                ? "border-action-primary bg-action-primary"
+                : "border-border bg-surface-base text-transparent"
             }`}
           >
             {isSelected && <Check className="h-3 w-3" />}
@@ -128,20 +130,21 @@ function ThumbnailItem({
           <button
             type="button"
             title="Rotate this page 90°"
+            aria-label={`Rotate page ${pageIndex + 1} 90 degrees`}
             onClick={(e) => {
               e.stopPropagation();
               onRotate();
             }}
-            className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground shadow-sm hover:bg-white border border-border transition-colors"
+            className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-md bg-surface-base text-text-primary shadow-sm hover:bg-surface-raised border border-border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             <RotateCw className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
-      <div className="mt-2 flex w-full items-center justify-between px-1 text-xs text-muted-foreground">
+      <div className="mt-2 flex w-full items-center justify-between px-1 text-xs text-text-secondary">
         <span>Page {pageIndex + 1}</span>
-        {rotation > 0 && <span className="font-mono text-[10px]">{rotation}°</span>}
+        {rotation > 0 && <span className="font-mono text-[10px] text-text-tertiary">{rotation}°</span>}
       </div>
     </div>
   );

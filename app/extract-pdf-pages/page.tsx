@@ -211,12 +211,12 @@ export default function ExtractPdfPagesPage() {
                   value={rangeInput}
                   onChange={(e) => setRangeInput(e.target.value)}
                   placeholder="e.g. 1-3, 5"
-                  className="flex-1 rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary bg-white"
+                  className="flex-1 rounded-lg border border-border px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus bg-surface-base"
                 />
                 <button
                   type="button"
                   onClick={handleApplyRange}
-                  className="rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-white hover:bg-foreground/90"
+                  className="rounded-lg bg-action-primary px-3 py-1.5 text-xs font-medium text-action-primary-text hover:opacity-90"
                 >
                   Apply
                 </button>
@@ -233,8 +233,8 @@ export default function ExtractPdfPagesPage() {
                   onClick={() => setMode("single-pdf")}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                     mode === "single-pdf"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   Single Combined PDF
@@ -244,8 +244,8 @@ export default function ExtractPdfPagesPage() {
                   onClick={() => setMode("zip-separate")}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
                     mode === "zip-separate"
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-foreground hover:bg-muted"
+                      ? "border-action-primary bg-action-primary text-action-primary-text"
+                      : "border-border bg-surface-base text-text-primary hover:bg-surface-raised"
                   }`}
                 >
                   Separate PDFs (ZIP)
@@ -289,14 +289,14 @@ export default function ExtractPdfPagesPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleExtract}
               disabled={isProcessing || selectedPages.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <FolderOutput className="h-4 w-4" />
               <span>Extract {selectedPages.length} Selected Pages</span>

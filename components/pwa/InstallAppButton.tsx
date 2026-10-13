@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Download, Check, Share, PlusSquare, X, Monitor, Smartphone, HelpCircle } from "lucide-react";
+import { Download, Check, Share, PlusSquare, X, Monitor, Smartphone } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -70,12 +70,12 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
     }
   };
 
-  // If already running inside installed standalone app, hide button
-  if (isStandalone) {
+  // If already running inside installed standalone app, show subtle monochrome status
+  if (isStandalone || installed) {
     return (
-      <div className={`inline-flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground ${className}`}>
-        <Check className="h-3.5 w-3.5 text-success" />
-        <span>App Installed</span>
+      <div className={`inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-secondary ${className}`}>
+        <Check className="h-3.5 w-3.5 text-text-primary" />
+        <span>Installed</span>
       </div>
     );
   }
@@ -86,7 +86,7 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
         type="button"
         onClick={handleInstallClick}
         aria-label="Install PDFKit Application"
-        className={`inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/40 ${className}`}
+        className={`inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-semibold text-text-primary transition hover:bg-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${className}`}
       >
         <Download className="h-3.5 w-3.5" />
         <span>{compact ? "Install" : "Install App"}</span>
@@ -97,31 +97,31 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-150"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="relative w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+            className="relative w-full max-w-md rounded-2xl border border-border bg-surface-base p-6 shadow-2xl animate-in zoom-in-95 duration-150 text-text-primary"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowModal(false)}
-              className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              className="absolute right-4 top-4 rounded-lg p-1.5 text-text-secondary transition hover:bg-surface-raised hover:text-text-primary"
               aria-label="Close dialog"
             >
               <X className="h-5 w-5" />
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-foreground text-background">
                 <Download className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-foreground">
+                <h3 className="text-base font-bold text-text-primary">
                   Install PDFKit
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  Use offline anytime directly from your home screen
+                <p className="text-xs text-text-secondary">
+                  Use offline anytime directly from your home screen or dock
                 </p>
               </div>
             </div>
@@ -129,49 +129,49 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
             <div className="mt-5 space-y-4 text-xs">
               {isIOS ? (
                 // iOS Safari Instructions
-                <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-                  <div className="flex items-center gap-2 font-semibold text-foreground">
-                    <Smartphone className="h-4 w-4 text-primary" />
+                <div className="rounded-xl border border-border bg-surface-raised p-4 space-y-3">
+                  <div className="flex items-center gap-2 font-semibold text-text-primary">
+                    <Smartphone className="h-4 w-4" />
                     <span>How to install on iPhone & iPad:</span>
                   </div>
-                  <ol className="list-decimal list-inside space-y-2 text-muted-foreground leading-relaxed">
+                  <ol className="list-decimal list-inside space-y-2 text-text-secondary leading-relaxed">
                     <li>
-                      Tap the <strong className="text-foreground">Share</strong> icon (<Share className="inline h-3 w-3 mx-0.5 text-primary" />) at the bottom or top of Safari.
+                      Tap the <strong className="text-text-primary">Share</strong> icon (<Share className="inline h-3 w-3 mx-0.5 text-text-primary" />) at the bottom or top of Safari.
                     </li>
                     <li>
-                      Scroll down and select <strong className="text-foreground">Add to Home Screen</strong> (<PlusSquare className="inline h-3 w-3 mx-0.5 text-primary" />).
+                      Scroll down and select <strong className="text-text-primary">Add to Home Screen</strong> (<PlusSquare className="inline h-3 w-3 mx-0.5 text-text-primary" />).
                     </li>
                     <li>
-                      Tap <strong className="text-foreground">Add</strong> in the top-right corner to finish.
+                      Tap <strong className="text-text-primary">Add</strong> in the top-right corner to finish.
                     </li>
                   </ol>
                 </div>
               ) : (
                 // Desktop or Android instructions
-                <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-                  <div className="flex items-center gap-2 font-semibold text-foreground">
-                    <Monitor className="h-4 w-4 text-primary" />
+                <div className="rounded-xl border border-border bg-surface-raised p-4 space-y-3">
+                  <div className="flex items-center gap-2 font-semibold text-text-primary">
+                    <Monitor className="h-4 w-4" />
                     <span>Browser Installation:</span>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-text-secondary leading-relaxed">
                     To install PDFKit as a standalone desktop app:
                   </p>
-                  <ul className="list-disc list-inside space-y-1.5 text-muted-foreground leading-relaxed">
+                  <ul className="list-disc list-inside space-y-1.5 text-text-secondary leading-relaxed">
                     <li>
-                      In <strong className="text-foreground">Google Chrome</strong> or <strong className="text-foreground">Brave</strong>: click the install icon in the right side of the address bar.
+                      In <strong className="text-text-primary">Google Chrome</strong> or <strong className="text-text-primary">Brave</strong>: click the install icon in the right side of the address bar.
                     </li>
                     <li>
-                      In <strong className="text-foreground">Microsoft Edge</strong>: click the App Available icon or go to <em>Settings → Apps → Install PDFKit</em>.
+                      In <strong className="text-text-primary">Microsoft Edge</strong>: click the App Available icon or go to <em>Settings → Apps → Install PDFKit</em>.
                     </li>
                     <li>
-                      In <strong className="text-foreground">Safari on macOS Sonoma+</strong>: choose <em>File → Add to Dock</em>.
+                      In <strong className="text-text-primary">Safari on macOS Sonoma+</strong>: choose <em>File → Add to Dock</em>.
                     </li>
                   </ul>
                 </div>
               )}
 
-              <div className="rounded-xl border border-success/20 bg-success/5 p-3 text-[11px] text-success">
-                ✓ 100% Privacy Guaranteed: All PDF processing continues to run locally on your device with or without internet.
+              <div className="rounded-xl border border-border bg-surface-raised p-3 text-[11px] text-text-secondary leading-relaxed">
+                <span className="font-semibold text-text-primary">✓ 100% Privacy Guaranteed:</span> All PDF processing continues to run locally on your device with or without internet connectivity.
               </div>
             </div>
 
@@ -179,7 +179,7 @@ export function InstallAppButton({ className = "", compact = false }: { classNam
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="rounded-lg bg-foreground px-4 py-2 text-xs font-semibold text-white transition hover:bg-foreground/90"
+                className="rounded-lg bg-action-primary px-4 py-2 text-xs font-semibold text-action-primary-text transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               >
                 Got It
               </button>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Shield, ChevronDown, Menu, X, ArrowRight } from "lucide-react";
 import { CATEGORIES, PDF_TOOLS } from "@/lib/tools-data";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function Header() {
   const [toolsOpen, setToolsOpen] = useState(false);
@@ -47,17 +48,17 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-white/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-surface-base/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-content items-center justify-between px-3 sm:px-6">
-        {/* Brand Logo & Name */}
+        {/* Brand Logo & Wordmark */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 font-bold tracking-tight text-foreground transition hover:opacity-90"
+          className="flex items-center gap-2.5 font-bold tracking-tight text-foreground transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-md"
         >
-          {/* Minimal Document Icon Badge */}
-          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm overflow-hidden">
+          {/* Monochrome Folded Document Mark */}
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background shadow-sm">
             <svg
-              className="h-5 w-5 text-white"
+              className="h-4 w-4"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -65,38 +66,39 @@ export function Header() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="white" stroke="#2563EB" />
-              <polyline points="14 2 14 8 20 8" fill="#DBEAFE" stroke="#2563EB" />
-              <line x1="8" y1="13" x2="16" y2="13" stroke="#2563EB" strokeWidth="2" />
-              <line x1="8" y1="17" x2="13" y2="17" stroke="#2563EB" strokeWidth="2" />
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
             </svg>
           </div>
-          <span className="text-base sm:text-lg font-extrabold tracking-tight">
-            PDF<span className="text-primary">Kit</span>
+          <span className="text-base sm:text-lg font-extrabold tracking-tight text-foreground">
+            PDF<span className="font-semibold text-text-secondary">Kit</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-text-secondary">
           {/* Tools Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setToolsOpen(!toolsOpen)}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold transition hover:text-foreground focus:outline-none"
+              className="flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold text-text-primary transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               aria-expanded={toolsOpen}
+              aria-haspopup="true"
             >
               <span>All Tools</span>
-              <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${toolsOpen ? "rotate-180" : ""}`} />
+              <ChevronDown className={`h-4 w-4 transition-transform duration-150 ${toolsOpen ? "rotate-180" : ""}`} />
             </button>
 
             {/* Mega Dropdown */}
             {toolsOpen && (
-              <div className="absolute left-1/2 top-full mt-2 w-[720px] -translate-x-1/2 rounded-2xl border border-border bg-white p-6 shadow-xl animate-in fade-in-50 zoom-in-95 duration-150">
+              <div className="absolute left-1/2 top-full mt-2 w-[720px] -translate-x-1/2 rounded-2xl border border-border bg-surface-base p-6 shadow-xl animate-in fade-in-50 zoom-in-95 duration-150">
                 <div className="grid grid-cols-4 gap-6">
                   {CATEGORIES.map((cat) => (
                     <div key={cat.id} className="space-y-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-foreground border-b border-border pb-1.5">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-text-primary border-b border-border pb-1.5">
                         {cat.name}
                       </h4>
                       <ul className="space-y-1.5 text-xs">
@@ -104,7 +106,7 @@ export function Header() {
                           <li key={tool.id}>
                             <Link
                               href={tool.href}
-                              className="block rounded-md px-2 py-1 text-muted-foreground transition hover:bg-muted hover:text-primary font-medium truncate"
+                              className="block rounded-md px-2 py-1 text-text-secondary transition hover:bg-surface-raised hover:text-text-primary font-medium truncate"
                             >
                               {tool.name}
                             </Link>
@@ -114,12 +116,12 @@ export function Header() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5 text-success font-medium">
+                <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs text-text-secondary">
+                  <span className="flex items-center gap-1.5 text-text-primary font-medium">
                     <Shield className="h-3.5 w-3.5" />
-                    All 20 tools run 100% in your browser
+                    All 20 tools run 100% locally in your browser
                   </span>
-                  <Link href="/#tools" className="font-semibold text-primary hover:underline flex items-center gap-1">
+                  <Link href="/#tools" className="font-semibold text-text-primary hover:underline flex items-center gap-1">
                     <span>View all tools grid</span>
                     <ArrowRight className="h-3 w-3" />
                   </Link>
@@ -128,23 +130,23 @@ export function Header() {
             )}
           </div>
 
-          <Link href="/how-it-works" className="transition hover:text-foreground">
-            How It Works
+          <Link href="/about" className="transition hover:text-text-primary">
+            About
           </Link>
-          <Link href="/faq" className="transition hover:text-foreground">
+          <Link href="/faq" className="transition hover:text-text-primary">
             FAQ
           </Link>
-          <Link href="/privacy-policy" className="flex items-center gap-1.5 transition hover:text-foreground">
-            <Shield className="h-3.5 w-3.5 text-success" />
+          <Link href="/privacy-policy" className="flex items-center gap-1.5 transition hover:text-text-primary">
+            <Shield className="h-3.5 w-3.5 text-text-primary" />
             <span>Privacy</span>
-          </Link>
-          <Link href="/about" className="transition hover:text-foreground">
-            About
           </Link>
         </nav>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2">
+          {/* Theme Toggle (Light / Dark) */}
+          <ThemeToggle />
+
           {/* Install App Button */}
           <InstallAppButton />
 
@@ -153,7 +155,7 @@ export function Header() {
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle navigation menu"
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground transition hover:bg-muted lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-base text-text-primary transition hover:bg-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-focus lg:hidden"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -162,46 +164,46 @@ export function Header() {
 
       {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-14 bottom-0 z-50 overflow-y-auto bg-white p-4 shadow-xl lg:hidden animate-in slide-in-from-top-2 duration-200">
+        <div className="fixed inset-x-0 top-14 bottom-0 z-50 overflow-y-auto bg-surface-base p-4 shadow-xl lg:hidden animate-in slide-in-from-top-2 duration-150">
           <div className="space-y-6 pb-12">
-            {/* Quick Links */}
+            {/* Quick Links & Mobile Theme Switch */}
             <div className="grid grid-cols-2 gap-2 text-sm font-medium">
               <Link
-                href="/how-it-works"
-                className="flex items-center justify-center rounded-lg border border-border bg-muted/30 p-2.5 text-foreground hover:bg-muted"
+                href="/about"
+                className="flex items-center justify-center rounded-lg border border-border bg-surface-raised p-2.5 text-text-primary hover:bg-surface-strong"
               >
-                How It Works
+                About
               </Link>
               <Link
                 href="/privacy-policy"
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-muted/30 p-2.5 text-foreground hover:bg-muted"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-raised p-2.5 text-text-primary hover:bg-surface-strong"
               >
-                <Shield className="h-3.5 w-3.5 text-success" />
+                <Shield className="h-3.5 w-3.5 text-text-primary" />
                 <span>Privacy</span>
               </Link>
               <Link
                 href="/faq"
-                className="flex items-center justify-center rounded-lg border border-border bg-muted/30 p-2.5 text-foreground hover:bg-muted"
+                className="flex items-center justify-center rounded-lg border border-border bg-surface-raised p-2.5 text-text-primary hover:bg-surface-strong"
               >
                 FAQ
               </Link>
               <Link
-                href="/about"
-                className="flex items-center justify-center rounded-lg border border-border bg-muted/30 p-2.5 text-foreground hover:bg-muted"
+                href="/how-it-works"
+                className="flex items-center justify-center rounded-lg border border-border bg-surface-raised p-2.5 text-text-primary hover:bg-surface-strong"
               >
-                About
+                How It Works
               </Link>
             </div>
 
             {/* All 20 Tools by Category */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary">
                 All 20 PDF Tools
               </h3>
 
               {CATEGORIES.map((cat) => (
-                <div key={cat.id} className="rounded-xl border border-border p-3 bg-muted/10">
-                  <h4 className="text-xs font-bold text-foreground mb-2">
+                <div key={cat.id} className="rounded-xl border border-border p-3 bg-surface-raised">
+                  <h4 className="text-xs font-bold text-text-primary mb-2">
                     {cat.name}
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -209,10 +211,10 @@ export function Header() {
                       <Link
                         key={tool.id}
                         href={tool.href}
-                        className="rounded-lg px-2.5 py-1.5 text-xs text-foreground hover:bg-primary/10 hover:text-primary transition flex items-center justify-between"
+                        className="rounded-lg px-2.5 py-1.5 text-xs text-text-primary hover:bg-surface-strong transition flex items-center justify-between"
                       >
                         <span className="font-medium">{tool.name}</span>
-                        <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                        <ArrowRight className="h-3 w-3 text-text-tertiary" />
                       </Link>
                     ))}
                   </div>
@@ -221,13 +223,13 @@ export function Header() {
             </div>
 
             {/* Additional info links */}
-            <div className="border-t border-border pt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
-              <Link href="/terms" className="hover:text-foreground">Terms</Link>
-              <Link href="/contact" className="hover:text-foreground">Contact</Link>
-              <Link href="/security" className="hover:text-foreground">Security</Link>
-              <Link href="/disclaimer" className="hover:text-foreground">Disclaimer</Link>
-              <Link href="/cookie-policy" className="hover:text-foreground">Cookie Policy</Link>
-              <Link href="/accessibility" className="hover:text-foreground">Accessibility</Link>
+            <div className="border-t border-border pt-4 flex flex-wrap gap-4 text-xs text-text-secondary">
+              <Link href="/terms" className="hover:text-text-primary">Terms</Link>
+              <Link href="/contact" className="hover:text-text-primary">Contact</Link>
+              <Link href="/security" className="hover:text-text-primary">Security</Link>
+              <Link href="/disclaimer" className="hover:text-text-primary">Disclaimer</Link>
+              <Link href="/cookie-policy" className="hover:text-text-primary">Cookie Policy</Link>
+              <Link href="/accessibility" className="hover:text-text-primary">Accessibility</Link>
             </div>
           </div>
         </div>

@@ -174,7 +174,7 @@ export default function AddTextToPdfPage() {
                   <select
                     value={targetMode}
                     onChange={(e) => setTargetMode(e.target.value as any)}
-                    className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                   >
                     <option value="all">All Pages ({file.pageCount})</option>
                     <option value="single">Specific Page</option>
@@ -192,7 +192,7 @@ export default function AddTextToPdfPage() {
                       max={file.pageCount}
                       value={targetPage}
                       onChange={(e) => setTargetPage(parseInt(e.target.value) || 1)}
-                      className="mt-1.5 w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                     />
                   </div>
                 )}
@@ -207,7 +207,7 @@ export default function AddTextToPdfPage() {
                 <select
                   value={positionPreset}
                   onChange={(e) => setPositionPreset(e.target.value as any)}
-                  className="mt-1.5 w-full rounded-lg border border-border bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-surface-base px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-focus"
                 >
                   <option value="footer">Bottom Left / Footer (X: 54, Y: 40)</option>
                   <option value="header">Top Left / Header (X: 54, Y: 750)</option>
@@ -282,14 +282,14 @@ export default function AddTextToPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleApply}
               disabled={isProcessing || !text.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               {isProcessing ? (
                 <>

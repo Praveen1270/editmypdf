@@ -131,8 +131,8 @@ export default function CompressPdfPage() {
                 onClick={() => setPreset("low")}
                 className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                   preset === "low"
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-white hover:border-muted-foreground/30"
+                    ? "border-foreground bg-surface-raised ring-1 ring-border-strong"
+                    : "border-border bg-surface-base hover:border-border-strong"
                 }`}
               >
                 <div className="font-semibold text-sm text-foreground">
@@ -147,15 +147,15 @@ export default function CompressPdfPage() {
                 onClick={() => setPreset("recommended")}
                 className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                   preset === "recommended"
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-white hover:border-muted-foreground/30"
+                    ? "border-foreground bg-surface-raised ring-1 ring-border-strong"
+                    : "border-border bg-surface-base hover:border-border-strong"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-sm text-foreground">
                     Recommended
                   </span>
-                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                  <span className="rounded border border-border bg-surface-raised px-1.5 py-0.5 text-[10px] font-semibold text-text-primary">
                     Popular
                   </span>
                 </div>
@@ -168,8 +168,8 @@ export default function CompressPdfPage() {
                 onClick={() => setPreset("high")}
                 className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                   preset === "high"
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border bg-white hover:border-muted-foreground/30"
+                    ? "border-foreground bg-surface-raised ring-1 ring-border-strong"
+                    : "border-border bg-surface-base hover:border-border-strong"
                 }`}
               >
                 <div className="font-semibold text-sm text-foreground">
@@ -197,7 +197,7 @@ export default function CompressPdfPage() {
 
           {isProcessing && (
             <div className="flex items-center justify-center gap-3 py-4 text-sm text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <Loader2 className="h-5 w-5 animate-spin text-text-primary" />
               <span>
                 Optimizing PDF locally...{" "}
                 {progress ? `(processing page ${progress.current} of ${progress.total})` : ""}
@@ -209,14 +209,14 @@ export default function CompressPdfPage() {
             <button
               onClick={handleReset}
               disabled={isProcessing}
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              className="rounded-lg border border-border bg-surface-base px-4 py-2 text-sm font-medium text-foreground hover:bg-surface-raised"
             >
               Cancel
             </button>
             <button
               onClick={handleCompress}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-hover disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-action-primary px-6 py-2 text-sm font-semibold text-action-primary-text shadow-sm transition hover:opacity-90 disabled:opacity-50"
             >
               <Minimize2 className="h-4 w-4" />
               <span>Compress PDF</span>
