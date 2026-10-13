@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -115,6 +116,7 @@ export default function RootLayout({
             <Footer />
           </PwaProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
