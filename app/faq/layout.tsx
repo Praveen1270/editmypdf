@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "Frequently Asked Questions — PDFKit",
+  title: "Frequently Asked Questions — EditMyPDF",
   description:
     "Answers to common questions about client-side PDF processing, zero server uploads, file size limits, browser compatibility, and security.",
   canonical: "/faq",
-  keywords: ["pdfkit faq", "pdf privacy questions", "offline pdf faq"],
+  keywords: ["editmypdf faq", "pdf privacy questions", "offline pdf faq"],
 });
 
 const FAQ_ITEMS = [
@@ -20,18 +20,18 @@ const FAQ_ITEMS = [
   },
   {
     q: "What are the file size limits?",
-    a: "There are no arbitrary software limits imposed by PDFKit. Because processing relies on client-side RAM, documents up to several hundred megabytes process smoothly on most modern laptops and desktops.",
+    a: "There are no arbitrary software limits imposed by EditMyPDF. Because processing relies on client-side RAM, documents up to several hundred megabytes process smoothly on most modern laptops and desktops.",
   },
   {
     q: "Which browsers are supported?",
-    a: "PDFKit is compatible with all modern standards-compliant web browsers supporting WebAssembly and the HTML5 File API, including Google Chrome, Mozilla Firefox, Apple Safari, and Microsoft Edge on desktop, tablet, and mobile.",
+    a: "EditMyPDF is compatible with all modern standards-compliant web browsers supporting WebAssembly and the HTML5 File API, including Google Chrome, Mozilla Firefox, Apple Safari, and Microsoft Edge on desktop, tablet, and mobile.",
   },
   {
     q: "What encryption standard does Protect PDF use?",
     a: "We utilize industry-standard AES-256 bit encryption (PDF 2.0 / ISO 32000-2) and AES-128 via the native Web Crypto API. The resulting protected files are fully compatible with Adobe Acrobat, Apple Preview, Google Chrome, and standard PDF readers.",
   },
   {
-    q: "Can I use PDFKit completely offline?",
+    q: "Can I use EditMyPDF completely offline?",
     a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 20 PDF utilities will continue working offline.",
   },
 ];

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pdfkit-v2';
+const CACHE_NAME = 'editmypdf-v1';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -64,7 +64,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() => {
           return caches.match(req).then((cached) => {
             return cached || caches.match('/offline') || new Response(
-              '<!DOCTYPE html><html><head><title>Offline — PDFKit</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:system-ui,sans-serif;padding:2rem;text-align:center;"><h2>You are offline</h2><p>PDFKit works offline once loaded. Please reconnect to load uncached pages.</p></body></html>',
+              '<!DOCTYPE html><html><head><title>Offline — EditMyPDF</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:system-ui,sans-serif;padding:2rem;text-align:center;"><h2>You are offline</h2><p>EditMyPDF works offline once loaded. Please reconnect to load uncached pages.</p></body></html>',
               { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
             );
           });

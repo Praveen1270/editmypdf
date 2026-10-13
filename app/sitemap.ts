@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { PDF_TOOLS } from "@/lib/tools-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://pdfkit.local";
+  const baseUrl = "https://editmypdf.local";
   const currentDate = new Date().toISOString();
 
   // Core informational pages

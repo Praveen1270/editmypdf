@@ -26,8 +26,8 @@ export async function compressPDF(
     doc.setAuthor("");
     doc.setSubject("");
     doc.setKeywords([]);
-    doc.setProducer("PDFKit");
-    doc.setCreator("PDFKit");
+    doc.setProducer("EditMyPDF");
+    doc.setCreator("EditMyPDF");
 
     const compressed = await doc.save({
       useObjectStreams: true,

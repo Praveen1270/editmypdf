@@ -3,10 +3,10 @@ import Link from "next/link";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Privacy Policy — PDFKit",
+  title: "Privacy Policy — EditMyPDF",
   description: "Comprehensive privacy policy detailing client-side document processing, zero file transmission, and strict data protection practices.",
   canonical: "/privacy-policy",
-  keywords: ["pdfkit privacy policy", "no upload privacy", "client side pdf privacy"],
+  keywords: ["editmypdf privacy policy", "no upload privacy", "client side pdf privacy"],
 });
 
 export default function PrivacyPolicyPage() {
@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
               <span>Core Principle: Your Documents Never Leave Your Device</span>
             </h2>
             <p className="mt-2 text-xs leading-relaxed text-text-secondary">
-              PDFKit was engineered from the very first line of code with a strict non-negotiable architectural constraint: <strong>zero remote file transmission</strong>. All PDF parsing, manipulation, text extraction, image generation, and cryptographic operations are executed locally inside your web browser’s memory using WebAssembly, Web Workers, and the native Web Crypto API.
+              EditMyPDF was engineered from the very first line of code with a strict non-negotiable architectural constraint: <strong>zero remote file transmission</strong>. All PDF parsing, manipulation, text extraction, image generation, and cryptographic operations are executed locally inside your web browser’s memory using WebAssembly, Web Workers, and the native Web Crypto API.
             </p>
           </section>
 
@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
               1. Information We Do Not Collect
             </h2>
             <p className="text-text-secondary">
-              Because all document processing occurs in your browser’s local client runtime, PDFKit does <strong>NOT</strong> collect, view, store, transmit, or retain:
+              Because all document processing occurs in your browser’s local client runtime, EditMyPDF does <strong>NOT</strong> collect, view, store, transmit, or retain:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-secondary">
               <li>Your uploaded PDF files or images.</li>
@@ -84,7 +84,7 @@ export default function PrivacyPolicyPage() {
               3. Cookies and Browser Storage
             </h2>
             <p className="text-text-secondary">
-              PDFKit does <strong>not</strong> use tracking cookies, marketing cookies, or persistent profiling storage. We do not track you across sessions or other websites.
+              EditMyPDF does <strong>not</strong> use tracking cookies, marketing cookies, or persistent profiling storage. We do not track you across sessions or other websites.
             </p>
             <p className="text-text-secondary">
               We may utilize standard browser caching (Cache API and Service Workers) exclusively to cache static application scripts so that tools continue to function offline without redownloading code. We never store document contents or passwords in <code>localStorage</code> or <code>IndexedDB</code>.
@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
               4. Third-Party Services & Analytics
             </h2>
             <p className="text-text-secondary">
-              We do not employ third-party behavioral analytics scripts (such as session replay trackers or cross-site tracking pixels) on tool processing interfaces. PDFKit does not sell, rent, or monetize your personal information or document activity.
+              We do not employ third-party behavioral analytics scripts (such as session replay trackers or cross-site tracking pixels) on tool processing interfaces. EditMyPDF does not sell, rent, or monetize your personal information or document activity.
             </p>
           </section>
 
@@ -141,7 +141,7 @@ export default function PrivacyPolicyPage() {
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
                 Contact Page
               </Link>{" "}
-              or email our team at <code>privacy@pdfkit.local</code>.
+              or email our team at <code>privacy@editmypdf.local</code>.
             </p>
           </section>
         </div>

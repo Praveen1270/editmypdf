@@ -164,7 +164,7 @@ export default function UnlockPdfPage() {
             </div>
 
             <div className="rounded-lg border border-border bg-surface-base p-3 text-[11px] text-muted-foreground">
-              <strong>Notice:</strong> PDFKit strictly supports legitimate password decryption. We do not attempt brute-forcing, exploiting, or bypassing passwords.
+              <strong>Notice:</strong> EditMyPDF strictly supports legitimate password decryption. We do not attempt brute-forcing, exploiting, or bypassing passwords.
             </div>
 
             {errorMessage && (

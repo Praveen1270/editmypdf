@@ -16,26 +16,26 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pdfkit.local"),
+  metadataBase: new URL("https://editmypdf.local"),
   title: {
-    default: "PDFKit — Free Online PDF Tools",
-    template: "%s | PDFKit",
+    default: "EditMyPDF — Free Online PDF Tools",
+    template: "%s | EditMyPDF",
   },
   description:
     "Merge, split, compress, convert, rotate, protect, and edit PDF files directly in your browser. 100% local processing. Files never leave your device.",
-  applicationName: "PDFKit",
-  authors: [{ name: "PDFKit Team" }],
-  creator: "PDFKit",
-  publisher: "PDFKit",
+  applicationName: "EditMyPDF",
+  authors: [{ name: "EditMyPDF Team" }],
+  creator: "EditMyPDF",
+  publisher: "EditMyPDF",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://pdfkit.local",
-    siteName: "PDFKit",
-    title: "PDFKit — Privacy-First PDF Tools in Your Browser",
+    url: "https://editmypdf.local",
+    siteName: "EditMyPDF",
+    title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:
       "20 free, private PDF utilities running 100% locally in your browser. Merge, split, compress, protect, and convert without file uploads.",
     images: [
@@ -43,13 +43,13 @@ export const metadata: Metadata = {
         url: "/icon-512.png",
         width: 512,
         height: 512,
-        alt: "PDFKit — Privacy-First PDF Tools",
+        alt: "EditMyPDF — Privacy-First PDF Tools",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PDFKit — Privacy-First PDF Tools in Your Browser",
+    title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:
       "20 free, private PDF utilities running 100% locally in your browser. Zero uploads, offline ready.",
     images: ["/icon-512.png"],
@@ -106,7 +106,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('pdfkit-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('editmypdf-theme')||localStorage.getItem('pdfkit-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
           }}
         />
       </head>
@@ -115,7 +115,7 @@ export default function RootLayout({
           <PwaProvider>
             {/* Hidden install button so AppShell can invoke it */}
             <div className="hidden">
-              <InstallAppButton id="pdfkit-hidden-install-btn" />
+              <InstallAppButton id="editmypdf-hidden-install-btn" />
             </div>
             <AppShell>{children}</AppShell>
           </PwaProvider>

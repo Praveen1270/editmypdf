@@ -3,9 +3,9 @@ import Link from "next/link";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Security Architecture & Cryptography — PDFKit",
+  title: "Security Architecture & Cryptography — EditMyPDF",
   description:
-    "Technical documentation of PDFKit security practices, AES-256 Web Crypto standards, and local in-memory cryptography.",
+    "Technical documentation of EditMyPDF security practices, AES-256 Web Crypto standards, and local in-memory cryptography.",
   canonical: "/security",
   keywords: ["pdf security", "aes 256 pdf encryption", "client side pdf cryptography"],
 });
@@ -35,7 +35,7 @@ export default function SecurityPage() {
               <span>1. Supported PDF Encryption Standards</span>
             </h2>
             <p className="text-text-secondary">
-              PDFKit implements PDF document encryption using modern standard algorithms:
+              EditMyPDF implements PDF document encryption using modern standard algorithms:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-secondary">
               <li>

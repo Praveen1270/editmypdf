@@ -32,8 +32,8 @@ export default function RecentFilesPage() {
     const handleUpdate = () => {
       setRecentFiles(getRecentFiles());
     };
-    window.addEventListener("pdfkit_recent_updated", handleUpdate);
-    return () => window.removeEventListener("pdfkit_recent_updated", handleUpdate);
+    window.addEventListener("editmypdf_recent_updated", handleUpdate);
+    return () => window.removeEventListener("editmypdf_recent_updated", handleUpdate);
   }, []);
 
   const handleClear = () => {
@@ -58,7 +58,7 @@ export default function RecentFilesPage() {
         name: file.name,
         size: file.size,
         toolId: "merge",
-        toolName: "PDFKit",
+        toolName: "EditMyPDF",
       });
     }
     e.target.value = "";

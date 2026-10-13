@@ -2,8 +2,8 @@ import Link from "next/link";
 import { WifiOff, ArrowLeft, Shield } from "lucide-react";
 
 export const metadata = {
-  title: "Offline Mode — PDFKit",
-  description: "PDFKit operates offline in your browser. All loaded PDF tools function without internet access.",
+  title: "Offline Mode — EditMyPDF",
+  description: "EditMyPDF operates offline in your browser. All loaded PDF tools function without internet access.",
   robots: {
     index: false,
     follow: false,
@@ -22,7 +22,7 @@ export default function OfflinePage() {
       </h1>
 
       <p className="mt-2 max-w-md text-sm text-muted-foreground sm:text-base leading-relaxed">
-        Because PDFKit processes documents 100% inside your browser using client-side WebAssembly, tools you have already opened remain functional without an internet connection.
+        Because EditMyPDF processes documents 100% inside your browser using client-side WebAssembly, tools you have already opened remain functional without an internet connection.
       </p>
 
       <div className="mt-6 flex items-center gap-2 rounded-full border border-border bg-surface-raised px-4 py-1.5 text-xs font-medium text-text-primary">

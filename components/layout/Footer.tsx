@@ -19,10 +19,10 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-2.5 font-bold text-text-primary">
               <img
                 src="/logo.png?v=2"
-                alt="PDFKit Logo"
+                alt="EditMyPDF Logo"
                 className="h-7 w-7 shrink-0 object-contain"
               />
-              <span className="font-extrabold tracking-tight">PDF<span className="font-semibold text-text-secondary">Kit</span></span>
+              <span className="font-bold tracking-tight text-text-primary">EditMyPDF</span>
             </Link>
             <p className="mt-3 text-xs leading-relaxed text-text-secondary">
               20 private PDF utilities operating entirely inside your browser. No files, passwords, or data ever leave your device.
@@ -79,7 +79,7 @@ export function Footer() {
             </h4>
             <div className="mt-3 flex flex-col gap-1.5 text-xs">
               <Link href="/about" className="transition-colors hover:text-text-primary">
-                About PDFKit
+                About EditMyPDF
               </Link>
               <Link href="/how-it-works" className="transition-colors hover:text-text-primary">
                 How It Works & Verification
@@ -123,7 +123,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row text-xs text-text-tertiary">
-          <p>© {new Date().getFullYear()} PDFKit. Open standards, local memory, zero server uploads.</p>
+          <p>© {new Date().getFullYear()} EditMyPDF. Open standards, local memory, zero server uploads.</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy-policy" className="hover:text-text-primary">Privacy</Link>
             <span>·</span>

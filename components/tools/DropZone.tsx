@@ -81,7 +81,7 @@ export function DropZone({
           const path = window.location.pathname;
           const matchedTool = PDF_TOOLS.find((t) => t.href === path);
           const toolId = matchedTool ? matchedTool.id : "custom";
-          const toolName = matchedTool ? matchedTool.name : "PDFKit Tool";
+          const toolName = matchedTool ? matchedTool.name : "EditMyPDF Tool";
 
           for (const f of validFiles) {
             addRecentFile({

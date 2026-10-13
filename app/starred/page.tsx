@@ -63,8 +63,8 @@ export default function StarredPage() {
     const handleUpdate = () => {
       setStarredIds(getStarredToolIds());
     };
-    window.addEventListener("pdfkit_starred_updated", handleUpdate);
-    return () => window.removeEventListener("pdfkit_starred_updated", handleUpdate);
+    window.addEventListener("editmypdf_starred_updated", handleUpdate);
+    return () => window.removeEventListener("editmypdf_starred_updated", handleUpdate);
   }, []);
 
   const handleToggleStar = (e: React.MouseEvent, toolId: string) => {

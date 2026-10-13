@@ -9,7 +9,7 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
   const tool = PDF_TOOLS.find((t) => t.id === toolId);
   if (!tool) return null;
 
-  const baseUrl = "https://pdfkit.local";
+  const baseUrl = "https://editmypdf.local";
   const toolUrl = `${baseUrl}${tool.href}`;
 
   const schemas: any[] = [
@@ -17,7 +17,7 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": `${tool.name} — PDFKit`,
+      "name": `${tool.name} — EditMyPDF`,
       "url": toolUrl,
       "description": tool.description,
       "applicationCategory": "UtilitiesApplication",
@@ -87,11 +87,11 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
 }
 
 export function WebsiteJsonLd() {
-  const baseUrl = "https://pdfkit.local";
+  const baseUrl = "https://editmypdf.local";
   const siteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "PDFKit",
+    "name": "EditMyPDF",
     "url": baseUrl,
     "description": "Privacy-first PDF utility suite running 100% locally in your browser with 20 functional tools.",
     "potentialAction": {
@@ -107,7 +107,7 @@ export function WebsiteJsonLd() {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "PDFKit",
+    "name": "EditMyPDF",
     "url": baseUrl,
     "logo": `${baseUrl}/logo.svg`,
     "sameAs": ["https://github.com/Praveen1270/pdfkit"],

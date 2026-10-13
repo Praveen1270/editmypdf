@@ -1,6 +1,6 @@
 {
-  "name": "PDFKit — Privacy-First PDF Tools",
-  "short_name": "PDFKit",
+  "name": "EditMyPDF — Privacy-First PDF Tools",
+  "short_name": "EditMyPDF",
   "description": "20 privacy-first PDF utilities in one workspace. Merge, split, compress, convert, rotate, and protect PDF files directly in your browser. 100% local processing.",
   "start_url": "/",
   "scope": "/",

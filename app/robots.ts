@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/offline"],
       },
     ],
-    sitemap: "https://pdfkit.local/sitemap.xml",
-    host: "https://pdfkit.local",
+    sitemap: "https://editmypdf.local/sitemap.xml",
+    host: "https://editmypdf.local",
   };
 }

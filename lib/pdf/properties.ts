@@ -104,7 +104,7 @@ export async function inspectPdfProperties(
 
   // Compile plain text audit report
   let report = "=====================================================\n";
-  report += "           PDFKIT DOCUMENT PROPERTIES AUDIT           \n";
+  report += "           EDITMYPDF DOCUMENT PROPERTIES AUDIT          \n";
   report += "=====================================================\n\n";
   report += `Filename:            ${filename}\n`;
   report += `File Size:           ${formatFileSize(pdfBytes.byteLength)} (${pdfBytes.byteLength.toLocaleString()} bytes)\n`;
@@ -126,7 +126,7 @@ export async function inspectPdfProperties(
     report += `Page ${p.pageNumber.toString().padStart(3, " ")}: ${p.formatName} (${p.orientation}) — ${p.widthPt} x ${p.heightPt} pt [${p.widthMm} x ${p.heightMm} mm / ${p.widthIn} x ${p.heightIn} in]\n`;
   });
   report += "\n=====================================================\n";
-  report += "Generated locally with PDFKit (Zero Server Uploads)\n";
+  report += "Generated locally with EditMyPDF (Zero Server Uploads)\n";
 
   return {
     filename,

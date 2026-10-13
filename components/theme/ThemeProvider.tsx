@@ -18,7 +18,7 @@ const ThemeContext = createContext<ThemeContextType>({
   mounted: false,
 });
 
-const STORAGE_KEY = "pdfkit-theme";
+const STORAGE_KEY = "editmypdf-theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
@@ -28,7 +28,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // 1. Read stored preference or OS scheme
     let initialTheme: Theme = "light";
     try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+      const stored = (localStorage.getItem(STORAGE_KEY) || localStorage.getItem("pdfkit-theme")) as Theme | null;
       if (stored === "light" || stored === "dark") {
         initialTheme = stored;
       } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {

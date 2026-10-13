@@ -60,11 +60,11 @@ export function MainHeader({ onToggleMobileDrawer }: MainHeaderProps) {
         >
           <img
             src="/logo.png?v=2"
-            alt="PDFKit Logo"
+            alt="EditMyPDF Logo"
             className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 object-contain"
           />
           <span className="text-sm sm:text-base font-bold tracking-tight text-foreground font-sans">
-            PDFKit
+            EditMyPDF
           </span>
         </Link>
 

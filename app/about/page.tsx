@@ -5,11 +5,11 @@ import { PrivacyBadge } from "@/components/layout/PrivacyBadge";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "About PDFKit — Minimal, Privacy-First PDF Utilities",
+  title: "About EditMyPDF — Minimal, Privacy-First PDF Utilities",
   description:
-    "Learn about PDFKit, an open, privacy-first PDF utility suite designed with minimal design and zero cloud dependencies.",
+    "Learn about EditMyPDF, an open, privacy-first PDF utility suite designed with minimal design and zero cloud dependencies.",
   canonical: "/about",
-  keywords: ["about pdfkit", "privacy pdf tools", "offline pdf philosophy"],
+  keywords: ["about editmypdf", "privacy pdf tools", "offline pdf philosophy"],
 });
 
 export default function AboutPage() {
@@ -21,7 +21,7 @@ export default function AboutPage() {
             <FileText className="h-6 w-6" />
           </div>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
-            About PDFKit
+            About EditMyPDF
           </h1>
           <p className="mt-3 text-base text-text-secondary">
             A fast, simple, trustworthy PDF utility suite that respects your privacy.
@@ -41,7 +41,7 @@ export default function AboutPage() {
               documents to remote servers.
             </p>
             <p className="mt-2 text-text-secondary">
-              PDFKit was created to demonstrate a better alternative: using modern web standards to
+              EditMyPDF was created to demonstrate a better alternative: using modern web standards to
               bring workstation-grade PDF manipulation entirely inside your browser. No cloud
               processing. No accounts. No subscriptions.
             </p>
@@ -69,7 +69,7 @@ export default function AboutPage() {
           <div className="pt-6">
             <h2 className="text-lg font-bold text-text-primary">Minimalist Design</h2>
             <p className="mt-2 text-text-secondary">
-              PDFKit eliminates intrusive popups, complicated dashboards, noisy animations, and fabricated statistics. We focus purely on providing simple, functional utilities that get the job done reliably.
+              EditMyPDF eliminates intrusive popups, complicated dashboards, noisy animations, and fabricated statistics. We focus purely on providing simple, functional utilities that get the job done reliably.
             </p>
           </div>
 

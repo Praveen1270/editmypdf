@@ -70,8 +70,8 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
   useEffect(() => {
     setStarredIds(getStarredToolIds());
     const handleUpdate = () => setStarredIds(getStarredToolIds());
-    window.addEventListener("pdfkit_starred_updated", handleUpdate);
-    return () => window.removeEventListener("pdfkit_starred_updated", handleUpdate);
+    window.addEventListener("editmypdf_starred_updated", handleUpdate);
+    return () => window.removeEventListener("editmypdf_starred_updated", handleUpdate);
   }, []);
 
   useEffect(() => {

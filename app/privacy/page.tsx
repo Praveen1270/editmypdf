@@ -3,9 +3,9 @@ import { Lock, EyeOff, ServerOff, Cpu, RefreshCw } from "lucide-react";
 import { PrivacyBadge } from "@/components/layout/PrivacyBadge";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy & Architecture — PDFKit",
+  title: "Privacy Policy & Architecture — EditMyPDF",
   description:
-    "Learn how PDFKit operates 100% locally in your browser. No file uploads, no tracking, and total document confidentiality.",
+    "Learn how EditMyPDF operates 100% locally in your browser. No file uploads, no tracking, and total document confidentiality.",
   alternates: {
     canonical: "/privacy-policy",
   },
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
             Privacy Policy & Local Architecture
           </h1>
           <p className="mt-3 text-base text-text-secondary">
-            Transparency is fundamental. Here is exactly how PDFKit processes documents.
+            Transparency is fundamental. Here is exactly how EditMyPDF processes documents.
           </p>
           <div className="mt-4">
             <PrivacyBadge />
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
             </div>
             <p className="mt-3 text-text-secondary">
               Unlike conventional online PDF converters that send your files to remote cloud
-              servers or worker clusters, PDFKit executes all PDF manipulation directly inside
+              servers or worker clusters, EditMyPDF executes all PDF manipulation directly inside
               your browser instance. When you select a document, it is read into your browser's
               local memory (`Uint8Array`) using standard HTML5 File APIs. No byte of document data,
               text, or image is ever uploaded to a remote server.
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
               </h2>
             </div>
             <p className="mt-3 text-text-secondary">
-              PDFKit implements ISO 32000-2 standard **AES-256 bit encryption** using the native Web
+              EditMyPDF implements ISO 32000-2 standard **AES-256 bit encryption** using the native Web
               Crypto API (`crypto.subtle`). Passwords you enter to protect or unlock documents are
               used locally to derive decryption keys in memory. Passwords are never sent across any
               network, logged, or recorded.
@@ -106,7 +106,7 @@ export default function PrivacyPage() {
               </h2>
             </div>
             <p className="mt-3 text-text-secondary">
-              After initial page loading, all PDFKit tools are capable of working entirely offline.
+              After initial page loading, all EditMyPDF tools are capable of working entirely offline.
               You can turn off Wi-Fi or enable Airplane Mode and continue merging, splitting,
               compressing, converting, and watermarking files without interruption.
             </p>

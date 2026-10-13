@@ -3,10 +3,10 @@ import { FileCheck, Shield, AlertTriangle } from "lucide-react";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Terms of Service — PDFKit",
-  description: "Terms and conditions governing the use of PDFKit client-side PDF utilities and local document processing.",
+  title: "Terms of Service — EditMyPDF",
+  description: "Terms and conditions governing the use of EditMyPDF client-side PDF utilities and local document processing.",
   canonical: "/terms",
-  keywords: ["pdfkit terms", "terms of service", "client side license"],
+  keywords: ["editmypdf terms", "terms of service", "client side license"],
 });
 
 export default function TermsPage() {
@@ -35,7 +35,7 @@ export default function TermsPage() {
               1. Acceptance of Terms
             </h2>
             <p className="text-text-secondary">
-              By accessing and using PDFKit, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, please do not access or use this website.
+              By accessing and using EditMyPDF, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, please do not access or use this website.
             </p>
           </section>
 
@@ -45,7 +45,7 @@ export default function TermsPage() {
               2. Nature of Service & Local Execution
             </h2>
             <p className="text-text-secondary">
-              PDFKit provides web-based PDF utility tools that run entirely client-side inside your browser environment. We do not host, store, or transmit your documents to external servers. Because processing is executed by your local device hardware and browser runtime, performance is governed by your computer’s processor, available RAM, and browser software.
+              EditMyPDF provides web-based PDF utility tools that run entirely client-side inside your browser environment. We do not host, store, or transmit your documents to external servers. Because processing is executed by your local device hardware and browser runtime, performance is governed by your computer’s processor, available RAM, and browser software.
             </p>
           </section>
 
@@ -55,7 +55,7 @@ export default function TermsPage() {
               3. User Responsibilities & Acceptable Use
             </h2>
             <p className="text-text-secondary">
-              You retain all ownership and intellectual property rights to the documents and images you process through PDFKit. You represent and warrant that:
+              You retain all ownership and intellectual property rights to the documents and images you process through EditMyPDF. You represent and warrant that:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-secondary">
               <li>You have the legal right, authorization, or license to modify, encrypt, decrypt, or convert the documents you process.</li>
@@ -73,17 +73,17 @@ export default function TermsPage() {
               </h2>
             </div>
             <p className="text-xs text-text-secondary leading-relaxed">
-              PDF documents vary widely in structural standards, font encodings, embedded vectors, and security filters. While PDFKit implements industry standards (ISO 32000), you must independently verify the output of all converted, merged, compressed, or split files before relying on them for critical legal, financial, architectural, or healthcare purposes.
+              PDF documents vary widely in structural standards, font encodings, embedded vectors, and security filters. While EditMyPDF implements industry standards (ISO 32000), you must independently verify the output of all converted, merged, compressed, or split files before relying on them for critical legal, financial, architectural, or healthcare purposes.
             </p>
           </section>
 
           {/* Section 5: Intellectual Property */}
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-text-primary">
-              5. Intellectual Property of PDFKit
+              5. Intellectual Property of EditMyPDF
             </h2>
             <p className="text-text-secondary">
-              The website design, branding, documentation, graphics, and custom front-end architecture of PDFKit are protected by copyright and intellectual property laws. Open-source libraries incorporated into the client software (such as PDF.js and pdf-lib) remain subject to their respective Apache 2.0 and MIT open-source licenses.
+              The website design, branding, documentation, graphics, and custom front-end architecture of EditMyPDF are protected by copyright and intellectual property laws. Open-source libraries incorporated into the client software (such as PDF.js and pdf-lib) remain subject to their respective Apache 2.0 and MIT open-source licenses.
             </p>
           </section>
 
@@ -93,7 +93,7 @@ export default function TermsPage() {
               6. Disclaimer of Warranties
             </h2>
             <p className="text-text-secondary">
-              PDFKit is provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not guarantee that the tools will be uninterrupted, error-free, or compatible with non-standard or corrupt PDF documents.
+              EditMyPDF is provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis without warranties of any kind, whether express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not guarantee that the tools will be uninterrupted, error-free, or compatible with non-standard or corrupt PDF documents.
             </p>
           </section>
 
@@ -103,7 +103,7 @@ export default function TermsPage() {
               7. Limitation of Liability
             </h2>
             <p className="text-text-secondary">
-              To the fullest extent permitted by applicable law, PDFKit and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of data, loss of business, or computer failure, arising from your use of or inability to use the tools.
+              To the fullest extent permitted by applicable law, EditMyPDF and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of data, loss of business, or computer failure, arising from your use of or inability to use the tools.
             </p>
           </section>
 
@@ -127,7 +127,7 @@ export default function TermsPage() {
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
                 Contact Page
               </Link>{" "}
-              or email <code>legal@pdfkit.local</code>.
+              or email <code>legal@editmypdf.local</code>.
             </p>
           </section>
         </div>

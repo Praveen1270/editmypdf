@@ -17,10 +17,10 @@ export function generatePageMetadata(config: PageSeoConfig): Metadata {
       canonical: config.canonical,
     },
     openGraph: {
-      title: `${config.title} | PDFKit`,
+      title: `${config.title} | EditMyPDF`,
       description: config.description,
       url: config.canonical,
-      siteName: "PDFKit",
+      siteName: "EditMyPDF",
       locale: "en_US",
       type: "website",
       images: [
@@ -28,13 +28,13 @@ export function generatePageMetadata(config: PageSeoConfig): Metadata {
           url: "/icon-512.png",
           width: 512,
           height: 512,
-          alt: `${config.title} — PDFKit`,
+          alt: `${config.title} — EditMyPDF`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${config.title} | PDFKit`,
+      title: `${config.title} | EditMyPDF`,
       description: config.description,
       images: ["/icon-512.png"],
     },
@@ -59,7 +59,7 @@ export function generateToolMetadataById(toolId: string): Metadata {
   const tool = PDF_TOOLS.find((t) => t.id === toolId);
   if (!tool) {
     return generatePageMetadata({
-      title: "PDF Tool — PDFKit",
+      title: "PDF Tool — EditMyPDF",
       description: "Privacy-first PDF utility in your browser.",
       canonical: "/",
     });

@@ -1,6 +1,6 @@
-# PDFKit — Privacy-First Browser-Based PDF Tools Suite
+# EditMyPDF — Privacy-First Browser-Based PDF Tools Suite
 
-**PDFKit** is a modern, lightweight, privacy-first PDF utility website providing 20 useful tools in one place.
+**EditMyPDF** is a modern, lightweight, privacy-first PDF utility website providing 20 useful tools in one place.
 
 ## Core Principle: Files Never Leave Your Device
 
@@ -45,7 +45,7 @@ All PDF processing occurs **100% locally in your browser** using WebAssembly, HT
 
 - **Privacy Policy**: `/privacy-policy` (Client-side execution, memory lifecycle, GDPR/CCPA disclosures)
 - **Terms of Service**: `/terms` (Acceptable use, ownership, liability boundaries)
-- **Contact & Support**: `/contact` (Support channel `support@pdfkit.local` with topic selector)
+- **Contact & Support**: `/contact` (Support channel `support@editmypdf.local` with topic selector)
 - **Output Disclaimer**: `/disclaimer` (PDF version variability, OCR requirements, verification advisory)
 - **Cookie & Storage Policy**: `/cookie-policy` (Zero tracking cookies, volatile RAM disclosures)
 - **FAQ**: `/faq` (Searchable accordion covering privacy, limits, encryption, compatibility)

@@ -58,11 +58,11 @@ export function Header() {
           {/* Monochrome Folded Document Mark */}
           <img
             src="/logo.png?v=2"
-            alt="PDFKit Logo"
+            alt="EditMyPDF Logo"
             className="h-8 w-8 shrink-0 object-contain"
           />
-          <span className="text-base sm:text-lg font-extrabold tracking-tight text-foreground">
-            PDF<span className="font-semibold text-text-secondary">Kit</span>
+          <span className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+            EditMyPDF
           </span>
         </Link>
 

@@ -42,11 +42,11 @@ export function AppShell({ children }: AppShellProps) {
 
   // Install app handler (PWA)
   const handleInstallApp = () => {
-    const installBtn = document.getElementById("pdfkit-hidden-install-btn");
+    const installBtn = document.getElementById("editmypdf-hidden-install-btn");
     if (installBtn) {
       installBtn.click();
     } else {
-      alert("PDFKit runs offline directly in your browser. In Chrome/Edge, click the install icon in the URL address bar.");
+      alert("EditMyPDF runs offline directly in your browser. In Chrome/Edge, click the install icon in the URL address bar.");
     }
   };
 

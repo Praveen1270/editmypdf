@@ -4,11 +4,11 @@ import { AlertTriangle } from "lucide-react";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "Disclaimer & Document Advisory — PDFKit",
+  title: "Disclaimer & Document Advisory — EditMyPDF",
   description:
-    "Important notices regarding PDF document variations, OCR scanned files, and output verification guidelines for PDFKit client-side tools.",
+    "Important notices regarding PDF document variations, OCR scanned files, and output verification guidelines for EditMyPDF client-side tools.",
   canonical: "/disclaimer",
-  keywords: ["pdfkit disclaimer", "pdf limitations notice", "output verification"],
+  keywords: ["editmypdf disclaimer", "pdf limitations notice", "output verification"],
 });
 
 export default function DisclaimerPage() {
@@ -37,7 +37,7 @@ export default function DisclaimerPage() {
               The Portable Document Format (PDF) is an exceptionally complex specification spanning dozens of versions from PDF 1.0 to ISO 32000-2 (PDF 2.0). Documents may contain proprietary font encodings, non-standard vector streams, embedded XFA forms, or vendor-specific structural objects.
             </p>
             <p className="text-text-secondary">
-              While PDFKit utilizes compliant, standards-based parsers (`pdf-lib` and Mozilla `PDF.js`), files that diverge from standard PDF specifications or contain corrupt cross-reference tables may experience rendering anomalies, missing characters, or compression variations.
+              While EditMyPDF utilizes compliant, standards-based parsers (`pdf-lib` and Mozilla `PDF.js`), files that diverge from standard PDF specifications or contain corrupt cross-reference tables may experience rendering anomalies, missing characters, or compression variations.
             </p>
           </section>
 

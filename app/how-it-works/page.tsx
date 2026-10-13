@@ -3,9 +3,9 @@ import Link from "next/link";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "How It Works — Client-Side PDF Architecture — PDFKit",
+  title: "How It Works — Client-Side PDF Architecture — EditMyPDF",
   description:
-    "Learn how PDFKit processes PDF files entirely inside your browser using WebAssembly, Web Workers, and native Web Crypto API with zero server uploads.",
+    "Learn how EditMyPDF processes PDF files entirely inside your browser using WebAssembly, Web Workers, and native Web Crypto API with zero server uploads.",
   canonical: "/how-it-works",
   keywords: ["how client side pdf works", "webassembly pdf", "private pdf architecture"],
 });
@@ -114,7 +114,7 @@ export default function HowItWorksPage() {
               Self-Hosted Workers & Offline Readiness
             </h2>
             <p className="text-text-secondary">
-              Many web tools that claim to be client-side secretly fetch scripts, fonts, or tracking beacons from third-party CDNs during operation. PDFKit self-hosts its WebAssembly workers (<code>/pdf.worker.min.mjs</code>) directly on our origin. Once cached by your browser, all 20 PDF utilities operate with 100% independence from the internet.
+              Many web tools that claim to be client-side secretly fetch scripts, fonts, or tracking beacons from third-party CDNs during operation. EditMyPDF self-hosts its WebAssembly workers (<code>/pdf.worker.min.mjs</code>) directly on our origin. Once cached by your browser, all 20 PDF utilities operate with 100% independence from the internet.
             </p>
           </section>
 

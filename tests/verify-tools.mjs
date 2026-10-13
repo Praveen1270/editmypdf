@@ -218,7 +218,7 @@ async function runTests() {
     const report = await inspectPdfProperties(sample, "test-document.pdf");
     assert(report.pageCount === 4, "PDF Page Counter: Accurately determined 4 pages");
     assert(report.pages.length === 4, "PDF Page Counter: Generated 4 per-page dimension entries");
-    assert(report.plainTextReport.includes("PDFKIT DOCUMENT PROPERTIES AUDIT"), "PDF Page Counter: Generated complete plain text report");
+    assert(report.plainTextReport.includes("EDITMYPDF DOCUMENT PROPERTIES AUDIT"), "PDF Page Counter: Generated complete plain text report");
   }
 
   // 15. Tool 14: Text Diff Calculation

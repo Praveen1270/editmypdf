@@ -3,7 +3,7 @@ import Link from "next/link";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Cookie & Storage Policy — PDFKit",
+  title: "Cookie & Storage Policy — EditMyPDF",
   description: "Transparent disclosure confirming zero tracking cookies, volatile device memory lifecycle, and static asset caching.",
   canonical: "/cookie-policy",
   keywords: ["cookie policy", "no tracking cookies", "browser storage disclosure"],
@@ -31,7 +31,7 @@ export default function CookiePolicyPage() {
           <div className="rounded-xl border border-border bg-surface-raised p-5 flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-text-primary shrink-0 mt-0.5" />
             <div className="text-xs text-text-secondary leading-relaxed">
-              <strong className="text-text-primary">Zero Tracking Cookies:</strong> PDFKit does not set any advertising, tracking, marketing, or profiling cookies on your computer. You can use all 20 PDF utilities without giving cookie consent or managing cookie preference banners because no tracking mechanisms exist.
+              <strong className="text-text-primary">Zero Tracking Cookies:</strong> EditMyPDF does not set any advertising, tracking, marketing, or profiling cookies on your computer. You can use all 20 PDF utilities without giving cookie consent or managing cookie preference banners because no tracking mechanisms exist.
             </div>
           </div>
 
@@ -46,10 +46,10 @@ export default function CookiePolicyPage() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-bold text-text-primary">
-              2. Does PDFKit Use Cookies?
+              2. Does EditMyPDF Use Cookies?
             </h2>
             <p className="text-text-secondary">
-              <strong>No.</strong> PDFKit does not use HTTP cookies for session tracking, user identification, advertising, or cross-site profiling. We do not require an account or login to access any tool.
+              <strong>No.</strong> EditMyPDF does not use HTTP cookies for session tracking, user identification, advertising, or cross-site profiling. We do not require an account or login to access any tool.
             </p>
           </section>
 
@@ -58,7 +58,7 @@ export default function CookiePolicyPage() {
               3. Browser Storage Technologies We Use
             </h2>
             <p className="text-text-secondary">
-              To operate effectively and support offline functionality, PDFKit utilizes standard modern browser client-side storage technologies as follows:
+              To operate effectively and support offline functionality, EditMyPDF utilizes standard modern browser client-side storage technologies as follows:
             </p>
 
             <div className="space-y-3 pt-2">

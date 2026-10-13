@@ -2,8 +2,8 @@ import { Eye, CheckCircle2 } from "lucide-react";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata = generatePageMetadata({
-  title: "Accessibility Statement — PDFKit",
-  description: "Accessibility standards, WCAG 2.2 AA conformance, keyboard navigation, and reporting channels for PDFKit.",
+  title: "Accessibility Statement — EditMyPDF",
+  description: "Accessibility standards, WCAG 2.2 AA conformance, keyboard navigation, and reporting channels for EditMyPDF.",
   canonical: "/accessibility",
   keywords: ["pdf accessibility", "wcag pdf tools", "accessible pdf editor"],
 });
@@ -21,7 +21,7 @@ export default function AccessibilityPage() {
             Accessibility Statement
           </h1>
           <p className="mt-3 text-sm text-text-secondary leading-relaxed">
-            Our commitment to ensuring PDFKit utilities are accessible and intuitive for all users, regardless of device or ability.
+            Our commitment to ensuring EditMyPDF utilities are accessible and intuitive for all users, regardless of device or ability.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function AccessibilityPage() {
               Conformance Standards (WCAG 2.2 AA)
             </h2>
             <p className="text-text-secondary">
-              PDFKit conforms with the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA. We prioritize clean semantic markup, high-contrast monochrome typography, and intuitive keyboard navigation across all 20 PDF utilities.
+              EditMyPDF conforms with the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA. We prioritize clean semantic markup, high-contrast monochrome typography, and intuitive keyboard navigation across all 20 PDF utilities.
             </p>
           </section>
 
@@ -93,10 +93,10 @@ export default function AccessibilityPage() {
             <p className="text-xs text-text-primary font-medium">
               Email our accessibility team directly at:{" "}
               <a
-                href="mailto:accessibility@pdfkit.local"
+                href="mailto:accessibility@editmypdf.local"
                 className="text-text-primary hover:underline font-semibold"
               >
-                accessibility@pdfkit.local
+                accessibility@editmypdf.local
               </a>
             </p>
           </section>

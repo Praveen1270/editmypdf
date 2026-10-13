@@ -3,7 +3,7 @@ import { HomeClient } from "@/components/home/HomeClient";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "PDFKit — Free Online PDF Tools",
+  title: "EditMyPDF — Free Online PDF Tools",
   description:
     "All your PDF tools. One private workspace. 20 client-side PDF utilities to merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
   keywords: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "PDFKit — Privacy-First PDF Utilities",
+    title: "EditMyPDF — Privacy-First PDF Utilities",
     description: "20 functional PDF tools that run locally in your browser. Files never leave your device.",
     type: "website",
   },
@@ -33,8 +33,8 @@ export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "PDFKit",
-    "url": "https://pdfkit.local",
+    "name": "EditMyPDF",
+    "url": "https://editmypdf.local",
     "description": "Privacy-first suite of 20 browser-powered PDF utilities operating with zero server uploads.",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All modern web browsers",

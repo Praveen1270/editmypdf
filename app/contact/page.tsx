@@ -8,13 +8,13 @@ export default function ContactPage() {
   const [body, setBody] = useState("");
   const [topic, setTopic] = useState("feedback");
 
-  const contactEmail = "support@pdfkit.local";
+  const contactEmail = "support@editmypdf.local";
 
   const handleSendEmail = (e: React.FormEvent) => {
     e.preventDefault();
-    const mailtoSubject = encodeURIComponent(`[PDFKit - ${topic.toUpperCase()}] ${subject || "User Inquiry"}`);
+    const mailtoSubject = encodeURIComponent(`[EditMyPDF - ${topic.toUpperCase()}] ${subject || "User Inquiry"}`);
     const mailtoBody = encodeURIComponent(
-      `Topic: ${topic}\n\nMessage:\n${body}\n\n---\nSent from PDFKit Web Interface`
+      `Topic: ${topic}\n\nMessage:\n${body}\n\n---\nSent from EditMyPDF Web Interface`
     );
     window.location.href = `mailto:${contactEmail}?subject=${mailtoSubject}&body=${mailtoBody}`;
   };
@@ -42,7 +42,7 @@ export default function ContactPage() {
             <Shield className="h-5 w-5 text-text-primary shrink-0 mt-0.5" />
             <div className="text-xs text-text-secondary">
               <span className="font-semibold text-text-primary">Privacy Note on Document Support:</span>{" "}
-              Never attach confidential, medical, or legally privileged PDF files to support emails. Because PDFKit runs locally on your machine, we do not have server access to view your documents.
+              Never attach confidential, medical, or legally privileged PDF files to support emails. Because EditMyPDF runs locally on your machine, we do not have server access to view your documents.
             </div>
           </div>
 

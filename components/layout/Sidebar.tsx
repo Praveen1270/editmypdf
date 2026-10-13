@@ -104,8 +104,8 @@ export function Sidebar({
     const handleStarredUpdate = () => {
       setStarredIds(getStarredToolIds());
     };
-    window.addEventListener("pdfkit_starred_updated", handleStarredUpdate);
-    return () => window.removeEventListener("pdfkit_starred_updated", handleStarredUpdate);
+    window.addEventListener("editmypdf_starred_updated", handleStarredUpdate);
+    return () => window.removeEventListener("editmypdf_starred_updated", handleStarredUpdate);
   }, []);
 
   const handleToggleStar = (e: React.MouseEvent, toolId: string) => {
@@ -148,12 +148,12 @@ export function Sidebar({
           {/* Logo in original shape */}
           <img
             src="/logo.png?v=2"
-            alt="PDFKit Logo"
+            alt="EditMyPDF Logo"
             className="h-9 w-9 shrink-0 object-contain transition group-hover:opacity-90"
           />
           {/* Brand Name */}
           <span className="text-lg font-bold tracking-tight text-sidebar-foreground font-sans">
-            PDFKit
+            EditMyPDF
           </span>
         </Link>
       </div>

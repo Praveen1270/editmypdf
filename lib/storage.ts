@@ -8,8 +8,8 @@ export interface RecentFileRecord {
   pageCount?: number;
 }
 
-const RECENT_FILES_KEY = "pdfkit_recent_files";
-const STARRED_TOOLS_KEY = "pdfkit_starred_tools";
+const RECENT_FILES_KEY = "editmypdf_recent_files";
+const STARRED_TOOLS_KEY = "editmypdf_starred_tools";
 
 // Default starred tools: popular tools to showcase
 export const DEFAULT_STARRED_TOOL_IDS = ["merge", "split", "compress", "protect"];
@@ -26,7 +26,7 @@ export function isRealFileRecord(record: RecentFileRecord): boolean {
 export function getRecentFiles(): RecentFileRecord[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(RECENT_FILES_KEY);
+    const raw = localStorage.getItem(RECENT_FILES_KEY) || localStorage.getItem("pdfkit_recent_files");
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -54,7 +54,7 @@ export function addRecentFile(file: Omit<RecentFileRecord, "id" | "timestamp">):
     const filtered = list.filter((item) => item.name !== file.name || item.toolId !== file.toolId);
     const updated = [newEntry, ...filtered].slice(0, 20);
     localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("pdfkit_recent_updated"));
+    window.dispatchEvent(new Event("editmypdf_recent_updated"));
   } catch (e) {
     console.warn("Failed to save recent file", e);
   }
@@ -66,7 +66,7 @@ export function removeRecentFile(id: string): void {
     const list = getRecentFiles();
     const updated = list.filter((item) => item.id !== id);
     localStorage.setItem(RECENT_FILES_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("pdfkit_recent_updated"));
+    window.dispatchEvent(new Event("editmypdf_recent_updated"));
   } catch (e) {
     console.warn("Failed to remove recent file", e);
   }
@@ -76,7 +76,7 @@ export function clearRecentFiles(): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(RECENT_FILES_KEY);
-    window.dispatchEvent(new Event("pdfkit_recent_updated"));
+    window.dispatchEvent(new Event("editmypdf_recent_updated"));
   } catch (e) {
     console.warn("Failed to clear recent files", e);
   }
@@ -85,7 +85,7 @@ export function clearRecentFiles(): void {
 export function getStarredToolIds(): string[] {
   if (typeof window === "undefined") return DEFAULT_STARRED_TOOL_IDS;
   try {
-    const raw = localStorage.getItem(STARRED_TOOLS_KEY);
+    const raw = localStorage.getItem(STARRED_TOOLS_KEY) || localStorage.getItem("pdfkit_starred_tools");
     if (!raw) {
       localStorage.setItem(STARRED_TOOLS_KEY, JSON.stringify(DEFAULT_STARRED_TOOL_IDS));
       return DEFAULT_STARRED_TOOL_IDS;
@@ -109,7 +109,7 @@ export function toggleStarredToolId(toolId: string): boolean {
       updated = current.filter((id) => id !== toolId);
     }
     localStorage.setItem(STARRED_TOOLS_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("pdfkit_starred_updated"));
+    window.dispatchEvent(new Event("editmypdf_starred_updated"));
     return isNowStarred;
   } catch {
     return false;

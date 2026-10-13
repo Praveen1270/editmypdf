@@ -14,7 +14,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
             if (installingWorker) {
               installingWorker.onstatechange = () => {
                 if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  console.info("New PDFKit version available. Refresh to update.");
+                  console.info("New EditMyPDF version available. Refresh to update.");
                 }
               };
             }

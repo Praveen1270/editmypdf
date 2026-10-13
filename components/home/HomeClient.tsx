@@ -83,8 +83,8 @@ export function HomeClient() {
     const handleStarredUpdate = () => {
       setStarredIds(getStarredToolIds());
     };
-    window.addEventListener("pdfkit_starred_updated", handleStarredUpdate);
-    return () => window.removeEventListener("pdfkit_starred_updated", handleStarredUpdate);
+    window.addEventListener("editmypdf_starred_updated", handleStarredUpdate);
+    return () => window.removeEventListener("editmypdf_starred_updated", handleStarredUpdate);
   }, []);
 
   // Keyboard shortcut: Ctrl + K focuses the main search bar on Dashboard

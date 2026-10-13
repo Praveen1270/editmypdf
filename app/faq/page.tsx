@@ -24,12 +24,12 @@ const FAQ_DATA: FaqItem[] = [
   {
     category: "technical",
     q: "What are the file size limits?",
-    a: "There are no arbitrary software limits imposed by PDFKit. Because processing relies on client-side RAM, documents up to several hundred megabytes process smoothly on most modern laptops and desktops. Mobile devices with limited RAM may experience memory constraints with extremely large files.",
+    a: "There are no arbitrary software limits imposed by EditMyPDF. Because processing relies on client-side RAM, documents up to several hundred megabytes process smoothly on most modern laptops and desktops. Mobile devices with limited RAM may experience memory constraints with extremely large files.",
   },
   {
     category: "technical",
     q: "Which browsers are supported?",
-    a: "PDFKit is compatible with all modern standards-compliant web browsers supporting WebAssembly and the HTML5 File API, including Google Chrome, Mozilla Firefox, Apple Safari, and Microsoft Edge on desktop, tablet, and mobile.",
+    a: "EditMyPDF is compatible with all modern standards-compliant web browsers supporting WebAssembly and the HTML5 File API, including Google Chrome, Mozilla Firefox, Apple Safari, and Microsoft Edge on desktop, tablet, and mobile.",
   },
   {
     category: "tools",
@@ -49,17 +49,17 @@ const FAQ_DATA: FaqItem[] = [
   {
     category: "security",
     q: "Can Unlock PDF recover a forgotten password?",
-    a: "No. PDFKit is designed to decrypt PDFs when you know the legitimate document password. We do not support password cracking or bypassing security controls.",
+    a: "No. EditMyPDF is designed to decrypt PDFs when you know the legitimate document password. We do not support password cracking or bypassing security controls.",
   },
   {
     category: "technical",
-    q: "Can I use PDFKit completely offline?",
+    q: "Can I use EditMyPDF completely offline?",
     a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 20 PDF utilities will continue working offline.",
   },
   {
     category: "privacy",
-    q: "Do I need an account or subscription to use PDFKit?",
-    a: "No. PDFKit requires no account, email address, registration, or credit card. All 20 tools are completely free to use without restrictions.",
+    q: "Do I need an account or subscription to use EditMyPDF?",
+    a: "No. EditMyPDF requires no account, email address, registration, or credit card. All 20 tools are completely free to use without restrictions.",
   },
 ];
 
