@@ -317,7 +317,7 @@ export function HomeClient() {
                           {tool.name}
                         </h3>
                         <p
-                          className={`mt-1 text-xs line-clamp-1 leading-relaxed ${
+                          className={`mt-1 text-xs leading-relaxed ${
                             isFeaturedFirst
                               ? "text-primary-foreground/75"
                               : "text-muted-foreground"
@@ -366,10 +366,10 @@ export function HomeClient() {
                           <Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1 pr-1">
-                          <span className="text-xs font-semibold text-foreground truncate block">
+                          <span className="text-xs font-semibold text-foreground block">
                             {tool.name}
                           </span>
-                          <p className="text-[11px] text-muted-foreground line-clamp-1 leading-snug mt-0.5">
+                          <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">
                             {tool.shortDesc}
                           </p>
                         </div>
