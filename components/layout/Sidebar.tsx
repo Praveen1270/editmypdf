@@ -145,14 +145,12 @@ export function Sidebar({
           onClick={handleLinkClick}
           className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring rounded-lg"
         >
-          {/* Monochrome logo: updated with uploaded logo image */}
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-black text-white shadow-sm transition group-hover:opacity-90">
-            <img
-              src="/logo.png?v=2"
-              alt="PDFKit Logo"
-              className="h-full w-full object-cover"
-            />
-          </div>
+          {/* Logo in original shape */}
+          <img
+            src="/logo.png?v=2"
+            alt="PDFKit Logo"
+            className="h-9 w-9 shrink-0 object-contain transition group-hover:opacity-90"
+          />
           {/* Brand Name */}
           <span className="text-lg font-bold tracking-tight text-sidebar-foreground font-sans">
             PDFKit

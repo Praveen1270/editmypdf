@@ -356,18 +356,23 @@ export function HomeClient() {
                   return (
                     <div
                       key={tool.id}
-                      className="group flex items-center justify-between rounded-xl border border-border bg-card p-3 transition hover:border-ring hover:bg-accent"
+                      className="group flex items-start justify-between rounded-xl border border-border bg-card p-3.5 transition hover:border-ring hover:bg-accent"
                     >
                       <Link
                         href={tool.href}
-                        className="flex items-center gap-3 min-w-0 flex-1 truncate"
+                        className="flex items-start gap-3 min-w-0 flex-1"
                       >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-secondary text-foreground shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-secondary text-foreground shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors mt-0.5">
                           <Icon className="h-4 w-4" />
                         </div>
-                        <span className="text-xs font-medium text-foreground truncate">
-                          {tool.name}
-                        </span>
+                        <div className="min-w-0 flex-1 pr-1">
+                          <span className="text-xs font-semibold text-foreground truncate block">
+                            {tool.name}
+                          </span>
+                          <p className="text-[11px] text-muted-foreground line-clamp-1 leading-snug mt-0.5">
+                            {tool.shortDesc}
+                          </p>
+                        </div>
                       </Link>
 
                       <button

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ShieldCheck } from "lucide-react";
+import { Menu } from "lucide-react";
 import { PDF_TOOLS } from "@/lib/tools-data";
 
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -58,13 +58,11 @@ export function MainHeader({ onToggleMobileDrawer }: MainHeaderProps) {
           href="/"
           className="flex items-center gap-2.5 shrink-0 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition hover:opacity-90"
         >
-          <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl overflow-hidden bg-black text-white shadow-sm">
-            <img
-              src="/logo.png?v=2"
-              alt="PDFKit Logo"
-              className="h-full w-full object-cover"
-            />
-          </div>
+          <img
+            src="/logo.png?v=2"
+            alt="PDFKit Logo"
+            className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 object-contain"
+          />
           <span className="text-sm sm:text-base font-bold tracking-tight text-foreground font-sans">
             PDFKit
           </span>
@@ -78,13 +76,7 @@ export function MainHeader({ onToggleMobileDrawer }: MainHeaderProps) {
       </div>
 
       {/* Right: Quick actions & indicators */}
-      <div className="flex items-center gap-2.5">
-        {/* Client-side verified badge */}
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
-          <ShieldCheck className="h-3.5 w-3.5 text-foreground" />
-          <span>In-Browser</span>
-        </div>
-
+      <div className="flex items-center gap-2">
         {/* Theme mode toggle button */}
         <ThemeToggle />
       </div>

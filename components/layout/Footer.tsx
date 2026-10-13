@@ -17,13 +17,11 @@ export function Footer() {
           {/* Brand & Privacy Statement */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 font-bold text-text-primary">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg overflow-hidden bg-black text-white shadow-sm">
-                <img
-                  src="/logo.png?v=2"
-                  alt="PDFKit Logo"
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              <img
+                src="/logo.png?v=2"
+                alt="PDFKit Logo"
+                className="h-7 w-7 shrink-0 object-contain"
+              />
               <span className="font-extrabold tracking-tight">PDF<span className="font-semibold text-text-secondary">Kit</span></span>
             </Link>
             <p className="mt-3 text-xs leading-relaxed text-text-secondary">

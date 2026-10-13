@@ -56,13 +56,11 @@ export function Header() {
           className="flex items-center gap-2.5 font-bold tracking-tight text-foreground transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus rounded-md"
         >
           {/* Monochrome Folded Document Mark */}
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg overflow-hidden bg-black text-white shadow-sm">
-            <img
-              src="/logo.png?v=2"
-              alt="PDFKit Logo"
-              className="h-full w-full object-cover"
-            />
-          </div>
+          <img
+            src="/logo.png?v=2"
+            alt="PDFKit Logo"
+            className="h-8 w-8 shrink-0 object-contain"
+          />
           <span className="text-base sm:text-lg font-extrabold tracking-tight text-foreground">
             PDF<span className="font-semibold text-text-secondary">Kit</span>
           </span>
