@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { FileCheck, Shield, AlertTriangle } from "lucide-react";
 
-export const metadata = {
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
   title: "Terms of Service — PDFKit",
-  description: "Terms and conditions governing the use of PDFKit client-side PDF utilities.",
-};
+  description: "Terms and conditions governing the use of PDFKit client-side PDF utilities and local document processing.",
+  canonical: "/terms",
+  keywords: ["pdfkit terms", "terms of service", "client side license"],
+});
 
 export default function TermsPage() {
   return (

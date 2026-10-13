@@ -22,35 +22,8 @@ export function ToolPageLayout({
 }: ToolPageLayoutProps) {
   const toolMeta = PDF_TOOLS.find((t) => t.id === toolId);
 
-  // Schema.org JSON-LD Structured Data
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": `${toolName} — PDFKit`,
-    "description": description,
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "All modern browsers (WebAssembly, Chrome, Firefox, Safari, Edge)",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-    },
-    "featureList": toolMeta?.features || [
-      "100% Client-Side Processing",
-      "Zero File Uploads",
-      "Offline Ready",
-      "No Account Required",
-    ],
-  };
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Schema.org Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <div className="mx-auto max-w-content px-4 py-8 sm:px-6">
         {/* 1. Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">

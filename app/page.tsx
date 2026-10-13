@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HomeClient } from "@/components/home/HomeClient";
+import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
   title: "PDFKit — Privacy-First PDF Utilities in Your Browser",
@@ -68,6 +69,7 @@ export default function HomePage() {
 
   return (
     <>
+      <WebsiteJsonLd />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

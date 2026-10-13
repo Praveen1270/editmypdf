@@ -4,6 +4,10 @@ import { WifiOff, ArrowLeft, Shield } from "lucide-react";
 export const metadata = {
   title: "Offline Mode — PDFKit",
   description: "PDFKit operates offline in your browser. All loaded PDF tools function without internet access.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function OfflinePage() {

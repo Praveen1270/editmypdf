@@ -3,11 +3,15 @@ import Link from "next/link";
 import { FileText, Shield, ArrowRight, Zap, Heart } from "lucide-react";
 import { PrivacyBadge } from "@/components/layout/PrivacyBadge";
 
-export const metadata: Metadata = {
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = generatePageMetadata({
   title: "About PDFKit — Minimal, Privacy-First PDF Utilities",
   description:
     "Learn about PDFKit, an open, privacy-first PDF utility suite designed with minimal design and zero cloud dependencies.",
-};
+  canonical: "/about",
+  keywords: ["about pdfkit", "privacy pdf tools", "offline pdf philosophy"],
+});
 
 export default function AboutPage() {
   return (

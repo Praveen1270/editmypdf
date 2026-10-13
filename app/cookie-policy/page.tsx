@@ -1,10 +1,14 @@
 import { Cookie, CheckCircle2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Cookie Policy — PDFKit",
-  description: "Accurate disclosure of cookies, local storage, and volatile memory practices at PDFKit.",
-};
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
+  title: "Cookie & Storage Policy — PDFKit",
+  description: "Transparent disclosure confirming zero tracking cookies, volatile device memory lifecycle, and static asset caching.",
+  canonical: "/cookie-policy",
+  keywords: ["cookie policy", "no tracking cookies", "browser storage disclosure"],
+});
 
 export default function CookiePolicyPage() {
   return (

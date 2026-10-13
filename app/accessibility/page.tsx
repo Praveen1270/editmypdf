@@ -1,10 +1,14 @@
 import { Eye, CheckCircle2, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
   title: "Accessibility Statement — PDFKit",
-  description: "Accessibility standards, keyboard navigation, and reporting channels for PDFKit.",
-};
+  description: "Accessibility standards, WCAG 2.1 AA conformance, keyboard navigation, and reporting channels for PDFKit.",
+  canonical: "/accessibility",
+  keywords: ["pdf accessibility", "wcag pdf tools", "accessible pdf editor"],
+});
 
 export default function AccessibilityPage() {
   return (

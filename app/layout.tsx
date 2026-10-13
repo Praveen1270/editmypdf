@@ -11,9 +11,55 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "PDFKit — Privacy-First PDF Tools in Your Browser",
+  metadataBase: new URL("https://pdfkit.local"),
+  title: {
+    default: "PDFKit — Privacy-First PDF Tools in Your Browser",
+    template: "%s | PDFKit",
+  },
   description:
     "Merge, split, compress, convert, rotate, protect, and edit PDF files directly in your browser. 100% local processing. Files never leave your device.",
+  applicationName: "PDFKit",
+  authors: [{ name: "PDFKit Team" }],
+  creator: "PDFKit",
+  publisher: "PDFKit",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://pdfkit.local",
+    siteName: "PDFKit",
+    title: "PDFKit — Privacy-First PDF Tools in Your Browser",
+    description:
+      "20 free, private PDF utilities running 100% locally in your browser. Merge, split, compress, protect, and convert without file uploads.",
+    images: [
+      {
+        url: "/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "PDFKit — Privacy-First PDF Tools",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PDFKit — Privacy-First PDF Tools in Your Browser",
+    description:
+      "20 free, private PDF utilities running 100% locally in your browser. Zero uploads, offline ready.",
+    images: ["/icon-512.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -37,8 +83,9 @@ export const metadata: Metadata = {
     "watermark pdf",
     "protect pdf",
     "unlock pdf",
-    "privacy-first",
+    "privacy-first pdf",
     "offline pdf",
+    "client-side pdf editor",
   ],
 };
 

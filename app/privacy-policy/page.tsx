@@ -1,10 +1,14 @@
 import { ShieldCheck, Lock, HardDrive, Cpu, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
   title: "Privacy Policy — PDFKit",
-  description: "Comprehensive privacy policy detailing client-side document processing, zero file transmission, and data protection practices.",
-};
+  description: "Comprehensive privacy policy detailing client-side document processing, zero file transmission, and strict data protection practices.",
+  canonical: "/privacy-policy",
+  keywords: ["pdfkit privacy policy", "no upload privacy", "client side pdf privacy"],
+});
 
 export default function PrivacyPolicyPage() {
   return (

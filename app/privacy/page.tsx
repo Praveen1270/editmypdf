@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy & Architecture — PDFKit",
   description:
     "Learn how PDFKit operates 100% locally in your browser. No file uploads, no tracking, and total document confidentiality.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
 };
 
 export default function PrivacyPage() {

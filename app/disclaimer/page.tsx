@@ -1,10 +1,14 @@
 import { AlertTriangle, FileWarning, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Disclaimer — PDFKit",
-  description: "Technical limitations, file structure variability, and output verification advisory for PDFKit tools.",
-};
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
+  title: "Disclaimer & Output Advisory — PDFKit",
+  description: "Technical limitations, file structure variability, and document verification advisory for PDFKit client-side tools.",
+  canonical: "/disclaimer",
+  keywords: ["pdfkit disclaimer", "pdf limitations notice", "output verification"],
+});
 
 export default function DisclaimerPage() {
   return (

@@ -1,10 +1,15 @@
 import { Cpu, HardDrive, Shield, CheckCircle2, Terminal } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
   title: "How It Works — Client-Side PDF Architecture — PDFKit",
-  description: "Learn how PDFKit processes PDF files entirely inside your browser using WebAssembly, Web Workers, and Web Crypto API.",
-};
+  description:
+    "Learn how PDFKit processes PDF files entirely inside your browser using WebAssembly, Web Workers, and native Web Crypto API with zero server uploads.",
+  canonical: "/how-it-works",
+  keywords: ["how client side pdf works", "webassembly pdf", "private pdf architecture"],
+});
 
 export default function HowItWorksPage() {
   return (

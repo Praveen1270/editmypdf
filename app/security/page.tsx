@@ -1,10 +1,15 @@
 import { ShieldCheck, Lock, KeyRound, ServerOff, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
+import { generatePageMetadata } from "@/lib/seo";
+
+export const metadata = generatePageMetadata({
   title: "Security Architecture & Cryptography — PDFKit",
-  description: "Technical documentation of PDFKit security practices, AES-256 Web Crypto standards, and dependency governance.",
-};
+  description:
+    "Technical documentation of PDFKit security practices, AES-256 Web Crypto standards, and local in-memory cryptography.",
+  canonical: "/security",
+  keywords: ["pdf security", "aes 256 pdf encryption", "client side pdf cryptography"],
+});
 
 export default function SecurityPage() {
   return (
