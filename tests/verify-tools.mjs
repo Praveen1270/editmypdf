@@ -14,6 +14,12 @@ import { addTextToPdf } from "../lib/pdf/add-text.ts";
 import { readPdfMetadata, updatePdfMetadata } from "../lib/pdf/metadata.ts";
 import { inspectPdfProperties } from "../lib/pdf/properties.ts";
 import { computeLineDiff } from "../lib/utils/diff.ts";
+import {
+  applyTextEditsToPdf,
+  matchFontFamily,
+  detectIsBold,
+  detectIsItalic,
+} from "../lib/pdf/text-editor.ts";
 
 async function createSamplePdf(pageCount = 3, text = "Test Page") {
   const doc = await PDFDocument.create();
@@ -332,6 +338,84 @@ async function runTests() {
       }
     }
     assert(caughtMergeEncrypted, "Merge PDF: Successfully caught encrypted file and guided user to Unlock PDF tool");
+  }
+
+  // 22. Edit PDF Text: Typographic mapping & styling detection
+  {
+    assert(matchFontFamily("TimesNewRomanPSMT") === "TimesRoman", "Edit PDF Text: Correctly identified serif font as TimesRoman");
+    assert(matchFontFamily("Courier-Oblique") === "Courier", "Edit PDF Text: Correctly identified monospaced font as Courier");
+    assert(matchFontFamily("Arial-BoldMT") === "Helvetica", "Edit PDF Text: Correctly mapped sans-serif Arial to Helvetica");
+    assert(detectIsBold("Helvetica-Bold") === true, "Edit PDF Text: Correctly detected bold font weight");
+    assert(detectIsBold("TimesNewRomanPS") === false, "Edit PDF Text: Correctly identified non-bold font weight");
+    assert(detectIsItalic("Courier-Oblique") === true, "Edit PDF Text: Correctly detected italic / oblique slant");
+    assert(detectIsItalic("ArialMT") === false, "Edit PDF Text: Correctly identified non-italic font");
+  }
+
+  // 23. Edit PDF Text: Real PDF text replacement & multi-page editing
+  {
+    const sample = await createSamplePdf(3, "Original Text Line");
+    const editedBytes = await applyTextEditsToPdf(sample, [
+      {
+        id: "edit-1",
+        pageIndex: 0,
+        originalText: "Original Text Line 1",
+        replacementText: "Updated Headline 1",
+        boxX: 50,
+        boxY: 540,
+        boxWidth: 200,
+        boxHeight: 25,
+        baselineX: 50,
+        baselineY: 550,
+        fontFamily: "Helvetica",
+        fontSize: 20,
+        colorHex: "#112233",
+        backgroundColorHex: "#FFFFFF",
+        isBold: true,
+        isItalic: false,
+        autoFitWidth: true,
+      },
+      {
+        id: "edit-2",
+        pageIndex: 1,
+        originalText: "Original Text Line 2",
+        replacementText: "Extremely Long Replacement String That Needs Auto Scaling To Fit Bound",
+        boxX: 50,
+        boxY: 540,
+        boxWidth: 150,
+        boxHeight: 25,
+        baselineX: 50,
+        baselineY: 550,
+        fontFamily: "TimesRoman",
+        fontSize: 18,
+        colorHex: "#B42318",
+        backgroundColorHex: "#FFFFFF",
+        isBold: false,
+        isItalic: true,
+        autoFitWidth: true,
+      },
+      {
+        id: "edit-3",
+        pageIndex: 2,
+        originalText: "Original Text Line 3",
+        replacementText: "", // Clean deletion / redaction
+        boxX: 50,
+        boxY: 540,
+        boxWidth: 200,
+        boxHeight: 25,
+        baselineX: 50,
+        baselineY: 550,
+        fontFamily: "Courier",
+        fontSize: 20,
+        colorHex: "#000000",
+        backgroundColorHex: "#FFFFFF",
+        isBold: false,
+        isItalic: false,
+      },
+    ]);
+
+    const editedDoc = await PDFDocument.load(editedBytes);
+    assert(editedDoc.getPageCount() === 3, "Edit PDF Text: Preserved document page count after multi-page replacement");
+    assert(editedBytes.byteLength > 500, "Edit PDF Text: Successfully generated non-empty modified PDF binary");
   }
 
   console.log(`\n🎉 All ${passed}/${total} automated verification tests PASSED!\n`);

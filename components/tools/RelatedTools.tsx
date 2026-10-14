@@ -39,7 +39,7 @@ export function RelatedTools({ currentToolId }: RelatedToolsProps) {
             Explore More PDF Tools
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            All 20 utilities run 100% locally in browser memory.
+            All 21 utilities run 100% locally in browser memory.
           </p>
         </div>
         <Link

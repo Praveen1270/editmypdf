@@ -12,6 +12,7 @@ import {
   RotateCw,
   Lock,
   Search,
+  Type,
 } from "lucide-react";
 import { TOOL_CATEGORIES, PDF_TOOLS, ToolItem } from "@/lib/tools-data";
 import { GlobalToolSearch } from "./GlobalToolSearch";
@@ -20,20 +21,22 @@ import { ToolListRow } from "./ToolListRow";
 
 const FEATURED_TOOLS = [
   {
+    toolId: "edit-pdf-text",
+    badge: "Flagship Tool",
+    title: "Edit PDF Text",
+    tagline: "Fix text in your PDF without rebuilding the document.",
+    desc: "Edit existing text directly in your PDF while preserving the original layout and font styling as closely as possible. Click any text on the page to modify it.",
+    cta: "Edit PDF Text",
+    icon: Type,
+  },
+  {
     toolId: "merge",
     badge: "Spotlight",
     title: "Merge PDF Documents",
+    tagline: "Combine multiple documents into one.",
     desc: "Combine multiple PDF files into one clean document with custom page sequences. Drag, reorder, and export losslessly in browser memory.",
     cta: "Open Merge Tool",
     icon: Files,
-  },
-  {
-    toolId: "compress",
-    badge: "Most Used",
-    title: "Compress PDF Locally",
-    desc: "Reduce heavy document bytes without quality loss. Choose between lossless structural cleanup and balanced raster compression.",
-    cta: "Open Compress Tool",
-    icon: Minimize2,
   },
 ];
 
@@ -75,7 +78,7 @@ export function ToolDirectory() {
             Tool Directory
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            All 20 client-side utilities organized by document task.
+            All 21 client-side utilities organized by document task.
           </p>
         </div>
 
@@ -150,7 +153,7 @@ export function ToolDirectory() {
                   : "bg-surface border border-border text-muted-foreground hover:text-foreground hover:bg-surface-subtle"
               }`}
             >
-              All tools (20)
+              All tools ({PDF_TOOLS.length})
             </button>
             {TOOL_CATEGORIES.map((cat) => (
               <button
@@ -197,7 +200,12 @@ export function ToolDirectory() {
                     <h3 className="mt-4 text-base font-bold text-foreground">
                       {feat.title}
                     </h3>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                    {feat.tagline && (
+                      <p className="mt-1 text-xs font-semibold text-foreground/90">
+                        {feat.tagline}
+                      </p>
+                    )}
+                    <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
                       {feat.desc}
                     </p>
 

@@ -35,6 +35,7 @@ import {
 import { addRecentFile } from "@/lib/storage";
 
 const QUICK_ACTIONS = [
+  { id: "edit-pdf-text", name: "Edit Text", href: "/edit-pdf-text", icon: Type, desc: "Fix text & typos" },
   { id: "compress", name: "Compress", href: "/compress-pdf", icon: Minimize2, desc: "Reduce file size" },
   { id: "organize", name: "Organize Pages", href: "/organize-pdf", icon: LayoutGrid, desc: "Reorder & delete" },
   { id: "split", name: "Split", href: "/split-pdf", icon: Scissors, desc: "Extract pages" },

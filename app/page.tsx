@@ -5,9 +5,10 @@ import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "EditMyPDF — Free Online PDF Tools",
   description:
-    "All your PDF tools. One private workspace. 20 client-side PDF utilities to merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
+    "All your PDF tools. One private workspace. 21 client-side PDF utilities to edit text, merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
   keywords: [
     "PDF tools",
+    "edit PDF text",
     "private PDF editor",
     "merge PDF",
     "compress PDF",
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "EditMyPDF — Privacy-First PDF Utilities",
-    description: "20 functional PDF tools that run locally in your browser. Files never leave your device.",
+    description: "21 functional PDF tools that run locally in your browser. Files never leave your device.",
     type: "website",
   },
 };
@@ -35,7 +36,7 @@ export default function HomePage() {
     "@type": "WebApplication",
     "name": "EditMyPDF",
     "url": "https://editmypdf.co.in",
-    "description": "Privacy-first suite of 20 browser-powered PDF utilities operating with zero server uploads.",
+    "description": "Privacy-first suite of 21 browser-powered PDF utilities operating with zero server uploads.",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All modern web browsers",
     "offers": {
@@ -44,6 +45,7 @@ export default function HomePage() {
       "priceCurrency": "USD",
     },
     "featureList": [
+      "Edit PDF Text",
       "Merge PDF",
       "Split PDF",
       "Organize PDF Pages",

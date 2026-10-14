@@ -54,12 +54,12 @@ const FAQ_DATA: FaqItem[] = [
   {
     category: "technical",
     q: "Can I use EditMyPDF completely offline?",
-    a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 20 PDF utilities will continue working offline.",
+    a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 21 PDF utilities will continue working offline.",
   },
   {
     category: "privacy",
     q: "Do I need an account or subscription to use EditMyPDF?",
-    a: "No. EditMyPDF requires no account, email address, registration, or credit card. All 20 tools are completely free to use without restrictions.",
+    a: "No. EditMyPDF requires no account, registration, or credit card. All 21 tools are completely free to use without restrictions.",
   },
 ];
 

@@ -88,15 +88,17 @@ export default function AccessibilityPage() {
               Reporting Accessibility Barriers
             </h2>
             <p className="text-xs text-text-secondary leading-relaxed">
-              We continually audit our user interfaces. If you encounter an accessibility hurdle, keyboard trap, or unreadable element while using any of our tools, please let us know so we can fix it:
+              We continually audit our user interfaces. If you encounter an accessibility hurdle, keyboard trap, or unreadable element while using any of our tools, you can report it directly on our project repository:
             </p>
             <p className="text-xs text-text-primary font-medium">
-              Email our accessibility team directly at:{" "}
+              Submit an issue at:{" "}
               <a
-                href="mailto:accessibility@editmypdf.co.in"
+                href="https://github.com/Praveen1270/editmypdf/issues"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-text-primary hover:underline font-semibold"
               >
-                accessibility@editmypdf.co.in
+                GitHub Issues Tracker
               </a>
             </p>
           </section>

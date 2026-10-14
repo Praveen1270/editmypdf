@@ -67,7 +67,7 @@ export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
     id: "edit-pdf",
     name: "Edit PDF",
     description: "Modify content, margins, page numbers, text, and properties",
-    toolIds: ["add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor"],
+    toolIds: ["edit-pdf-text", "add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor"],
   },
   {
     id: "convert-files",
@@ -471,6 +471,53 @@ export const PDF_TOOLS: ToolItem[] = [
     faq: [
       { q: "Can watermarks be removed easily?", a: "Watermarks are embedded directly into the PDF content stream, making them permanent in standard readers." },
       { q: "Can I watermark only certain pages?", a: "Yes, choose 'Custom Range' and enter page numbers like '1-3, 5'." },
+    ],
+  },
+  {
+    id: "edit-pdf-text",
+    name: "Edit PDF Text",
+    title: "Edit PDF Text Online — Modify Existing Text Directly in PDF",
+    href: "/edit-pdf-text",
+    category: "layout",
+    categoryName: "Edit Page Layout",
+    sidebarCategory: "edit-annotate",
+    description: "Edit existing text directly in your PDF while preserving the original layout and font styling as closely as possible. 100% private in-browser editing.",
+    shortDesc: "Fix text in your PDF without rebuilding the document.",
+    iconName: "Type",
+    keywords: ["edit text", "replace text", "modify text", "change text in pdf", "edit existing text", "pdf editor", "correct text"],
+    steps: [
+      { title: "Upload PDF", desc: "Select or drop your PDF document to load its pages and extract selectable text." },
+      { title: "Click Any Text", desc: "Navigate to any page and click or select the existing text element you wish to edit." },
+      { title: "Edit & Preview", desc: "Modify the wording, adjust font styling or size, and inspect the real-time preview." },
+      { title: "Export Document", desc: "Click Export PDF to download your modified document with intact formatting." },
+    ],
+    features: [
+      "Click-to-edit existing text directly on the rendered PDF page",
+      "Automatic detection of font family, size, baseline, and coordinates",
+      "Clean background-matched text replacement preserving surrounding layout",
+      "Support for standard fonts with bold, italic, and color controls",
+      "Real-time interactive page preview reflecting applied changes",
+      "Full Undo / Redo history with multi-page edit tracking",
+      "Automatic detection and honest reporting for scanned documents",
+      "100% client-side execution in volatile RAM—zero server uploads",
+    ],
+    limitations: [
+      "Works on vector PDFs with extractable text; scanned image pages require vector text.",
+      "Custom subsetted or proprietary embedded fonts fall back to standard matching typography.",
+    ],
+    faq: [
+      {
+        q: "How does Edit PDF Text modify existing text?",
+        a: "EditMyPDF extracts text positioning and font geometry directly from your document stream. When you apply an edit, it cleanly covers the original text boundary using a calibrated page patch and draws replacement text using matching typographic metrics.",
+      },
+      {
+        q: "Will the original font be preserved?",
+        a: "We inspect the embedded font metadata (such as Helvetica, Times Roman, Courier, Arial, etc.) and match the original family, size, weight, and color as closely as technically feasible. Where proprietary subsetted fonts prevent exact embedding, compatible typographic fallbacks are provided.",
+      },
+      {
+        q: "Can I edit scanned documents?",
+        a: "If a PDF consists solely of scanned photos without selectable vector text, our engine alerts you immediately that the page is image-based.",
+      },
     ],
   },
   {

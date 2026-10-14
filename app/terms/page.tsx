@@ -123,11 +123,10 @@ export default function TermsPage() {
               9. Contact Information
             </h2>
             <p className="text-text-secondary">
-              For questions concerning these Terms of Service, please visit our{" "}
+              For questions concerning these Terms of Service or documentation inquiries, please visit our{" "}
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
-                Contact Page
-              </Link>{" "}
-              or email <code>legal@editmypdf.co.in</code>.
+                Contact & Support Page
+              </Link>.
             </p>
           </section>
         </div>

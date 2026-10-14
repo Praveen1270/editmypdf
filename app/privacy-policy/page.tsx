@@ -111,7 +111,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-text-secondary">
               <li><strong>Right of Access & Deletion:</strong> Because we never store or receive your documents, there is no remote file data held by us to access, export, or delete.</li>
-              <li><strong>Right to Object:</strong> You can use all 20 PDF utilities completely anonymously without providing an email address, username, or credit card.</li>
+              <li><strong>Right to Object:</strong> You can use all 21 PDF utilities completely anonymously without providing any registration, personal details, or credit card.</li>
             </ul>
           </section>
 
@@ -141,7 +141,10 @@ export default function PrivacyPolicyPage() {
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
                 Contact Page
               </Link>{" "}
-              or email our team at <code>privacy@editmypdf.co.in</code>.
+              or review our in-depth architecture disclosures on our{" "}
+              <Link href="/security" className="text-text-primary hover:underline font-semibold">
+                Security Architecture Page
+              </Link>.
             </p>
           </section>
         </div>
