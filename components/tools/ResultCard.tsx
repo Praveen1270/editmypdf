@@ -175,7 +175,7 @@ export function ResultCard({
         <button
           type="button"
           onClick={handleExport}
-          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-accent px-6 py-2.5 text-sm font-semibold text-white shadow-paper transition hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-paper transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Download className="h-4 w-4" />
           <span>{downloadButtonLabel || (isZip ? "Download ZIP" : "Download PDF")}</span>

@@ -117,7 +117,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-background text-foreground selection:bg-accent selection:text-white antialiased font-sans">
+      <body className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground antialiased font-sans">
         <ThemeProvider>
           <PwaProvider>
             {/* Hidden install button so AppShell can invoke it */}

@@ -247,7 +247,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
             onClick={handleFitWidth}
             className={`ml-1 rounded px-2 py-0.5 text-[11px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               fitMode === "width"
-                ? "bg-accent text-white"
+                ? "bg-foreground text-background font-semibold"
                 : "border border-border bg-surface text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
             }`}
           >

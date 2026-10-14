@@ -14,7 +14,6 @@ import {
   Search,
 } from "lucide-react";
 import { TOOL_CATEGORIES, PDF_TOOLS, ToolItem } from "@/lib/tools-data";
-import { getStarredToolIds, toggleStarredToolId } from "@/lib/storage";
 import { GlobalToolSearch } from "./GlobalToolSearch";
 import { ToolCategorySection } from "./ToolCategorySection";
 import { ToolListRow } from "./ToolListRow";
@@ -41,24 +40,7 @@ const FEATURED_TOOLS = [
 export function ToolDirectory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [starredIds, setStarredIds] = useState<string[]>([]);
   const router = useRouter();
-
-  // Load and listen for starred tool updates
-  useEffect(() => {
-    setStarredIds(getStarredToolIds());
-    const handleStarredUpdate = () => {
-      setStarredIds(getStarredToolIds());
-    };
-    window.addEventListener("editmypdf_starred_updated", handleStarredUpdate);
-    return () => window.removeEventListener("editmypdf_starred_updated", handleStarredUpdate);
-  }, []);
-
-  const handleToggleStar = (e: React.MouseEvent, toolId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleStarredToolId(toolId);
-  };
 
   // Filtered tools when searching
   const filteredTools = PDF_TOOLS.filter((tool) => {
@@ -130,8 +112,6 @@ export function ToolDirectory() {
                 <ToolListRow
                   key={tool.id}
                   tool={tool}
-                  isStarred={starredIds.includes(tool.id)}
-                  onToggleStar={handleToggleStar}
                 />
               ))}
             </div>
@@ -287,8 +267,6 @@ export function ToolDirectory() {
                     key={category.id}
                     category={category}
                     tools={tools}
-                    starredIds={starredIds}
-                    onToggleStar={handleToggleStar}
                     defaultExpanded={true}
                   />
                 );

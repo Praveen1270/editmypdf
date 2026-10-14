@@ -92,7 +92,7 @@ export function PdfWorkspaceHeader({
             type="button"
             onClick={onPrimaryAction}
             disabled={isProcessing || !canExecute}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-paper transition hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-xs sm:text-sm font-semibold text-background shadow-paper transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>{primaryActionLabel}</span>
           </button>

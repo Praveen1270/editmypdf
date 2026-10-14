@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   Search,
   X,
-  Star,
   ArrowRight,
   Files,
   Scissors,
@@ -29,7 +28,6 @@ import {
   GitCompare,
 } from "lucide-react";
 import { PDF_TOOLS, ToolItem } from "@/lib/tools-data";
-import { getStarredToolIds, toggleStarredToolId } from "@/lib/storage";
 
 const ICON_MAP: Record<string, any> = {
   Files,
@@ -63,16 +61,8 @@ interface SearchModalProps {
 export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalProps) {
   const [query, setQuery] = useState(initialQuery);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [starredIds, setStarredIds] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    setStarredIds(getStarredToolIds());
-    const handleUpdate = () => setStarredIds(getStarredToolIds());
-    window.addEventListener("editmypdf_starred_updated", handleUpdate);
-    return () => window.removeEventListener("editmypdf_starred_updated", handleUpdate);
-  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -176,7 +166,7 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
                       <div className="flex items-center gap-3 min-w-0">
                         <div
                           className={`flex h-8 w-8 items-center justify-center rounded-lg border border-border shrink-0 ${
-                            isSelected ? "bg-accent text-white border-accent" : "bg-surface-subtle text-foreground"
+                            isSelected ? "bg-foreground text-background border-foreground" : "bg-surface-subtle text-foreground"
                           }`}
                         >
                           <Icon className="h-4 w-4" />
@@ -194,22 +184,6 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
                         <span className="text-[10px] font-mono text-muted-foreground uppercase hidden sm:inline">
                           {tool.category}
                         </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleStarredToolId(tool.id);
-                          }}
-                          aria-label={starredIds.includes(tool.id) ? "Unstar tool" : "Star tool"}
-                          title={starredIds.includes(tool.id) ? "Unstar tool" : "Star tool"}
-                          className="p-1 rounded hover:bg-surface text-foreground transition"
-                        >
-                          <Star
-                            className={`h-3.5 w-3.5 ${
-                              starredIds.includes(tool.id) ? "fill-accent text-accent" : "text-muted-foreground"
-                            }`}
-                          />
-                        </button>
                         <ArrowRight className={`h-3.5 w-3.5 transition-transform ${isSelected ? "translate-x-0.5 text-accent" : "text-muted-foreground"}`} />
                       </div>
                     </button>

@@ -225,7 +225,7 @@ export function DocumentDropzone() {
                     className="group flex flex-col justify-between rounded-xl border border-border bg-surface-subtle/50 p-3.5 transition hover:border-border-strong hover:bg-surface hover:shadow-paper"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-foreground transition-colors group-hover:bg-accent group-hover:text-white group-hover:border-accent">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-foreground transition-colors group-hover:bg-foreground group-hover:text-background group-hover:border-foreground">
                         <Icon className="h-4 w-4" />
                       </div>
                       <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
@@ -287,7 +287,7 @@ export function DocumentDropzone() {
                     e.stopPropagation();
                     fileInputRef.current?.click();
                   }}
-                  className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white shadow-paper transition hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background shadow-paper transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <Upload className="h-4 w-4" />
                   <span>Choose PDF</span>

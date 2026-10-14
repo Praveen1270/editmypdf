@@ -8,16 +8,12 @@ import { ToolListRow } from "./ToolListRow";
 interface ToolCategorySectionProps {
   category: ToolDirectoryCategory;
   tools: ToolItem[];
-  starredIds: string[];
-  onToggleStar: (e: React.MouseEvent, toolId: string) => void;
   defaultExpanded?: boolean;
 }
 
 export function ToolCategorySection({
   category,
   tools,
-  starredIds,
-  onToggleStar,
   defaultExpanded = true,
 }: ToolCategorySectionProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -63,8 +59,6 @@ export function ToolCategorySection({
             <ToolListRow
               key={tool.id}
               tool={tool}
-              isStarred={starredIds.includes(tool.id)}
-              onToggleStar={onToggleStar}
             />
           ))}
         </div>
