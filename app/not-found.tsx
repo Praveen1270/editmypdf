@@ -18,7 +18,7 @@ export default function NotFound() {
             This page does not exist.
           </h1>
           <p className="text-sm text-text-secondary leading-relaxed max-w-md mx-auto">
-            The link you followed may be broken or the page may have been moved. You can return home or jump straight to any of our 21 client-side PDF tools.
+            The link you followed may be broken or the page may have been moved. You can return home or jump straight to any of our 22 client-side PDF tools.
           </p>
         </div>
 

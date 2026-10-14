@@ -78,7 +78,7 @@ export function ToolDirectory() {
             Tool Directory
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            All 21 client-side utilities organized by document task.
+            All 22 client-side utilities organized by document task.
           </p>
         </div>
 

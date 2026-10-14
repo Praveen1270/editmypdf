@@ -24,6 +24,7 @@ import {
   FileSliders,
   Binary,
   GitCompare,
+  PenLine,
 } from "lucide-react";
 import { ToolItem } from "@/lib/tools-data";
 
@@ -48,6 +49,7 @@ const ICON_MAP: Record<string, any> = {
   FileSliders,
   Binary,
   GitCompare,
+  PenLine,
 };
 
 const POPULAR_TOOL_IDS = new Set(["merge", "split", "compress", "protect", "watermark", "organize"]);

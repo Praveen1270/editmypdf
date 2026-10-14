@@ -67,7 +67,7 @@ export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
     id: "edit-pdf",
     name: "Edit PDF",
     description: "Modify content, margins, page numbers, text, and properties",
-    toolIds: ["edit-pdf-text", "add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor"],
+    toolIds: ["edit-pdf", "edit-pdf-text", "add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor"],
   },
   {
     id: "convert-files",
@@ -517,6 +517,61 @@ export const PDF_TOOLS: ToolItem[] = [
       {
         q: "Can I edit scanned documents?",
         a: "If a PDF consists solely of scanned photos without selectable vector text, our engine alerts you immediately that the page is image-based.",
+      },
+    ],
+  },
+  {
+    id: "edit-pdf",
+    name: "Edit PDF",
+    title: "Edit PDF Online — Full Visual Editor, 100% Private",
+    href: "/edit-pdf",
+    category: "layout",
+    categoryName: "Edit Page Layout",
+    sidebarCategory: "edit-annotate",
+    description: "Full visual PDF editor: click any text to edit it in place with matched fonts, plus whiteout, signatures, images, highlights, links, shapes and form fields. 100% private in-browser editing.",
+    shortDesc: "Edit text in place, sign, whiteout, highlight & annotate.",
+    iconName: "PenLine",
+    keywords: ["edit pdf", "pdf editor", "edit pdf text in place", "whiteout pdf", "sign pdf", "highlight pdf", "add image to pdf", "pdf annotator", "fill pdf form"],
+    steps: [
+      { title: "Upload PDF", desc: "Drop a PDF (up to ~50 MB, password-protected OK). It opens in the visual editor with page thumbnails." },
+      { title: "Edit Anything", desc: "Click existing text to edit it in place with the same font and color. Add whiteout, signatures, images, highlights, links, shapes and form fields." },
+      { title: "Apply & Download", desc: "Click Apply & Download to burn every change into a new PDF with links, images and annotations intact." },
+    ],
+    features: [
+      "In-place text editing with embedded-font matching and subset fallback notice",
+      "Whiteout, freehand draw, rectangles, ellipses, lines and arrows",
+      "Highlight, underline and strikethrough as real annotations",
+      "Draw / type / upload signatures saved on your device",
+      "Images (PNG/JPG) with aspect-lock resize, real link annotations",
+      "Fillable form fields + filling existing AcroForm fields",
+      "Page delete, rotate, reorder and blank-page insert with undo/redo",
+      "100% client-side execution — files never leave your device",
+    ],
+    limitations: [
+      "Scanned (image-only) pages have no editable text; you can still add text, whiteout and sign.",
+      "Save embeds metric-compatible bundled fonts; exotic embedded subsets fall back with a notice.",
+      "Very large files (~100 pages) render pages lazily; initial text indexing takes a few seconds.",
+    ],
+    faq: [
+      {
+        q: "How do I edit existing text in a PDF?",
+        a: "Upload your PDF, keep the Text tool active, hover any paragraph until it highlights, and click it. An inline box appears exactly over the original with the same font, size and color. Type your changes, then Apply & Download.",
+      },
+      {
+        q: "Will the edited text keep the original font?",
+        a: "The editor registers the PDF's own embedded fonts for on-screen editing. If you type characters the embedded subset doesn't contain, it falls back to the closest bundled metric-compatible font and shows a notice. On download the chosen font is embedded.",
+      },
+      {
+        q: "Is my PDF uploaded to a server?",
+        a: "No. Rendering uses pdf.js and writing uses pdf-lib entirely inside your browser tab. Your file stays on your device.",
+      },
+      {
+        q: "Can I sign, whiteout or highlight a PDF?",
+        a: "Yes. Use the Sign tool (draw, type or upload a signature saved in your browser), Whiteout (drag a rectangle that is burned in on save), and Highlight/Underline/Strike (created as proper PDF annotations).",
+      },
+      {
+        q: "What about scanned PDFs?",
+        a: "Scanned pages are images without a text layer, so there is no text to edit in place. The editor tells you this and you can still add text boxes, whiteout, sign and annotate. OCR may be added later.",
       },
     ],
   },

@@ -78,6 +78,7 @@ export function generateToolMetadataById(toolId: string): Metadata {
     "pdf-to-text": { query: "PDF to Text Converter", benefit: "Extract Text from PDF Online" },
     "pdf-to-grayscale": { query: "Convert PDF to Grayscale", benefit: "Make Black & White PDF Online" },
     "page-numbers": { query: "Add Page Numbers to PDF", benefit: "Customize Position & Format" },
+    "edit-pdf": { query: "Edit PDF Online", benefit: "Edit Text, Sign & Annotate Free" },
     watermark: { query: "Watermark PDF Online", benefit: "Add Custom Text Watermarks Free" },
     "add-text": { query: "Add Text to PDF Online", benefit: "Insert Notes, Headers & Footers" },
     crop: { query: "Crop PDF Online", benefit: "Trim Margins & Page Boundaries" },

@@ -1,6 +1,6 @@
 # EditMyPDF — Privacy-First Browser-Based PDF Tools Suite
 
-**EditMyPDF** is a modern, lightweight, privacy-first PDF utility website providing 21 useful tools in one place.
+**EditMyPDF** is a modern, lightweight, privacy-first PDF utility website providing 22 useful tools in one place.
 
 ## Core Principle: Files Never Leave Your Device
 
@@ -14,10 +14,11 @@ All PDF processing occurs **100% locally in your browser** using WebAssembly, HT
 
 ---
 
-## The 21 PDF Tools
+## The 22 PDF Tools
 
 | Tool | Route | Capabilities |
 |------|-------|--------------|
+| **★ Edit PDF** *(Flagship visual editor)* | `/edit-pdf` | Full Sejda-style editor: edit text in place with matched fonts, whiteout, sign, highlight, images, links, shapes and form fields. |
 | **1. Edit PDF Text** *(Flagship)* | `/edit-pdf-text` | Click and edit existing text directly on the page while matching original typography, sizing, and layout. |
 | **2. Merge PDF** | `/merge-pdf` | Combine multiple PDF files into one with custom page order and reordering controls. |
 | **3. Split PDF** | `/split-pdf` | Extract custom page ranges (`1-3, 5`), extract to a single PDF, or split all pages into a ZIP archive. |
@@ -76,10 +77,14 @@ All PDF processing occurs **100% locally in your browser** using WebAssembly, HT
 # Install dependencies
 npm install
 
-# Run automated PDF engine test suite (34/34 tests)
+# Run automated PDF engine test suite (48/48 tests)
 npm test
 
-# Build production application (37 pre-rendered static routes)
+# Generate + verify the /edit-pdf editor matrix (84/84 checks:
+# Word, Docs, LaTeX, InDesign, scanned, rotated, 100-page, Telugu/Hindi)
+npm run test:edit-pdf
+
+# Build production application (42 pre-rendered static routes)
 npm run build
 
 # Start local server

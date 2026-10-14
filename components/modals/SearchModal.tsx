@@ -26,6 +26,7 @@ import {
   FileSliders,
   Binary,
   GitCompare,
+  PenLine,
 } from "lucide-react";
 import { PDF_TOOLS, ToolItem } from "@/lib/tools-data";
 
@@ -50,6 +51,7 @@ const ICON_MAP: Record<string, any> = {
   FileSliders,
   Binary,
   GitCompare,
+  PenLine,
 };
 
 interface SearchModalProps {

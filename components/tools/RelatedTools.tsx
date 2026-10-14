@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Files, Scissors, Minimize2, Image, FileImage, RotateCw, Hash, Stamp, Lock, Unlock, Crop, Scaling, Eye, Search, Layers, ShieldCheck, Binary, SlidersHorizontal, FileText } from "lucide-react";
+import { ArrowRight, Files, Scissors, Minimize2, Image, FileImage, RotateCw, Hash, Stamp, Lock, Unlock, Crop, Scaling, Eye, Search, Layers, ShieldCheck, Binary, SlidersHorizontal, FileText, PenLine } from "lucide-react";
 import { PDF_TOOLS } from "@/lib/tools-data";
 
 const ICON_MAP: Record<string, any> = {
@@ -22,6 +22,7 @@ const ICON_MAP: Record<string, any> = {
   Binary,
   SlidersHorizontal,
   FileText,
+  PenLine,
 };
 
 interface RelatedToolsProps {
@@ -39,7 +40,7 @@ export function RelatedTools({ currentToolId }: RelatedToolsProps) {
             Explore More PDF Tools
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            All 21 utilities run 100% locally in browser memory.
+              All 22 utilities run 100% locally in browser memory.
           </p>
         </div>
         <Link
