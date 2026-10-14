@@ -8,8 +8,8 @@ import { Analytics } from "@vercel/analytics/react";
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#F7F6F2" },
+    { media: "(prefers-color-scheme: dark)", color: "#161614" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -94,6 +94,9 @@ export const metadata: Metadata = {
     "offline pdf",
     "client-side pdf editor",
   ],
+  verification: {
+    google: "DC5CGvnpF5XdSlTt6N7RZ9KqCbhsTYp9es7SttfqSL4",
+  },
 };
 
 export default function RootLayout({
@@ -104,13 +107,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <head>
+        <meta
+          name="google-site-verification"
+          content="DC5CGvnpF5XdSlTt6N7RZ9KqCbhsTYp9es7SttfqSL4"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('editmypdf-theme')||localStorage.getItem('pdfkit-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
           }}
         />
       </head>
-      <body className="h-screen overflow-hidden bg-background text-foreground selection:bg-action-primary selection:text-action-primary-text">
+      <body className="min-h-screen bg-background text-foreground selection:bg-accent selection:text-white antialiased font-sans">
         <ThemeProvider>
           <PwaProvider>
             {/* Hidden install button so AppShell can invoke it */}

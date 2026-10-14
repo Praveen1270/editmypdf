@@ -85,23 +85,23 @@ export default function RecentFilesPage() {
   };
 
   return (
-    <div className="min-h-full bg-background text-foreground pb-20 font-sans">
-      <div className="mx-auto max-w-5xl px-4 sm:px-8 py-10 sm:py-14">
+    <div className="min-h-screen bg-background text-foreground pb-20 font-sans transition-colors">
+      <div className="mx-auto max-w-content px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              Recent Files
+              Recent Documents
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Files uploaded and processed locally in your browser session. History stays exclusively on your device.
+              Documents handled in your browser session. Data stays strictly in local browser storage.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent transition shadow-sm">
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-surface-subtle transition shadow-paper">
               <UploadCloud className="h-3.5 w-3.5" />
-              <span>Add File</span>
+              <span>Add Document</span>
               <input
                 type="file"
                 accept=".pdf,image/*"
@@ -114,10 +114,10 @@ export default function RecentFilesPage() {
             {recentFiles.length > 0 && (
               <button
                 onClick={handleClear}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-surface-subtle hover:text-foreground transition"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                <span>Clear All</span>
+                <span>Clear History</span>
               </button>
             )}
           </div>
@@ -134,11 +134,11 @@ export default function RecentFilesPage() {
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:border-ring hover:bg-accent shadow-sm"
+                  className="flex items-center justify-between rounded-xl border border-border bg-surface p-4 transition hover:border-border-strong hover:bg-surface-subtle shadow-paper"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-secondary text-foreground">
-                      <FileText className="h-5 w-5" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-subtle text-foreground">
+                      <FileText className="h-5 w-5 text-accent" />
                     </div>
                     <div className="min-w-0 truncate">
                       <p className="text-sm font-semibold text-foreground truncate">
@@ -154,18 +154,18 @@ export default function RecentFilesPage() {
                   <div className="flex items-center gap-2 shrink-0 ml-4">
                     <Link
                       href={toolHref}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border bg-secondary px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-primary hover:text-primary-foreground transition"
+                      className="inline-flex items-center gap-1 rounded-lg bg-surface-subtle border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent hover:text-white hover:border-accent transition"
                     >
-                      <span>Open in Tool</span>
+                      <span>Open tool</span>
                       <ArrowRight className="h-3 w-3" />
                     </Link>
 
                     <button
                       type="button"
                       onClick={(e) => handleRemove(e, item.id)}
-                      title="Remove file from history"
+                      title="Remove from history"
                       aria-label={`Remove ${item.name}`}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-subtle transition"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -176,44 +176,54 @@ export default function RecentFilesPage() {
           </div>
         ) : (
           /* Empty state */
-          <div className="mt-12 text-center py-16 rounded-2xl border border-dashed border-border bg-card">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-secondary border border-border text-muted-foreground">
+          <div className="mt-12 text-center py-16 rounded-2xl border border-dashed border-border bg-surface p-8 shadow-paper">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-surface-subtle border border-border text-muted-foreground">
               <Clock className="h-6 w-6" />
             </div>
-            <h3 className="mt-4 text-sm font-bold text-foreground">
-              No recent files yet
+            <h3 className="mt-4 text-base font-bold text-foreground">
+              No recent documents yet
             </h3>
             <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground leading-relaxed">
-              When you drop or select PDF documents in any tool, your actual files will appear here for immediate access.
+              When you edit, merge, compress, or convert PDF documents, your history will appear here for immediate access.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white shadow-paper hover:bg-accent-hover transition"
+              >
+                <span>Go to Document Workspace</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
               <Link
                 href="/merge-pdf"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-accent transition shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
               >
-                <Files className="h-3.5 w-3.5" />
+                <Files className="h-3 w-3" />
                 <span>Merge PDF</span>
               </Link>
               <Link
                 href="/compress-pdf"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-accent transition shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
               >
-                <Minimize2 className="h-3.5 w-3.5" />
+                <Minimize2 className="h-3 w-3" />
                 <span>Compress PDF</span>
               </Link>
               <Link
                 href="/split-pdf"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-accent transition shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
               >
-                <Scissors className="h-3.5 w-3.5" />
+                <Scissors className="h-3 w-3" />
                 <span>Split PDF</span>
               </Link>
               <Link
                 href="/protect-pdf"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-accent transition shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
               >
-                <Lock className="h-3.5 w-3.5" />
+                <Lock className="h-3 w-3" />
                 <span>Protect PDF</span>
               </Link>
             </div>
@@ -221,10 +231,10 @@ export default function RecentFilesPage() {
         )}
 
         {/* Privacy notice */}
-        <div className="mt-12 flex items-center gap-2 rounded-xl border border-border bg-secondary/50 p-4 text-xs text-muted-foreground">
-          <ShieldCheck className="h-4 w-4 text-foreground shrink-0" />
+        <div className="mt-12 flex items-center gap-2.5 rounded-xl border border-border bg-surface-subtle/50 p-4 text-xs text-muted-foreground">
+          <ShieldCheck className="h-4 w-4 text-accent shrink-0" />
           <span>
-            History is stored only in your local browser storage. No filenames or file contents are ever transmitted to any external server.
+            History exists only in your local browser storage. File contents are processed in volatile memory and never transmitted to any external server.
           </span>
         </div>
       </div>

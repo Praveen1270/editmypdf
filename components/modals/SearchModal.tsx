@@ -123,12 +123,12 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-xl rounded-2xl border border-border bg-surface-base shadow-2xl animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col text-text-primary"
+        className="relative w-full max-w-xl rounded-2xl border border-border bg-surface shadow-2xl animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col text-foreground"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input bar */}
-        <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 bg-surface-base">
-          <Search className="h-5 w-5 text-text-tertiary shrink-0" />
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 bg-surface">
+          <Search className="h-5 w-5 text-muted-foreground shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -138,18 +138,18 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search all 20 PDF tools (e.g. merge, compress, protect)..."
-            className="w-full bg-transparent text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none"
+            placeholder="Find a PDF tool (e.g. merge, compress, protect)..."
+            className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="text-text-secondary hover:text-text-primary p-1"
+              className="text-muted-foreground hover:text-foreground p-1 transition"
             >
               <X className="h-4 w-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-flex items-center rounded border border-border bg-surface-raised px-1.5 py-0.5 text-[10px] font-mono font-medium text-text-tertiary">
+          <kbd className="hidden sm:inline-flex items-center rounded border border-border bg-surface-subtle px-1.5 py-0.5 text-[10px] font-mono font-medium text-muted-foreground">
             ESC
           </kbd>
         </div>
@@ -169,27 +169,29 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
                       onMouseEnter={() => setSelectedIndex(idx)}
                       className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left transition ${
                         isSelected
-                          ? "bg-surface-raised text-text-primary"
-                          : "text-text-secondary hover:bg-surface-raised/60 hover:text-text-primary"
+                          ? "bg-surface-subtle text-foreground"
+                          : "text-muted-foreground hover:bg-surface-subtle/60 hover:text-foreground"
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg border border-border shrink-0 ${
-                          isSelected ? "bg-foreground text-background" : "bg-surface-raised text-text-primary"
-                        }`}>
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg border border-border shrink-0 ${
+                            isSelected ? "bg-accent text-white border-accent" : "bg-surface-subtle text-foreground"
+                          }`}
+                        >
                           <Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 truncate">
-                          <p className="text-xs font-semibold text-text-primary truncate">
+                          <p className="text-xs font-semibold text-foreground truncate">
                             {tool.name}
                           </p>
-                          <p className="text-[11px] text-text-tertiary truncate">
+                          <p className="text-[11px] text-muted-foreground truncate">
                             {tool.shortDesc}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 ml-3">
-                        <span className="text-[10px] font-mono text-text-tertiary uppercase hidden sm:inline">
+                        <span className="text-[10px] font-mono text-muted-foreground uppercase hidden sm:inline">
                           {tool.category}
                         </span>
                         <button
@@ -200,15 +202,15 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
                           }}
                           aria-label={starredIds.includes(tool.id) ? "Unstar tool" : "Star tool"}
                           title={starredIds.includes(tool.id) ? "Unstar tool" : "Star tool"}
-                          className="p-1 rounded hover:bg-surface-strong text-text-primary transition"
+                          className="p-1 rounded hover:bg-surface text-foreground transition"
                         >
                           <Star
                             className={`h-3.5 w-3.5 ${
-                              starredIds.includes(tool.id) ? "fill-current text-foreground" : "text-muted-foreground"
+                              starredIds.includes(tool.id) ? "fill-accent text-accent" : "text-muted-foreground"
                             }`}
                           />
                         </button>
-                        <ArrowRight className={`h-3.5 w-3.5 transition-transform ${isSelected ? "translate-x-0.5 text-text-primary" : "text-text-tertiary"}`} />
+                        <ArrowRight className={`h-3.5 w-3.5 transition-transform ${isSelected ? "translate-x-0.5 text-accent" : "text-muted-foreground"}`} />
                       </div>
                     </button>
                   </li>
@@ -216,15 +218,15 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
               })}
             </ul>
           ) : (
-            <div className="py-10 text-center text-xs text-text-secondary">
-              <p className="font-semibold text-text-primary">No matching PDF tools found</p>
-              <p className="mt-1">Try another keyword like "compress", "rotate", or "protect"</p>
+            <div className="py-10 text-center text-xs text-muted-foreground">
+              <p className="font-semibold text-foreground">No matching PDF tools found</p>
+              <p className="mt-1">Try another keyword like &ldquo;compress&rdquo;, &ldquo;rotate&rdquo;, or &ldquo;protect&rdquo;</p>
             </div>
           )}
         </div>
 
         {/* Footer info */}
-        <div className="border-t border-border bg-surface-raised/50 px-4 py-2 flex items-center justify-between text-[11px] text-text-tertiary">
+        <div className="border-t border-border bg-surface-subtle/50 px-4 py-2 flex items-center justify-between text-[11px] text-muted-foreground">
           <span>{filteredTools.length} tools available</span>
           <div className="flex items-center gap-2">
             <span>Navigate <kbd className="font-mono">↑↓</kbd></span>

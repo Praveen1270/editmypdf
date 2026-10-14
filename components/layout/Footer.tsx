@@ -1,52 +1,64 @@
 import Link from "next/link";
 import { Shield } from "lucide-react";
-import { PDF_TOOLS } from "@/lib/tools-data";
+import { BrandLogo } from "@/components/brand/BrandLogo";
+import { TOOL_CATEGORIES, PDF_TOOLS } from "@/lib/tools-data";
 
 export function Footer() {
-  const organizeAndLayoutTools = PDF_TOOLS.filter(
-    (t) => t.category === "organize" || t.category === "layout"
-  );
-  const convertAndInspectTools = PDF_TOOLS.filter(
-    (t) => t.category === "convert" || t.category === "security"
-  );
+  const organizeCat = TOOL_CATEGORIES.find((c) => c.id === "organize-pages");
+  const editCat = TOOL_CATEGORIES.find((c) => c.id === "edit-pdf");
+  const convertCat = TOOL_CATEGORIES.find((c) => c.id === "convert-files");
+
+  const organizeTools = (organizeCat?.toolIds || [])
+    .map((id) => PDF_TOOLS.find((t) => t.id === id))
+    .filter(Boolean);
+
+  const editTools = (editCat?.toolIds || [])
+    .map((id) => PDF_TOOLS.find((t) => t.id === id))
+    .filter(Boolean);
+
+  const convertTools = (convertCat?.toolIds || [])
+    .map((id) => PDF_TOOLS.find((t) => t.id === id))
+    .filter(Boolean);
 
   return (
-    <footer className="border-t border-border bg-surface-muted py-14 text-sm text-text-secondary">
-      <div className="mx-auto max-w-content px-4 sm:px-6">
+    <footer className="border-t border-border bg-surface-subtle/50 py-12 text-sm text-muted-foreground transition-colors">
+      <div className="mx-auto max-w-content px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand & Privacy Statement */}
-          <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 font-bold text-text-primary">
-              <img
-                src="/logo.png?v=2"
-                alt="EditMyPDF Logo"
-                className="h-7 w-7 shrink-0 object-contain"
-              />
-              <span className="font-bold tracking-tight text-text-primary">EditMyPDF</span>
-            </Link>
-            <p className="mt-3 text-xs leading-relaxed text-text-secondary">
-              20 private PDF utilities operating entirely inside your browser. No files, passwords, or data ever leave your device.
+          <div className="lg:col-span-2 pr-0 lg:pr-6">
+            <BrandLogo markSize={24} />
+            <p className="mt-3 text-xs leading-relaxed text-muted-foreground max-w-sm">
+              EditMyPDF is a simple online PDF workspace for editing, organizing, converting, and managing PDF documents directly in your browser.
             </p>
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-text-primary font-semibold">
-              <Shield className="h-3.5 w-3.5 text-text-primary" />
-              <span>100% Client-Side Processing</span>
+            <div className="mt-4 flex items-center gap-2 text-xs text-foreground font-medium">
+              <Shield className="h-4 w-4 text-accent" />
+              <span>100% In-Browser Privacy Guarantee</span>
             </div>
-            <p className="mt-2 text-[11px] text-text-tertiary">
-              Self-hosted WebAssembly & Web Crypto. Zero tracking cookies.
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Files never leave your computer. Built with WebAssembly and Web Crypto.
             </p>
           </div>
 
-          {/* Column 1: Organize & Layout Tools */}
+          {/* Column 1: Organize & Edit */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
-              Organize & Layout
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              Organize & Edit
             </h4>
-            <div className="mt-3 flex flex-col gap-1.5 text-xs">
-              {organizeAndLayoutTools.map((tool) => (
+            <div className="mt-3 flex flex-col gap-2 text-xs">
+              {organizeTools.slice(0, 4).map((tool) => tool && (
                 <Link
                   key={tool.id}
                   href={tool.href}
-                  className="transition-colors hover:text-text-primary"
+                  className="transition-colors hover:text-foreground"
+                >
+                  {tool.name}
+                </Link>
+              ))}
+              {editTools.slice(0, 2).map((tool) => tool && (
+                <Link
+                  key={tool.id}
+                  href={tool.href}
+                  className="transition-colors hover:text-foreground"
                 >
                   {tool.name}
                 </Link>
@@ -54,84 +66,66 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Convert & Inspect Tools */}
+          {/* Column 2: Convert & Optimize */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
-              Convert & Inspect
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              Convert & Security
             </h4>
-            <div className="mt-3 flex flex-col gap-1.5 text-xs">
-              {convertAndInspectTools.map((tool) => (
+            <div className="mt-3 flex flex-col gap-2 text-xs">
+              {convertTools.map((tool) => tool && (
                 <Link
                   key={tool.id}
                   href={tool.href}
-                  className="transition-colors hover:text-text-primary"
+                  className="transition-colors hover:text-foreground"
                 >
                   {tool.name}
                 </Link>
               ))}
+              <Link href="/protect-pdf" className="transition-colors hover:text-foreground">
+                Protect PDF
+              </Link>
+              <Link href="/unlock-pdf" className="transition-colors hover:text-foreground">
+                Unlock PDF
+              </Link>
             </div>
           </div>
 
-          {/* Column 3: Trust & Security */}
+          {/* Column 3: Trust & Legal */}
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
-              Knowledge & Trust
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              About & Trust
             </h4>
-            <div className="mt-3 flex flex-col gap-1.5 text-xs">
-              <Link href="/about" className="transition-colors hover:text-text-primary">
+            <div className="mt-3 flex flex-col gap-2 text-xs">
+              <Link href="/about" className="transition-colors hover:text-foreground">
                 About EditMyPDF
               </Link>
-              <Link href="/how-it-works" className="transition-colors hover:text-text-primary">
-                How It Works & Verification
+              <Link href="/how-it-works" className="transition-colors hover:text-foreground">
+                How It Works
               </Link>
-              <Link href="/security" className="transition-colors hover:text-text-primary">
-                Security & Cryptography
+              <Link href="/security" className="transition-colors hover:text-foreground">
+                Security & AES-256
               </Link>
-              <Link href="/faq" className="transition-colors hover:text-text-primary">
-                Frequently Asked Questions
-              </Link>
-              <Link href="/accessibility" className="transition-colors hover:text-text-primary">
-                Accessibility Statement
-              </Link>
-            </div>
-          </div>
-
-          {/* Column 4: Legal & Contact */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-primary">
-              Legal & Support
-            </h4>
-            <div className="mt-3 flex flex-col gap-1.5 text-xs">
-              <Link href="/privacy-policy" className="transition-colors hover:text-text-primary font-medium text-text-primary">
+              <Link href="/privacy-policy" className="transition-colors hover:text-foreground font-medium text-foreground">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="transition-colors hover:text-text-primary">
+              <Link href="/terms" className="transition-colors hover:text-foreground">
                 Terms of Service
-              </Link>
-              <Link href="/disclaimer" className="transition-colors hover:text-text-primary">
-                Output Disclaimer
-              </Link>
-              <Link href="/cookie-policy" className="transition-colors hover:text-text-primary">
-                Cookie & Storage Policy
-              </Link>
-              <Link href="/contact" className="transition-colors hover:text-text-primary">
-                Contact & Feedback
               </Link>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row text-xs text-text-tertiary">
-          <p>© {new Date().getFullYear()} EditMyPDF. Open standards, local memory, zero server uploads.</p>
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row text-xs text-muted-foreground">
+          <p>© {new Date().getFullYear()} EditMyPDF. Simple, private, browser-based document workspace.</p>
           <div className="flex items-center gap-4">
-            <Link href="/privacy-policy" className="hover:text-text-primary">Privacy</Link>
+            <Link href="/privacy-policy" className="hover:text-foreground transition-colors">Privacy</Link>
             <span>·</span>
-            <Link href="/terms" className="hover:text-text-primary">Terms</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <span>·</span>
-            <Link href="/contact" className="hover:text-text-primary">Contact</Link>
+            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
             <span>·</span>
-            <Link href="/sitemap.xml" className="hover:text-text-primary">Sitemap</Link>
+            <Link href="/sitemap.xml" className="hover:text-foreground transition-colors">Sitemap</Link>
           </div>
         </div>
       </div>

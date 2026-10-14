@@ -103,7 +103,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
 
       try {
         const page = await docProxy.getPage(pageNum);
-        const containerWidth = containerRef.current.clientWidth - 48; // padding
+        const containerWidth = containerRef.current.clientWidth - 48;
 
         // Compute effective scale
         const unscaledViewport = page.getViewport({ scale: 1.0 });
@@ -181,14 +181,14 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
 
   return (
     <div
-      className={`relative flex flex-col rounded-xl border border-border bg-surface-muted/50 overflow-hidden ${
+      className={`relative flex flex-col rounded-xl border border-border bg-surface-subtle/50 overflow-hidden ${
         isFullscreen
-          ? "fixed inset-0 z-50 rounded-none bg-surface-base p-4 sm:p-6"
+          ? "fixed inset-0 z-50 rounded-none bg-surface p-4 sm:p-6"
           : "w-full max-w-full"
       } ${className}`}
     >
       {/* Viewer Header / Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface-base px-3 py-2 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface px-3 py-2 text-xs">
         {/* Left: Page navigation */}
         <div className="flex items-center gap-1.5">
           <button
@@ -196,12 +196,12 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
             onClick={prevPage}
             disabled={currentPage <= 1 || loading}
             aria-label="Previous page"
-            className="rounded p-1 text-text-secondary hover:bg-surface-raised hover:text-text-primary disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="rounded p-1 text-muted-foreground hover:bg-surface-subtle hover:text-foreground disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
 
-          <span className="font-medium text-text-primary">
+          <span className="font-medium text-foreground">
             Page {currentPage} of {pageCount || 1}
           </span>
 
@@ -210,7 +210,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
             onClick={nextPage}
             disabled={currentPage >= pageCount || loading}
             aria-label="Next page"
-            className="rounded p-1 text-text-secondary hover:bg-surface-raised hover:text-text-primary disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="rounded p-1 text-muted-foreground hover:bg-surface-subtle hover:text-foreground disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -223,12 +223,12 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
             onClick={handleZoomOut}
             disabled={scale <= 0.4 || loading}
             aria-label="Zoom out"
-            className="rounded p-1 text-text-secondary hover:bg-surface-raised hover:text-text-primary disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="rounded p-1 text-muted-foreground hover:bg-surface-subtle hover:text-foreground disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ZoomOut className="h-4 w-4" />
           </button>
 
-          <span className="min-w-[48px] text-center font-mono text-[11px] text-text-secondary">
+          <span className="min-w-[48px] text-center font-mono text-[11px] text-muted-foreground">
             {Math.round(scale * 100)}%
           </span>
 
@@ -237,7 +237,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
             onClick={handleZoomIn}
             disabled={scale >= 2.5 || loading}
             aria-label="Zoom in"
-            className="rounded p-1 text-text-secondary hover:bg-surface-raised hover:text-text-primary disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="rounded p-1 text-muted-foreground hover:bg-surface-subtle hover:text-foreground disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ZoomIn className="h-4 w-4" />
           </button>
@@ -245,26 +245,26 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
           <button
             type="button"
             onClick={handleFitWidth}
-            className={`ml-1 rounded px-2 py-0.5 text-[11px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${
+            className={`ml-1 rounded px-2 py-0.5 text-[11px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               fitMode === "width"
-                ? "bg-action-primary text-action-primary-text"
-                : "border border-border bg-surface-base text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+                ? "bg-accent text-white"
+                : "border border-border bg-surface text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
             }`}
           >
             Fit Width
           </button>
         </div>
 
-        {/* Right: Thumbnails drawer & Fullscreen */}
+        {/* Right: Thumbnails & Fullscreen */}
         <div className="flex items-center gap-1">
           {pageCount > 1 && (
             <button
               type="button"
               onClick={() => setShowThumbnails(!showThumbnails)}
-              className={`flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${
+              className={`flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 showThumbnails
-                  ? "bg-surface-raised text-text-primary border border-border"
-                  : "text-text-secondary hover:bg-surface-raised hover:text-text-primary"
+                  ? "bg-surface-subtle text-foreground border border-border"
+                  : "text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
               }`}
               title="Toggle Thumbnails"
             >
@@ -278,7 +278,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
             onClick={handleToggleFullscreen}
             aria-label={isFullscreen ? "Exit full screen" : "Full screen preview"}
             title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Preview"}
-            className="rounded p-1 text-text-secondary hover:bg-surface-raised hover:text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="rounded p-1 text-muted-foreground hover:bg-surface-subtle hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </button>
@@ -287,25 +287,25 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
 
       {/* Main Preview Container */}
       <div className="relative flex flex-1 flex-col overflow-hidden sm:flex-row">
-        {/* Thumbnails Sidebar (if toggled and > 1 page) */}
+        {/* Thumbnails Sidebar */}
         {showThumbnails && pageCount > 1 && docProxy && (
-          <div className="w-full sm:w-44 shrink-0 border-b sm:border-b-0 sm:border-r border-border bg-surface-base p-2 overflow-y-auto max-h-48 sm:max-h-[500px]">
+          <div className="w-full sm:w-44 shrink-0 border-b sm:border-b-0 sm:border-r border-border bg-surface p-2 overflow-y-auto max-h-48 sm:max-h-[500px]">
             <div className="grid grid-cols-4 sm:grid-cols-1 gap-2">
               {Array.from({ length: pageCount }).map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setCurrentPage(idx + 1)}
-                  className={`flex flex-col items-center rounded-lg border p-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${
+                  className={`flex flex-col items-center rounded-lg border p-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                     currentPage === idx + 1
-                      ? "border-border-strong bg-surface-raised ring-2 ring-border-strong"
+                      ? "border-accent bg-accent/5 ring-1 ring-accent"
                       : "border-border hover:border-border-strong"
                   }`}
                 >
-                  <div className="flex h-16 w-12 items-center justify-center rounded bg-surface-raised text-[10px] text-text-secondary font-mono">
+                  <div className="flex h-16 w-12 items-center justify-center rounded bg-surface-subtle text-[10px] text-muted-foreground font-mono">
                     #{idx + 1}
                   </div>
-                  <span className="mt-1 text-[10px] text-text-secondary">
+                  <span className="mt-1 text-[10px] text-muted-foreground">
                     Page {idx + 1}
                   </span>
                 </button>
@@ -321,34 +321,34 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
         >
           {loading && (
             <div className="flex flex-col items-center justify-center text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-text-primary" />
-              <p className="mt-3 text-xs font-semibold text-text-primary">
-                Rendering Generated Output...
+              <Loader2 className="h-8 w-8 animate-spin text-accent" />
+              <p className="mt-3 text-xs font-semibold text-foreground">
+                Rendering preview...
               </p>
-              <p className="text-[11px] text-text-secondary">
-                Generating preview directly from client-side WebAssembly
+              <p className="text-[11px] text-muted-foreground">
+                Processed locally via client-side WebAssembly
               </p>
             </div>
           )}
 
           {error && (
             <div className="flex max-w-sm flex-col items-center justify-center text-center p-4">
-              <AlertCircle className="h-8 w-8 text-text-primary" />
-              <p className="mt-2 text-xs font-semibold text-text-primary">
+              <AlertCircle className="h-8 w-8 text-foreground" />
+              <p className="mt-2 text-xs font-semibold text-foreground">
                 Output preview unavailable
               </p>
-              <p className="mt-1 text-[11px] text-text-secondary leading-relaxed">
+              <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed">
                 {error}
               </p>
-              <p className="mt-2 text-[10px] text-text-tertiary">
+              <p className="mt-2 text-[10px] text-muted-foreground">
                 The generated document remains ready for download below.
               </p>
             </div>
           )}
 
           {rendering && !loading && (
-            <div className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-surface-base/90 px-2.5 py-1 text-[10px] font-medium text-text-secondary shadow-sm backdrop-blur border border-border">
-              <Loader2 className="h-3 w-3 animate-spin text-text-primary" />
+            <div className="absolute right-4 top-4 z-10 flex items-center gap-1.5 rounded-full bg-surface/90 px-2.5 py-1 text-[10px] font-medium text-muted-foreground shadow-paper backdrop-blur border border-border">
+              <Loader2 className="h-3 w-3 animate-spin text-accent" />
               <span>Rendering...</span>
             </div>
           )}

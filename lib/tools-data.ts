@@ -49,6 +49,46 @@ export const CATEGORIES: { id: ToolCategory; name: string }[] = [
   { id: "security", name: "Secure and Inspect" },
 ];
 
+export interface ToolDirectoryCategory {
+  id: string;
+  name: string;
+  description: string;
+  toolIds: string[];
+}
+
+export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
+  {
+    id: "organize-pages",
+    name: "Organize pages",
+    description: "Reorder, combine, divide, and orient your documents",
+    toolIds: ["merge", "split", "organize", "rotate", "extract-pages"],
+  },
+  {
+    id: "edit-pdf",
+    name: "Edit PDF",
+    description: "Modify content, margins, page numbers, text, and properties",
+    toolIds: ["add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor"],
+  },
+  {
+    id: "convert-files",
+    name: "Convert files",
+    description: "Transform PDFs into image formats, plain text, or monochrome",
+    toolIds: ["pdf-to-images", "images-to-pdf", "pdf-to-text", "pdf-to-grayscale"],
+  },
+  {
+    id: "optimize",
+    name: "Optimize",
+    description: "Reduce file sizes, count pages, and compare document changes",
+    toolIds: ["compress", "page-counter", "compare-pdfs"],
+  },
+  {
+    id: "security",
+    name: "Security",
+    description: "AES-256 client-side encryption and password removal",
+    toolIds: ["protect", "unlock"],
+  },
+];
+
 export const PDF_TOOLS: ToolItem[] = [
   // --- Category 1: Organize PDFs ---
   {
