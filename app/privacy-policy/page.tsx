@@ -141,7 +141,7 @@ export default function PrivacyPolicyPage() {
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
                 Contact Page
               </Link>{" "}
-              or email our team at <code>privacy@editmypdf.local</code>.
+              or email our team at <code>privacy@editmypdf.co.in</code>.
             </p>
           </section>
         </div>

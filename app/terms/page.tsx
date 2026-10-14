@@ -127,7 +127,7 @@ export default function TermsPage() {
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
                 Contact Page
               </Link>{" "}
-              or email <code>legal@editmypdf.local</code>.
+              or email <code>legal@editmypdf.co.in</code>.
             </p>
           </section>
         </div>

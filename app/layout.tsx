@@ -16,7 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://editmypdf.local"),
+  metadataBase: new URL("https://editmypdf.co.in"),
   title: {
     default: "EditMyPDF — Free Online PDF Tools",
     template: "%s | EditMyPDF",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://editmypdf.local",
+    url: "https://editmypdf.co.in",
     siteName: "EditMyPDF",
     title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:

@@ -9,7 +9,7 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
   const tool = PDF_TOOLS.find((t) => t.id === toolId);
   if (!tool) return null;
 
-  const baseUrl = "https://editmypdf.local";
+  const baseUrl = "https://editmypdf.co.in";
   const toolUrl = `${baseUrl}${tool.href}`;
 
   const schemas: any[] = [
@@ -87,7 +87,7 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
 }
 
 export function WebsiteJsonLd() {
-  const baseUrl = "https://editmypdf.local";
+  const baseUrl = "https://editmypdf.co.in";
   const siteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",

@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/offline"],
       },
     ],
-    sitemap: "https://editmypdf.local/sitemap.xml",
-    host: "https://editmypdf.local",
+    sitemap: "https://editmypdf.co.in/sitemap.xml",
+    host: "https://editmypdf.co.in",
   };
 }

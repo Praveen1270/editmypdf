@@ -45,7 +45,7 @@ All PDF processing occurs **100% locally in your browser** using WebAssembly, HT
 
 - **Privacy Policy**: `/privacy-policy` (Client-side execution, memory lifecycle, GDPR/CCPA disclosures)
 - **Terms of Service**: `/terms` (Acceptable use, ownership, liability boundaries)
-- **Contact & Support**: `/contact` (Support channel `support@editmypdf.local` with topic selector)
+- **Contact & Support**: `/contact` (Support channel `support@editmypdf.co.in` with topic selector)
 - **Output Disclaimer**: `/disclaimer` (PDF version variability, OCR requirements, verification advisory)
 - **Cookie & Storage Policy**: `/cookie-policy` (Zero tracking cookies, volatile RAM disclosures)
 - **FAQ**: `/faq` (Searchable accordion covering privacy, limits, encryption, compatibility)

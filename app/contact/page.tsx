@@ -8,7 +8,7 @@ export default function ContactPage() {
   const [body, setBody] = useState("");
   const [topic, setTopic] = useState("feedback");
 
-  const contactEmail = "support@editmypdf.local";
+  const contactEmail = "support@editmypdf.co.in";
 
   const handleSendEmail = (e: React.FormEvent) => {
     e.preventDefault();

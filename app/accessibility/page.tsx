@@ -93,10 +93,10 @@ export default function AccessibilityPage() {
             <p className="text-xs text-text-primary font-medium">
               Email our accessibility team directly at:{" "}
               <a
-                href="mailto:accessibility@editmypdf.local"
+                href="mailto:accessibility@editmypdf.co.in"
                 className="text-text-primary hover:underline font-semibold"
               >
-                accessibility@editmypdf.local
+                accessibility@editmypdf.co.in
               </a>
             </p>
           </section>

@@ -34,7 +34,7 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "EditMyPDF",
-    "url": "https://editmypdf.local",
+    "url": "https://editmypdf.co.in",
     "description": "Privacy-first suite of 20 browser-powered PDF utilities operating with zero server uploads.",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "All modern web browsers",
