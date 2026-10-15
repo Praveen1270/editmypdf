@@ -37,6 +37,31 @@ export function Footer() {
             <p className="mt-1 text-[11px] text-muted-foreground">
               Files never leave your computer. Built with WebAssembly and Web Crypto.
             </p>
+            <div className="mt-5">
+              <a
+                href="https://findly.tools/editmypdf?utm_source=editmypdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-opacity hover:opacity-85"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://findly.tools/badges/findly-tools-badge-light.svg"
+                  alt="Featured on Findly.tools"
+                  width={175}
+                  height={55}
+                  className="h-[40px] w-auto dark:hidden"
+                />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://findly.tools/badges/findly-tools-badge-dark.svg"
+                  alt="Featured on Findly.tools"
+                  width={175}
+                  height={55}
+                  className="hidden h-[40px] w-auto dark:block"
+                />
+              </a>
+            </div>
           </div>
 
           {/* Column 1: Organize & Edit */}

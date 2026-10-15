@@ -1,11 +1,77 @@
 {
   "version": 1,
   "skills": {
+    "blitz-copy": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "copywriting/blitz-copy/SKILL.md",
+      "computedHash": "e401e6c5d95ee76a99a04444e971190f69c69a09fdfb2cbc598dd32e8fa62aaf"
+    },
+    "blitz-seo": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "seo/blitz-seo/SKILL.md",
+      "computedHash": "c334acda3a76337bc62dad9336d1fd6657e4a85f7efd5d34b3bbda7a57b803b8"
+    },
+    "blog-refresher": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "seo/blog-refresher/SKILL.md",
+      "computedHash": "cc48a74592f64903646bcdd93395bf48e97d5fbd51125236aa156e756ebf8fdb"
+    },
+    "customer-journey": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "marketing/customer-journey/SKILL.md",
+      "computedHash": "6c7e19f9d5a22f32c32bb93a7586442df6300ec6df046aaf8109cf1d405047d9"
+    },
+    "diff-marketing": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "marketing/diff-marketing/SKILL.md",
+      "computedHash": "1ac3e2d54aaa10c6861b87e769450cb9e3715c78858fdf586c896e9f76065eff"
+    },
+    "intro": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "content/intro/SKILL.md",
+      "computedHash": "304981deaf4899c386d7305323ec6c3a3716b2550cd0a2a41f34958e6004b9ef"
+    },
+    "linkdr": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "seo/linkdr/SKILL.md",
+      "computedHash": "6f0e45f34d83dfd368cb982f1fea10e063b25471cbef13e6e4007af57188d54c"
+    },
+    "scribiz": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "content/scribiz/SKILL.md",
+      "computedHash": "1598360a62aa3fb1a3a967b4aa1f0d4845541fccda3c4357bc923410edb9eeb1"
+    },
     "seo-audit": {
       "source": "coreyhaines31/marketingskills",
       "sourceType": "github",
       "skillPath": "skills/seo-audit/SKILL.md",
       "computedHash": "6cc692cab02f5a7ae863fee10ffa9d93d8a63cbe7762b7f6c50e04b7283a1d43"
+    },
+    "seo-autopilot": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "seo/seo-autopilot/SKILL.md",
+      "computedHash": "aa08335f85b759b2e445b8a6239acc2a338bf2ab3e00b300461c29c95131ba49"
+    },
+    "seo-title-optimization": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "seo/seo-title-optimization/SKILL.md",
+      "computedHash": "8015fe50b62957fcb7cfdfd38c53c743c104dd2f9fb5eb00ee132e8532f43a53"
+    },
+    "understand-customers": {
+      "source": "Illyism/seo-skills",
+      "sourceType": "github",
+      "skillPath": "copywriting/understand-customers/SKILL.md",
+      "computedHash": "08279c55f2cbe24125d95401d8652cde12d7ff359633c814d26a2db62f397857"
     }
   }
 }

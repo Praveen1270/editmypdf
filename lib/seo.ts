@@ -65,29 +65,30 @@ export function generateToolMetadataById(toolId: string): Metadata {
     });
   }
 
-  // Titles follow the SEO rule: [Primary query] - [Value prop / Outcome] (under 60 chars)
+  // Titles follow SEO Title Optimization: [Primary query] - [Modifier/Benefit] (target 40-55 chars total with brand)
   const queryFirstTitles: Record<string, { query: string; benefit: string }> = {
-    merge: { query: "Merge PDF Files Online", benefit: "Free, Fast & 100% Private" },
-    split: { query: "Split PDF Online", benefit: "Extract Pages & Ranges Privately" },
-    organize: { query: "Organize PDF Pages", benefit: "Rearrange, Rotate & Delete Online" },
-    rotate: { query: "Rotate PDF Online", benefit: "Turn Pages 90°, 180° & 270° Free" },
-    extract: { query: "Extract PDF Pages Online", benefit: "Save Specific Pages as PDF" },
-    compress: { query: "Compress PDF Online", benefit: "Reduce PDF File Size Privately" },
-    "pdf-to-images": { query: "PDF to Images Converter", benefit: "Convert to JPG & PNG Online" },
-    "images-to-pdf": { query: "Images to PDF Converter", benefit: "Turn JPG, PNG & WebP to PDF" },
-    "pdf-to-text": { query: "PDF to Text Converter", benefit: "Extract Text from PDF Online" },
-    "pdf-to-grayscale": { query: "Convert PDF to Grayscale", benefit: "Make Black & White PDF Online" },
-    "page-numbers": { query: "Add Page Numbers to PDF", benefit: "Customize Position & Format" },
-    "edit-pdf": { query: "Edit PDF Online", benefit: "Edit Text, Sign & Annotate Free" },
-    watermark: { query: "Watermark PDF Online", benefit: "Add Custom Text Watermarks Free" },
-    "add-text": { query: "Add Text to PDF Online", benefit: "Insert Notes, Headers & Footers" },
-    crop: { query: "Crop PDF Online", benefit: "Trim Margins & Page Boundaries" },
-    resize: { query: "Resize PDF Pages Online", benefit: "Change to A4, Letter & Custom Sizes" },
-    protect: { query: "Protect PDF with Password", benefit: "Encrypt with AES-256 Online" },
-    unlock: { query: "Unlock PDF Online", benefit: "Remove Password Security Privately" },
-    "metadata-editor": { query: "PDF Metadata Editor", benefit: "View, Edit & Strip PDF Metadata" },
-    "page-counter": { query: "PDF Page Counter & Properties", benefit: "Count Pages & Inspect Dimensions" },
-    compare: { query: "Compare Two PDF Files", benefit: "Side-by-Side Diff & Text Comparison" },
+    merge: { query: "Merge PDF Files Online", benefit: "Free & Private" },
+    split: { query: "Split PDF Online", benefit: "Free & Private" },
+    organize: { query: "Organize PDF Pages", benefit: "Reorder & Rotate" },
+    rotate: { query: "Rotate PDF Online", benefit: "Free & Instant" },
+    extract: { query: "Extract PDF Pages", benefit: "Save Specific Pages" },
+    compress: { query: "Compress PDF Online", benefit: "Reduce File Size Free" },
+    "pdf-to-images": { query: "Convert PDF to JPG & PNG", benefit: "Free & Fast" },
+    "images-to-pdf": { query: "Convert Images to PDF", benefit: "JPG, PNG to PDF" },
+    "pdf-to-text": { query: "PDF to Text Converter", benefit: "Extract Text Free" },
+    "pdf-to-grayscale": { query: "Convert PDF to Grayscale", benefit: "Black & White" },
+    "page-numbers": { query: "Add Page Numbers to PDF", benefit: "Free & Fast" },
+    "edit-pdf": { query: "Edit PDF Online", benefit: "Edit Text & Sign Free" },
+    "edit-pdf-text": { query: "Edit PDF Text Online", benefit: "In-Place Editing" },
+    watermark: { query: "Watermark PDF Online", benefit: "Custom Text Stamp" },
+    "add-text": { query: "Add Text to PDF", benefit: "Header, Notes & Footer" },
+    crop: { query: "Crop PDF Online", benefit: "Trim Margins Free" },
+    resize: { query: "Resize PDF Pages", benefit: "A4, Letter & Custom" },
+    protect: { query: "Password Protect PDF", benefit: "AES-256 Encryption" },
+    unlock: { query: "Unlock PDF Online", benefit: "Remove Password Free" },
+    "metadata-editor": { query: "PDF Metadata Editor", benefit: "Edit & Strip Tags" },
+    "page-counter": { query: "PDF Page Counter", benefit: "Inspect Dimensions" },
+    compare: { query: "Compare Two PDF Files", benefit: "Visual & Text Diff" },
   };
 
   const titleConfig = queryFirstTitles[tool.id] || {

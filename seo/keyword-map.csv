@@ -1,0 +1,36 @@
+query,intent,monthly_volume,difficulty,target_url,status,current_position,last_checked
+edit pdf text online,commercial,165000,58,https://editmypdf.co.in/edit-pdf-text,live,new,2026-10-14
+edit pdf online free,transactional,301000,64,https://editmypdf.co.in/edit-pdf,live,new,2026-10-14
+merge pdf,transactional,820000,72,https://editmypdf.co.in/merge-pdf,live,new,2026-10-14
+combine pdf files,transactional,246000,61,https://editmypdf.co.in/merge-pdf,live,new,2026-10-14
+split pdf online,transactional,180000,54,https://editmypdf.co.in/split-pdf,live,new,2026-10-14
+extract pdf pages,informational,74000,42,https://editmypdf.co.in/extract-pdf-pages,live,new,2026-10-14
+compress pdf online,transactional,450000,68,https://editmypdf.co.in/compress-pdf,live,new,2026-10-14
+reduce pdf size free,informational,135000,52,https://editmypdf.co.in/compress-pdf,live,new,2026-10-14
+rotate pdf,transactional,110000,45,https://editmypdf.co.in/rotate-pdf,live,new,2026-10-14
+organize pdf pages,informational,40500,38,https://editmypdf.co.in/organize-pdf,live,new,2026-10-14
+pdf to jpg converter,transactional,368000,65,https://editmypdf.co.in/pdf-to-images,live,new,2026-10-14
+convert pdf to png,transactional,90500,48,https://editmypdf.co.in/pdf-to-images,live,new,2026-10-14
+jpg to pdf online,transactional,550000,70,https://editmypdf.co.in/images-to-pdf,live,new,2026-10-14
+extract text from pdf,informational,60500,44,https://editmypdf.co.in/pdf-to-text,live,new,2026-10-14
+convert pdf to grayscale,informational,22000,28,https://editmypdf.co.in/pdf-to-grayscale,live,new,2026-10-14
+black and white pdf converter,transactional,18100,31,https://editmypdf.co.in/pdf-to-grayscale,live,new,2026-10-14
+add page numbers to pdf,informational,49500,35,https://editmypdf.co.in/add-page-numbers,live,new,2026-10-14
+watermark pdf online,transactional,33100,36,https://editmypdf.co.in/watermark-pdf,live,new,2026-10-14
+add text to pdf,transactional,90500,49,https://editmypdf.co.in/add-text-to-pdf,live,new,2026-10-14
+crop pdf online,informational,60500,41,https://editmypdf.co.in/crop-pdf,live,new,2026-10-14
+resize pdf pages,informational,27100,34,https://editmypdf.co.in/resize-pdf,live,new,2026-10-14
+protect pdf with password,transactional,74000,46,https://editmypdf.co.in/protect-pdf,live,new,2026-10-14
+encrypt pdf online,transactional,22200,38,https://editmypdf.co.in/protect-pdf,live,new,2026-10-14
+unlock pdf password,transactional,110000,53,https://editmypdf.co.in/unlock-pdf,live,new,2026-10-14
+remove pdf password online,transactional,90500,51,https://editmypdf.co.in/unlock-pdf,live,new,2026-10-14
+edit pdf metadata,informational,14800,29,https://editmypdf.co.in/pdf-metadata-editor,live,new,2026-10-14
+strip pdf metadata,informational,8100,24,https://editmypdf.co.in/pdf-metadata-editor,live,new,2026-10-14
+pdf page counter online,informational,12100,22,https://editmypdf.co.in/pdf-page-counter,live,new,2026-10-14
+compare pdf files,informational,40500,37,https://editmypdf.co.in/compare-pdfs,live,new,2026-10-14
+private pdf editor without upload,informational,4400,18,https://editmypdf.co.in/,live,new,2026-10-14
+client side pdf tools,informational,2900,15,https://editmypdf.co.in/,live,new,2026-10-14
+offline pdf editor pwa,informational,1900,12,https://editmypdf.co.in/,live,new,2026-10-14
+smallpdf alternative free no limit,commercial,6600,26,https://editmypdf.co.in/,planned,gap,2026-10-14
+ilovepdf alternative private,commercial,5400,24,https://editmypdf.co.in/,planned,gap,2026-10-14
+sejda free alternative,commercial,4400,22,https://editmypdf.co.in/,planned,gap,2026-10-14

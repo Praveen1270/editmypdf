@@ -26,6 +26,8 @@ yarn-error.log*
 # Vercel & IDE
 .vercel
 .agents
+agent/
+.claude
 .vscode
 .idea
 
