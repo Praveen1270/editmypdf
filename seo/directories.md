@@ -76,3 +76,16 @@ Ready-to-paste submissions for top software, developer, and privacy directories.
   </a>
   ```
 
+---
+
+## 6. TinyShelf (`tinyshelf.co`)
+- **Name**: EditMyPDF
+- **Listing / Referral**: `https://www.tinyshelf.co/?ref=editmypdf.co.in`
+- **Badge**:
+  ```html
+  <a href="https://www.tinyshelf.co/?ref=editmypdf.co.in" title="Featured on TinyShelf">
+    <img src="https://www.tinyshelf.co/badge/tinyshelf-badge-dark-f4d1216a.svg" alt="Featured on TinyShelf" width="216" height="64" />
+  </a>
+  ```
+
+

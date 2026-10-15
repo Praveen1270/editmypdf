@@ -3,6 +3,9 @@
 <a href="https://findly.tools/editmypdf?utm_source=editmypdf" target="_blank" rel="noopener noreferrer">
   <img src="https://findly.tools/badges/findly-tools-badge-light.svg" alt="Featured on Findly.tools" width="175" height="55" />
 </a>
+<a href="https://www.tinyshelf.co/?ref=editmypdf.co.in" title="Featured on TinyShelf" target="_blank" rel="noopener noreferrer">
+  <img src="https://www.tinyshelf.co/badge/tinyshelf-badge-dark-f4d1216a.svg" alt="Featured on TinyShelf" width="216" height="64" />
+</a>
 
 **EditMyPDF** is a modern, lightweight, privacy-first PDF utility website providing 22 useful tools in one place.
 
