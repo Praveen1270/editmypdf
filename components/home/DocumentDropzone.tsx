@@ -22,6 +22,7 @@ import {
   Lock,
   FileImage,
   FileCode,
+  PenLine,
 } from "lucide-react";
 import { formatFileSize } from "@/lib/utils";
 import { getPdfInfo } from "@/lib/pdf/pdf-loader";
@@ -35,7 +36,7 @@ import {
 import { addRecentFile } from "@/lib/storage";
 
 const QUICK_ACTIONS = [
-  { id: "edit-pdf-text", name: "Edit Text", href: "/edit-pdf-text", icon: Type, desc: "Fix text & typos" },
+  { id: "edit-pdf", name: "Edit PDF", href: "/edit-pdf", icon: PenLine, desc: "Edit text & sign" },
   { id: "compress", name: "Compress", href: "/compress-pdf", icon: Minimize2, desc: "Reduce file size" },
   { id: "organize", name: "Organize Pages", href: "/organize-pdf", icon: LayoutGrid, desc: "Reorder & delete" },
   { id: "split", name: "Split", href: "/split-pdf", icon: Scissors, desc: "Extract pages" },

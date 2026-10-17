@@ -10,7 +10,7 @@
 EditMyPDF is a private, client-side PDF utility suite that runs entirely in the user's web browser using WebAssembly, HTML5 Canvas, Web Workers, PDF.js, and pdf-lib. No document files are ever uploaded to any external server.
 
 - **Primary URL**: `https://editmypdf.co.in` (Source: `app/layout.tsx#L19`)
-- **Total Functional Tools**: 22 dedicated client-side tools (Source: `lib/tools-data.ts#L92`)
+- **Total Functional Tools**: 21 dedicated client-side tools (Source: `lib/tools-data.ts#L92`)
 - **Supported Architecture**: 100% Client-side browser execution, PWA installable, offline-capable (Source: `components/pwa/PwaProvider.tsx`, `app/manifest.ts`)
 
 ---
@@ -41,7 +41,7 @@ EditMyPDF is a private, client-side PDF utility suite that runs entirely in the 
 
 ---
 
-## 5. Tool Catalog (22 Tools)
+## 5. Tool Catalog (21 Tools)
 All tools are defined in `lib/tools-data.ts`:
 
 ### Organize & Layout
@@ -52,27 +52,26 @@ All tools are defined in `lib/tools-data.ts`:
 5. `/extract-pdf-pages` — Extract specific page ranges into a new PDF or ZIP
 
 ### Edit & Annotate
-6. `/edit-pdf` — Full visual PDF editor with text block editing, freehand drawing, shapes, and signature stamps
-7. `/edit-pdf-text` — In-place text replacement with font family, size, weight, and color matching
-8. `/add-text-to-pdf` — Add custom headers, footers, notes, and callouts
-9. `/watermark-pdf` — Add text watermarks with custom rotation, opacity, and positioning
-10. `/add-page-numbers` — Insert formatted page numbers (Page X of Y, Roman, top/bottom)
-11. `/crop-pdf` — Visual and numerical margin trimming
-12. `/resize-pdf` — Standardize dimensions to A4, Letter, Legal, or custom sizes
-13. `/pdf-metadata-editor` — View, edit, or strip Title, Author, Subject, Keywords, Creator
+6. `/edit-pdf` — Full visual PDF editor with in-place text editing, freehand drawing, shapes, and signature stamps
+7. `/add-text-to-pdf` — Add custom headers, footers, notes, and callouts
+8. `/watermark-pdf` — Add text watermarks with custom rotation, opacity, and positioning
+9. `/add-page-numbers` — Insert formatted page numbers (Page X of Y, Roman, top/bottom)
+10. `/crop-pdf` — Visual and numerical margin trimming
+11. `/resize-pdf` — Standardize dimensions to A4, Letter, Legal, or custom sizes
+12. `/pdf-metadata-editor` — View, edit, or strip Title, Author, Subject, Keywords, Creator
 
 ### Conversion & Optimization
-14. `/compress-pdf` — Reduce PDF size with client-side canvas rasterization and stream optimization
-15. `/pdf-to-images` — Render PDF pages into JPG or PNG images (single or ZIP archive)
-16. `/images-to-pdf` — Convert multiple JPG, PNG, and WebP images into a single PDF
-17. `/pdf-to-text` — Extract raw textual content from document streams
-18. `/pdf-to-grayscale` — Convert color PDFs to black & white for printing/archiving
-19. `/pdf-page-counter` — Instantly count pages and inspect per-page dimensions without upload
-20. `/compare-pdfs` — Side-by-side visual diff and extracted text comparison
+13. `/compress-pdf` — Reduce PDF size with client-side canvas rasterization and stream optimization
+14. `/pdf-to-images` — Render PDF pages into JPG or PNG images (single or ZIP archive)
+15. `/images-to-pdf` — Convert multiple JPG, PNG, and WebP images into a single PDF
+16. `/pdf-to-text` — Extract raw textual content from document streams
+17. `/pdf-to-grayscale` — Convert color PDFs to black & white for printing/archiving
+18. `/pdf-page-counter` — Instantly count pages and inspect per-page dimensions without upload
+19. `/compare-pdfs` — Side-by-side visual diff and extracted text comparison
 
 ### Security & Privacy
-21. `/protect-pdf` — Client-side AES-256 encryption with password protection
-22. `/unlock-pdf` — Decrypt password-protected PDFs locally
+20. `/protect-pdf` — Client-side AES-256 encryption with password protection
+21. `/unlock-pdf` — Decrypt password-protected PDFs locally
 
 ---
 

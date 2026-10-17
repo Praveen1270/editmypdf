@@ -2,6 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Permanent redirects for consolidated/removed routes
+  async redirects() {
+    return [
+      { source: "/edit-pdf-text", destination: "/edit-pdf", permanent: true },
+      { source: "/privacy", destination: "/privacy-policy", permanent: true },
+    ];
+  },
   // Ensure strict privacy headers
   async headers() {
     return [

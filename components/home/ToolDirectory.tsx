@@ -12,7 +12,7 @@ import {
   RotateCw,
   Lock,
   Search,
-  Type,
+  PenLine,
 } from "lucide-react";
 import { TOOL_CATEGORIES, PDF_TOOLS, ToolItem } from "@/lib/tools-data";
 import { GlobalToolSearch } from "./GlobalToolSearch";
@@ -21,13 +21,13 @@ import { ToolListRow } from "./ToolListRow";
 
 const FEATURED_TOOLS = [
   {
-    toolId: "edit-pdf-text",
+    toolId: "edit-pdf",
     badge: "Flagship Tool",
-    title: "Edit PDF Text",
-    tagline: "Fix text in your PDF without rebuilding the document.",
-    desc: "Edit existing text directly in your PDF while preserving the original layout and font styling as closely as possible. Click any text on the page to modify it.",
-    cta: "Edit PDF Text",
-    icon: Type,
+    title: "Edit PDF",
+    tagline: "Edit text in place, sign, whiteout, highlight & annotate.",
+    desc: "Full visual PDF editor: click any text to edit it in place with matched fonts, plus whiteout, signatures, images, highlights, links, shapes and form fields.",
+    cta: "Open Editor",
+    icon: PenLine,
   },
   {
     toolId: "merge",
