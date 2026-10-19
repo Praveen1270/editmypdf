@@ -44,6 +44,7 @@ import { SignatureModal, type SavedSignature } from "./SignatureModal";
 import { ResultCard } from "@/components/tools/ResultCard";
 import { downloadBytes } from "@/lib/files/download";
 import { formatFileSize } from "@/lib/utils";
+import { getActiveDocument, clearActiveDocument, loadPersistedActiveDocument, setActiveDocument } from "@/lib/active-document";
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
 const HISTORY_LIMIT = 60;
@@ -92,7 +93,7 @@ export function EditPdfWorkspace() {
   const inlineBgRef = useRef("#ffffff");
   const [fallbackNotice, setFallbackNotice] = useState(false);
 
-  const [zoom, setZoom] = useState<number>(96 / 72);
+  const [zoom, setZoom] = useState<number>(1.0);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [processingLabel, setProcessingLabel] = useState("Working…");
   const [doneBytes, setDoneBytes] = useState<Uint8Array | null>(null);
@@ -306,6 +307,7 @@ export function EditPdfWorkspace() {
         setPast([]);
         setFuture([]);
         setStage("editor");
+        setActiveDocument({ name, size, pageCount: count, bytes });
         // Default to fit-width once layout exists.
         requestAnimationFrame(() => fitWidth());
       } catch (err: any) {
@@ -350,6 +352,25 @@ export function EditPdfWorkspace() {
     if (!pending) return;
     await openPdfBytes(pending, fileName, fileSize, password);
   }, [openPdfBytes, fileName, fileSize, password]);
+
+  /* Auto-load PDF from home page or IndexedDB store */
+  useEffect(() => {
+    if (stage !== "upload") return;
+    let cancelled = false;
+    const tryLoad = async () => {
+      let doc = getActiveDocument();
+      if (!doc || !doc.bytes || doc.bytes.length === 0) {
+        doc = await loadPersistedActiveDocument();
+      }
+      if (cancelled || !doc || !doc.bytes || doc.bytes.length === 0) return;
+      void openPdfBytes(doc.bytes, doc.name, doc.size);
+    };
+    void tryLoad();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ---------------- text blocks ---------------- */
 
@@ -407,6 +428,7 @@ export function EditPdfWorkspace() {
           arr.push(b);
           byKey.set(b.fontKey, arr);
         }
+        const { matchBundledFontId } = await import("@/lib/pdf/edit-pdf/font-matching");
         for (const [fontKey, list] of byKey) {
           try {
             const h = await harvestEmbeddedFont(pg, srcIndex + 1, fontKey);
@@ -417,6 +439,30 @@ export function EditPdfWorkspace() {
                 b.hasEmbeddedFont = h.registered;
               }
               changed = true;
+            }
+            // Inspect resolved font object for better family/serif detection
+            try {
+              const fobj = pg?.commonObjs?.get?.(fontKey);
+              if (fobj) {
+                const realName = fobj.name || fobj.fallbackName;
+                for (const b of list) {
+                  if (realName && (b.fontName.startsWith("g_") || b.fontName === "Helvetica")) {
+                    b.fontName = realName;
+                    b.matchedFontId = matchBundledFontId(realName, b.text);
+                    changed = true;
+                  }
+                  if (typeof fobj.serif === "boolean" && fobj.serif && b.matchedFontId === "NotoSans") {
+                    b.matchedFontId = "Tinos";
+                    changed = true;
+                  }
+                  if (typeof fobj.bold === "boolean" && fobj.bold) {
+                    b.bold = true;
+                    changed = true;
+                  }
+                }
+              }
+            } catch {
+              /* ignore */
             }
           } catch {
             /* keep fallback */
@@ -452,7 +498,7 @@ export function EditPdfWorkspace() {
 
   /* ---------------- inline in-place editing ---------------- */
 
-  const startEdit = useCallback((pageKey: string, block: TextBlock, bgHex = "#ffffff") => {
+  const startEdit = useCallback((pageKey: string, block: TextBlock, bgHex = "#ffffff", textHex?: string) => {
       const existing = stateRef.current.overlays.find(
         (o) => o.kind === "edit" && o.blockId === block.id
       ) as EditTextOverlay | undefined;
@@ -471,11 +517,12 @@ export function EditPdfWorkspace() {
         inlineBgRef.current = existing.bgHex;
         setFallbackNotice(existing.fallbackNotice);
       } else {
+        const color = textHex || block.colorHex || "#000000";
         setInlineValue({
           text: block.text,
           fontId: block.hasEmbeddedFont && block.embeddedFamily ? `embedded:${block.embeddedFamily}` : block.matchedFontId,
           fontSize: Math.round(block.fontSize * 10) / 10,
-          colorHex: block.colorHex,
+          colorHex: color,
           bold: block.bold,
           italic: block.italic,
           underline: false,
@@ -1039,8 +1086,8 @@ export function EditPdfWorkspace() {
     setZoom(Math.min(3, Math.max(0.3, avail / dispW)));
   }, [activePageIndex, pages]);
 
-  const zoomIn = useCallback(() => setZoom((z) => Math.min(4, +(z * 1.25).toFixed(4))), []);
-  const zoomOut = useCallback(() => setZoom((z) => Math.max(0.3, +(z / 1.25).toFixed(4))), []);
+  const zoomIn = useCallback(() => setZoom((z) => Math.min(3.0, +(z + 0.15).toFixed(2))), []);
+  const zoomOut = useCallback(() => setZoom((z) => Math.max(0.4, +(z - 0.15).toFixed(2))), []);
 
   // Pinch-to-zoom on touch devices (two fingers; single finger still scrolls).
   useEffect(() => {
@@ -1201,6 +1248,7 @@ export function EditPdfWorkspace() {
   }, [blocksBySrc, endTransient, fileName, pages.length, pushToast]);
 
   const editAnother = useCallback(() => {
+    clearActiveDocument();
     resetAll();
     setStage("upload");
   }, [resetAll]);
@@ -1355,7 +1403,7 @@ export function EditPdfWorkspace() {
     );
   }
 
-  const zoomPct = Math.round((zoom / (96 / 72)) * 100);
+  const zoomPct = Math.round(zoom * 100);
 
   return (
     <div className="pb-16">
@@ -1450,7 +1498,7 @@ export function EditPdfWorkspace() {
         {/* Pages scroll area */}
         <div
           ref={scrollRef}
-          className="min-w-0 rounded-2xl border border-border bg-surface-subtle/40 p-2 sm:p-5"
+          className="min-w-0 w-full overflow-x-auto overflow-y-auto rounded-2xl border border-border bg-surface-subtle/40 p-2 sm:p-5 max-h-[calc(100vh-160px)]"
           style={{ touchAction: "pan-x pan-y" }}
         >
           {scannedNotice(pages, scannedSrcPages) && (
@@ -1484,9 +1532,10 @@ export function EditPdfWorkspace() {
                     if (canvas) canvasByPageRef.current.set(key, canvas);
                     else canvasByPageRef.current.delete(key);
                   }}
-                  onBlockClick={(pageKey, block, bgHex) => {
+                  onBlockClick={(pageKey, block, bgHex, textHex) => {
                     setActivePageKey(pageKey);
-                    startEdit(pageKey, block, bgHex);
+                    setTool("text");
+                    startEdit(pageKey, block, bgHex, textHex);
                   }}
                   onPageClick={pageClick}
                   onCommitRect={commitRect}
@@ -1763,8 +1812,8 @@ function Thumb({
 /* ================= properties panel ================= */
 
 const TOOL_HINTS: Record<string, string> = {
-  select: "Click an object to select it. Drag to move, use the corner handle to resize. Delete key removes it.",
-  text: "Hover existing text to highlight it, then click to edit in place — same position, font, size and color.",
+  select: "Click any text to edit it in place, or click an overlay object to select it. Drag to move, use the corner handle to resize. Delete key removes it.",
+  text: "Click any text on the page to edit it in place — same position, font, size and color. Hover to preview editable blocks.",
   addText: "Click anywhere on a page to drop a new text box.",
   whiteout: "Drag a rectangle over anything you want covered. It is burned into the page on download.",
   image: "Click a page, pick a PNG/JPG, then drag and resize (aspect locked).",
@@ -1809,12 +1858,20 @@ function PropsPanel(props: {
     <aside className="space-y-4 lg:sticky lg:top-32 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto" aria-label="Properties">
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-paper">
         <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          {sel ? "Selected object" : "Tool"}
+          {sel ? "Selected Object" : "Text & Tool Controls"}
         </h3>
         {!sel && (
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            {TOOL_HINTS[props.tool] ?? ""}
-          </p>
+          <div className="mt-2 space-y-2.5">
+            <div className="rounded-xl border border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/20 p-3 text-xs text-blue-900 dark:text-blue-200">
+              <span className="font-semibold block mb-1">Click Any Text to Edit</span>
+              <p className="text-[11px] leading-relaxed text-blue-800/80 dark:text-blue-300/80">
+                Move your cursor over any word or paragraph on the page. A blue highlight will appear — click it to edit the text with the same font, size, and color.
+              </p>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {TOOL_HINTS[props.tool] ?? ""}
+            </p>
+          </div>
         )}
         {sel?.kind === "text" || sel?.kind === "edit" ? (
           <SelectedTextControls
@@ -1848,22 +1905,18 @@ function PropsPanel(props: {
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-4 shadow-paper">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-          Fill existing form fields {props.existingFields.length > 0 && `(${props.existingFields.length})`}
-        </h3>
-        {props.existingFields.length === 0 ? (
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-            No fillable AcroForm fields detected in this PDF. Use the form tools to place new ones.
-          </p>
-        ) : (
+      {props.existingFields.length > 0 && (
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-paper">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Fill Form Fields ({props.existingFields.length})
+          </h3>
           <div className="mt-2 max-h-56 space-y-2 overflow-y-auto">
             {props.existingFields.map((f: ExistingFormField) => (
               <ExistingFieldRow key={f.name} field={f} fills={props.fills} setFillValue={props.setFillValue} />
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-border bg-surface p-4 shadow-paper">
         <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">

@@ -548,3 +548,68 @@ export function sampleBackgroundHex(
     return "#ffffff";
   }
 }
+
+/**
+ * Sample the actual text glyph color directly from the rendered canvas within
+ * the text block rect. Finds pixels that strongly contrast with the background
+ * to identify glyph cores and extract their exact rendered color.
+ */
+export function sampleTextColorHex(
+  canvas: HTMLCanvasElement,
+  rectCss: { x: number; y: number; w: number; h: number },
+  bgHex = "#ffffff"
+): string | null {
+  try {
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+    const scaleX = canvas.width / Math.max(1, canvas.clientWidth);
+    const scaleY = canvas.height / Math.max(1, canvas.clientHeight);
+    const sx = Math.max(0, Math.floor(rectCss.x * scaleX));
+    const sy = Math.max(0, Math.floor(rectCss.y * scaleY));
+    const sw = Math.min(canvas.width - sx, Math.ceil(rectCss.w * scaleX));
+    const sh = Math.min(canvas.height - sy, Math.ceil(rectCss.h * scaleY));
+    if (sw <= 0 || sh <= 0) return null;
+    const data = ctx.getImageData(sx, sy, sw, sh).data;
+
+    const bgRgb = hexToRgb01(bgHex);
+    const bgR = Math.round(bgRgb.r * 255);
+    const bgG = Math.round(bgRgb.g * 255);
+    const bgB = Math.round(bgRgb.b * 255);
+
+    // Collect pixels that contrast with the background
+    const glyphPixels: { r: number; g: number; b: number; dist: number }[] = [];
+    for (let y = 0; y < sh; y++) {
+      for (let x = 0; x < sw; x++) {
+        const o = (y * sw + x) * 4;
+        const a = data[o + 3];
+        if (a < 150) continue;
+        const r = data[o];
+        const g = data[o + 1];
+        const b = data[o + 2];
+        const dist = Math.hypot(r - bgR, g - bgG, b - bgB);
+        if (dist > 35) {
+          glyphPixels.push({ r, g, b, dist });
+        }
+      }
+    }
+
+    if (glyphPixels.length < 4) return null;
+
+    // Sort by contrast from background to focus on solid glyph core pixels
+    glyphPixels.sort((p, q) => q.dist - p.dist);
+    const coreCount = Math.max(3, Math.floor(glyphPixels.length * 0.45));
+    const core = glyphPixels.slice(0, coreCount);
+
+    const med = (arr: number[]) => {
+      const s = [...arr].sort((p, q) => p - q);
+      return s[Math.floor(s.length / 2)];
+    };
+    return rgb01ToHex(
+      med(core.map((p) => p.r)) / 255,
+      med(core.map((p) => p.g)) / 255,
+      med(core.map((p) => p.b)) / 255
+    );
+  } catch {
+    return null;
+  }
+}

@@ -23,7 +23,7 @@ import {
   type ViewportLike,
 } from "@/lib/pdf/edit-pdf/viewport";
 import { cssFamilyForFontId } from "@/lib/pdf/edit-pdf/font-matching";
-import { sampleBackgroundHex } from "@/lib/pdf/edit-pdf/text-extraction";
+import { sampleBackgroundHex, sampleTextColorHex } from "@/lib/pdf/edit-pdf/text-extraction";
 import { InlineTextEditor, type InlineTextValue } from "./TextBlockOverlay";
 
 export type AnnotSubtype = "highlight" | "underline" | "strike";
@@ -44,7 +44,7 @@ interface PageViewProps {
   fallbackNotice: boolean;
   onEnsureBlocks: (srcIndex: number) => void;
   onRegisterCanvas: (pageKey: string, canvas: HTMLCanvasElement | null) => void;
-  onBlockClick: (pageKey: string, block: TextBlock, bgHex: string) => void;
+  onBlockClick: (pageKey: string, block: TextBlock, bgHex: string, textHex?: string) => void;
   onPageClick: (pageKey: string, pt: PdfPoint) => void;
   onCommitRect: (pageKey: string, tool: EditorToolId, rect: PdfRect) => void;
   onCommitDraw: (pageKey: string, points: PdfPoint[]) => void;
@@ -327,19 +327,22 @@ export function PageView(props: PageViewProps) {
     props.onCommitRect(page.key, props.tool, rect);
   };
 
-  const sampleBg = (b: TextBlock): string => {
+  const sampleColors = (b: TextBlock): { bgHex: string; textHex?: string } => {
     try {
       const c = canvasRef.current;
-      if (!c || !viewport) return "#ffffff";
-      return sampleBackgroundHex(c, blockGeometry(b, viewport));
+      if (!c || !viewport) return { bgHex: "#ffffff" };
+      const geom = blockGeometry(b, viewport);
+      const bgHex = sampleBackgroundHex(c, geom);
+      const textHex = sampleTextColorHex(c, geom, bgHex) || undefined;
+      return { bgHex, textHex };
     } catch {
-      return "#ffffff";
+      return { bgHex: "#ffffff" };
     }
   };
 
   const showTextLayer =
     props.tool === "highlight" || props.tool === "underline" || props.tool === "strike";
-  const showBlockHover = props.tool === "text" && !props.editingBlockId;
+  const showBlockHover = (props.tool === "text" || props.tool === "select") && !props.editingBlockId;
 
   return (
     <div
@@ -352,7 +355,10 @@ export function PageView(props: PageViewProps) {
       onDoubleClick={() => {
         if (hoverBlockId && props.blocks) {
           const b = props.blocks.find((x) => x.id === hoverBlockId);
-          if (b) props.onBlockClick(page.key, b, sampleBg(b));
+          if (b) {
+            const sc = sampleColors(b);
+            props.onBlockClick(page.key, b, sc.bgHex, sc.textHex);
+          }
         }
       }}
     >
@@ -363,46 +369,70 @@ export function PageView(props: PageViewProps) {
         </div>
       )}
 
-      {/* Hover highlights for existing text */}
-      {showBlockHover && viewport && props.blocks && (
-        <div className="absolute inset-0 z-10">
+      {/* Interactive & Selectable Text Layer */}
+      {viewport && props.blocks && props.blocks.length > 0 && (
+        <div
+          data-textlayer
+          className="absolute inset-0 z-[15] select-text"
+          onMouseUp={handleMouseUp}
+        >
           {props.blocks.map((b) => (
-            <BlockHitBox
+            <InteractiveTextBlock
               key={b.id}
               block={b}
               viewport={viewport}
               hovered={hoverBlockId === b.id}
               edited={props.overlays.some((o) => o.kind === "edit" && o.blockId === b.id)}
+              editing={props.editingBlockId === b.id}
               onEnter={() => setHoverBlockId(b.id)}
               onLeave={() => setHoverBlockId((h) => (h === b.id ? null : h))}
-              onClick={() => props.onBlockClick(page.key, b, sampleBg(b))}
+              onClick={() => {
+                const sc = sampleColors(b);
+                props.onBlockClick(page.key, b, sc.bgHex, sc.textHex);
+              }}
             />
           ))}
         </div>
       )}
 
-      {/* Selectable text layer for annotations */}
-      {showTextLayer && viewport && props.blocks && (
-        <div
-          data-textlayer
-          className="absolute inset-0 z-[25] select-text"
-          style={{ cursor: "text" }}
-          onMouseUp={handleMouseUp}
-        >
-          {props.blocks.map((b) => (
-            <BlockTextLayer key={b.id} block={b} viewport={viewport} />
-          ))}
+      {/* Whiteout covers behind edited text blocks to hide original canvas text */}
+      {viewport && props.blocks && (
+        <div className="absolute inset-0 z-[16] pointer-events-none">
+          {props.overlays
+            .filter((ov) => ov.kind === "edit" && ov.id !== props.editingBlockId)
+            .map((ov) => {
+              if (ov.kind !== "edit") return null;
+              const block = props.blocks?.find((b) => b.id === ov.blockId);
+              if (!block) return null;
+              const g = blockGeometry(block, viewport);
+              const bg = ov.bgHex || "#ffffff";
+              return (
+                <div
+                  key={`cover-${ov.id}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: Math.max(0, g.x - 2),
+                    top: Math.max(0, g.y - 1),
+                    width: Math.max(g.w + 4, (ov.wrapW * cssScaleOf(viewport)) + 4),
+                    height: g.h + 2,
+                    background: bg,
+                  }}
+                />
+              );
+            })}
         </div>
       )}
 
       {/* Overlay items */}
       {viewport && (
-        <div className="absolute inset-0 z-20">
+        <div className="absolute inset-0 z-20 pointer-events-none">
           {props.overlays.map((ov) => (
             <OverlayItem
               key={ov.id}
               overlay={ov}
               viewport={viewport}
+              blocks={props.blocks}
+              onEditBlock={(block, bgHex, textHex) => props.onBlockClick(page.key, block, bgHex, textHex)}
               selected={props.selectedId === ov.id}
               selecting={props.tool === "select"}
               onSelect={() => {
@@ -466,7 +496,9 @@ export function PageView(props: PageViewProps) {
       {/* Invisible interaction layer (captures creation drags) */}
       {viewport && (
         <div
-          className="absolute inset-0 z-[5] touch-none"
+          className={`absolute inset-0 ${
+            CREATION_TOOLS.includes(props.tool) ? "z-[25] touch-none" : "z-[5] pointer-events-none"
+          }`}
           style={{
             cursor:
               props.tool === "text"
@@ -516,11 +548,12 @@ function blockGeometry(block: TextBlock, viewport: ViewportLike) {
   };
 }
 
-function BlockHitBox({
+function InteractiveTextBlock({
   block,
   viewport,
   hovered,
   edited,
+  editing,
   onEnter,
   onLeave,
   onClick,
@@ -529,38 +562,23 @@ function BlockHitBox({
   viewport: ViewportLike;
   hovered: boolean;
   edited: boolean;
+  editing: boolean;
   onEnter: () => void;
   onLeave: () => void;
   onClick: () => void;
 }) {
   const g = blockGeometry(block, viewport);
-  return (
-    <div
-      className={`absolute cursor-text transition-colors ${
-        hovered
-          ? "bg-foreground/[0.14] outline outline-1 outline-foreground"
-          : edited
-            ? "bg-foreground/[0.07] outline outline-1 outline-dashed outline-foreground/50"
-            : "hover:bg-foreground/[0.08]"
-      }`}
-      style={{ left: g.x, top: g.y, width: g.w, height: g.h }}
-      title={block.text.slice(0, 120)}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-    />
-  );
-}
 
-function BlockTextLayer({ block, viewport }: { block: TextBlock; viewport: ViewportLike }) {
-  const g = blockGeometry(block, viewport);
   return (
     <div
       data-block-id={block.id}
-      className="absolute overflow-hidden whitespace-pre-wrap break-words text-transparent"
+      className={`absolute cursor-text transition-all rounded-[2px] pointer-events-auto ${
+        editing || edited
+          ? "opacity-0 pointer-events-none"
+          : hovered
+            ? "bg-blue-500/15 ring-2 ring-blue-500/80 shadow-sm"
+            : "hover:bg-blue-500/10 hover:ring-1 hover:ring-blue-400"
+      }`}
       style={{
         left: g.x,
         top: g.y,
@@ -569,8 +587,23 @@ function BlockTextLayer({ block, viewport }: { block: TextBlock; viewport: Viewp
         fontSize: `${block.fontSize * cssScaleOf(viewport)}px`,
         lineHeight: 1.2,
       }}
+      title={`Click to edit: "${block.text.slice(0, 80)}"`}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
     >
-      {block.text}
+      <span className="select-text text-transparent break-words whitespace-pre-wrap block w-full h-full pointer-events-auto">
+        {block.text}
+      </span>
+      {hovered && !editing && (
+        <span className="pointer-events-none absolute -top-6 left-0 z-40 rounded bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white shadow-md whitespace-nowrap flex items-center gap-1">
+          <span>✏️</span>
+          <span>Click to edit text</span>
+        </span>
+      )}
     </div>
   );
 }
@@ -608,6 +641,8 @@ function aspectForImage(id: string, dataUrl: string): number | null {
 function OverlayItem({
   overlay,
   viewport,
+  blocks,
+  onEditBlock,
   selected,
   selecting,
   onSelect,
@@ -618,6 +653,8 @@ function OverlayItem({
 }: {
   overlay: Overlay;
   viewport: ViewportLike;
+  blocks?: TextBlock[];
+  onEditBlock?: (block: TextBlock, bgHex: string, textHex?: string) => void;
   selected: boolean;
   selecting: boolean;
   onSelect: () => void;
@@ -681,7 +718,7 @@ function OverlayItem({
     const g = rectToCss(overlay.rect, viewport);
     return (
       <div
-        className={`absolute ${ring}`}
+        className={`absolute pointer-events-auto ${ring}`}
         style={{ left: g.left, top: g.top, width: Math.max(2, g.width), height: Math.max(2, g.height), background: overlay.colorHex }}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
@@ -696,7 +733,7 @@ function OverlayItem({
     aspectForImage(overlay.id, overlay.dataUrl);
     return (
       <div
-        className={`absolute ${ring}`}
+        className={`absolute pointer-events-auto ${ring}`}
         style={{ left: g.left, top: g.top, width: Math.max(4, g.width), height: Math.max(4, g.height) }}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
@@ -722,7 +759,7 @@ function OverlayItem({
     const h = Math.max(2, g.height);
     return (
       <div
-        className={`absolute ${ring}`}
+        className={`absolute pointer-events-auto ${ring}`}
         style={{ left: g.left, top: g.top, width: w, height: h }}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
@@ -761,7 +798,7 @@ function OverlayItem({
     const maxY = Math.max(...xs.map((p) => p.sy));
     return (
       <div
-        className={`absolute ${ring}`}
+        className={`absolute pointer-events-auto ${ring}`}
         style={{ left: minX - 4, top: minY - 4, width: Math.max(8, maxX - minX + 8), height: Math.max(8, maxY - minY + 8) }}
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
@@ -781,8 +818,8 @@ function OverlayItem({
     const bg =
       overlay.kind === "annot"
         ? overlay.subtype === "highlight"
-          ? `${overlay.colorHex}59`
-          : "transparent"
+        ? `${overlay.colorHex}59`
+        : "transparent"
         : overlay.kind === "link"
           ? "rgba(59,130,246,0.12)"
           : "rgba(59,130,246,0.15)";
@@ -792,7 +829,7 @@ function OverlayItem({
         : undefined;
     return (
       <div
-        className={`absolute ${ring}`}
+        className={`absolute pointer-events-auto ${ring}`}
         style={{
           left: css.left,
           top: css.top,
@@ -834,14 +871,65 @@ function OverlayItem({
     );
   }
 
-  if (overlay.kind === "text" || overlay.kind === "edit") {
+  if (overlay.kind === "edit") {
+    const block = blocks?.find((b) => b.id === overlay.blockId);
+    const scale = cssScaleOf(viewport);
+    const fontFamily = cssFamilyForFontId(overlay.fontId, overlay.bold);
+    const lineH = block
+      ? (block.lineHeight / Math.max(1, block.fontSize)) * overlay.fontSize * scale
+      : overlay.fontSize * scale * 1.25;
+
+    // Use exact block geometry if available to perfectly align over original text
+    const g = block ? blockGeometry(block, viewport) : null;
+    const s = pdfPointToScreen(viewport, overlay.x, overlay.y);
+    const left = g ? g.x : s.sx;
+    const top = g ? g.y : s.sy - overlay.fontSize * scale * 1.25;
+    const width = Math.max(g ? g.w : 30, overlay.wrapW * scale);
+    const minHeight = g ? g.h : overlay.fontSize * scale * 1.25;
+    const bg = overlay.bgHex || "#ffffff";
+
+    return (
+      <div
+        className={`absolute pointer-events-auto whitespace-pre-wrap break-words cursor-text ${ring}`}
+        style={{
+          left,
+          top,
+          width,
+          minHeight,
+          background: bg,
+          padding: "0 1px",
+          fontFamily,
+          fontSize: `${overlay.fontSize * scale}px`,
+          lineHeight: `${lineH}px`,
+          color: overlay.colorHex,
+          fontWeight: overlay.bold ? 700 : 400,
+          fontStyle: overlay.italic ? "italic" : "normal",
+          textDecoration: overlay.underline ? "underline" : "none",
+          textAlign: overlay.align,
+        }}
+        title="Click to edit text"
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect();
+          if (block && onEditBlock) {
+            onEditBlock(block, bg, overlay.colorHex);
+          }
+        }}
+        {...commonHandlers}
+      >
+        {overlay.text}
+      </div>
+    );
+  }
+
+  if (overlay.kind === "text") {
     const s = pdfPointToScreen(viewport, overlay.x, overlay.y);
     const scale = cssScaleOf(viewport);
     const fontFamily = cssFamilyForFontId(overlay.fontId, overlay.bold);
     const estH = overlay.fontSize * scale * 1.25;
     return (
       <div
-        className={`absolute whitespace-pre-wrap break-words ${ring}`}
+        className={`absolute pointer-events-auto whitespace-pre-wrap break-words ${ring}`}
         style={{
           left: s.sx,
           top: s.sy - estH,

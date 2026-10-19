@@ -9,43 +9,26 @@ const toolMeta = PDF_TOOLS.find((t) => t.id === "edit-pdf");
 export default function EditPdfPage() {
   return (
     <div className="min-h-screen bg-background pb-20 text-foreground">
-      {/* SEO header */}
-      <div className="border-b border-border bg-surface">
-        <div className="mx-auto max-w-content px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-            <Link href="/" className="hover:text-foreground">Home</Link>
-            <span aria-hidden="true">/</span>
-            <span>Edit PDF</span>
-          </div>
-          <h1 className="mt-1 text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            Edit PDF Online — Full Visual Editor
-          </h1>
-          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground sm:text-sm">
-            Click any text to edit it in place with matched fonts, or whiteout, sign, highlight,
-            add images, links and form fields. Free, no signup —{" "}
-            <span className="font-medium text-foreground">your file stays on your device</span>.
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-2.5 py-1 font-medium text-foreground">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>100% In-Browser RAM</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-2.5 py-1 text-muted-foreground">
-              <Type className="h-3.5 w-3.5" />
-              <span>In-place text editing</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-2.5 py-1 text-muted-foreground">
-              <PenLine className="h-3.5 w-3.5" />
-              <span>Sign & annotate</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-2.5 py-1 text-muted-foreground">
-              <Highlighter className="h-3.5 w-3.5" />
-              <span>Whiteout & highlights</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-2.5 py-1 text-muted-foreground">
-              <Eraser className="h-3.5 w-3.5" />
-              <span>PDF only · ~50 MB max</span>
-            </span>
+      {/* Header */}
+      <div className="border-b border-border bg-surface py-3 sm:py-4">
+        <div className="mx-auto max-w-content px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                <Link href="/" className="hover:text-foreground">Home</Link>
+                <span aria-hidden="true">/</span>
+                <span>Edit PDF</span>
+              </div>
+              <h1 className="mt-0.5 text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                Edit PDF Online — Full Visual Editor
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 text-[11px]">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-subtle px-2.5 py-1 font-medium text-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                <span>100% In-Browser RAM · Private</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

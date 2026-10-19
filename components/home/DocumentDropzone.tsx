@@ -151,6 +151,7 @@ export function DocumentDropzone() {
     <div className="w-full">
       <input
         ref={fileInputRef}
+        id="home-dropzone-file"
         type="file"
         accept=".pdf,application/pdf"
         className="hidden"
@@ -187,10 +188,18 @@ export function DocumentDropzone() {
             </div>
 
             <div className="flex items-center gap-2 self-start sm:self-center">
+              <Link
+                href="/edit-pdf"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-4 py-2 text-xs font-semibold text-background hover:opacity-90 shadow-sm transition"
+              >
+                <PenLine className="h-3.5 w-3.5" />
+                <span>Open in PDF Editor</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
+                className="rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
               >
                 Change PDF
               </button>
@@ -220,17 +229,31 @@ export function DocumentDropzone() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
               {QUICK_ACTIONS.map((action) => {
                 const Icon = action.icon;
+                const isEditor = action.id === "edit-pdf";
                 return (
                   <Link
                     key={action.id}
                     href={action.href}
-                    className="group flex flex-col justify-between rounded-xl border border-border bg-surface-subtle/50 p-3.5 transition hover:border-border-strong hover:bg-surface hover:shadow-paper"
+                    className={`group flex flex-col justify-between rounded-xl border p-3.5 transition shadow-sm hover:shadow-paper ${
+                      isEditor
+                        ? "border-blue-500/50 bg-blue-50/40 dark:bg-blue-950/20 ring-1 ring-blue-500/30"
+                        : "border-border bg-surface-subtle/50 hover:border-border-strong hover:bg-surface"
+                    }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-foreground transition-colors group-hover:bg-foreground group-hover:text-background group-hover:border-foreground">
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${
+                        isEditor
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "border-border bg-surface text-foreground group-hover:bg-foreground group-hover:text-background group-hover:border-foreground"
+                      }`}>
                         <Icon className="h-4 w-4" />
                       </div>
-                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                      <div className="flex items-center gap-1">
+                        {isEditor && (
+                          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Editor</span>
+                        )}
+                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                      </div>
                     </div>
                     <div className="mt-3">
                       <span className="text-xs font-semibold text-foreground block">
