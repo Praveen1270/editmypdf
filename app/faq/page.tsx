@@ -59,7 +59,7 @@ const FAQ_DATA: FaqItem[] = [
   {
     category: "privacy",
     q: "Do I need an account or subscription to use EditMyPDF?",
-    a: "No. EditMyPDF requires no account, registration, or credit card. All 22 tools are completely free to use without restrictions.",
+    a: "No. EditMyPDF requires no account, registration, or credit card. All 39 tools are completely free to use without restrictions.",
   },
 ];
 

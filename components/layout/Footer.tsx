@@ -78,6 +78,22 @@ export function Footer() {
                   className="h-[40px] w-auto"
                 />
               </a>
+
+              <a
+                href="https://twelve.tools"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-opacity hover:opacity-85"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://twelve.tools/badge0-white.svg"
+                  alt="Featured on Twelve Tools"
+                  width={148}
+                  height={40}
+                  className="h-[40px] w-auto"
+                />
+              </a>
             </div>
           </div>
 

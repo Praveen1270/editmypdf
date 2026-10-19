@@ -14,6 +14,13 @@ import { addTextToPdf } from "../lib/pdf/add-text.ts";
 import { readPdfMetadata, updatePdfMetadata } from "../lib/pdf/metadata.ts";
 import { inspectPdfProperties } from "../lib/pdf/properties.ts";
 import { computeLineDiff } from "../lib/utils/diff.ts";
+import { flattenPdf } from "../lib/pdf/flatten.ts";
+import { redactPdf } from "../lib/pdf/redact.ts";
+import { scanPdfPrivacy } from "../lib/pdf/privacy-scan.ts";
+import { invertPdfColors } from "../lib/pdf/invert.ts";
+import { repairPdf } from "../lib/pdf/repair.ts";
+import { convertPdfToHtml } from "../lib/pdf/pdf-to-html.ts";
+import { PDF_TOOLS, TOOL_CATEGORIES } from "../lib/tools-data.ts";
 
 async function createSamplePdf(pageCount = 3, text = "Test Page") {
   const doc = await PDFDocument.create();
@@ -333,6 +340,23 @@ async function runTests() {
     }
     assert(caughtMergeEncrypted, "Merge PDF: Successfully caught encrypted file and guided user to Unlock PDF tool");
   }
+
+  // New tools tests
+  {
+    const toolIds = new Set(PDF_TOOLS.map((tool) => tool.id));
+    const missing = TOOL_CATEGORIES.flatMap((category) => category.toolIds.filter((id) => !toolIds.has(id)));
+    assert(missing.length === 0, `Tool directory: every category entry resolves to a registered tool${missing.length ? ` (missing: ${missing.join(", ")})` : ""}`);
+  }
+  {
+    const sample = await createSamplePdf(2, "FlattenDoc");
+    const { bytes, report } = await flattenPdf(sample, { flattenForms: true, removeAnnotations: true, removeScripts: true });
+    const d = await PDFDocument.load(bytes);
+    assert(d.getPageCount() === 2, "Flatten PDF: preserved page count");
+    assert(bytes.byteLength > 0, "Flatten PDF: produced output");
+    void report;
+  }
+  // Note: redact, privacy-scan, invert, repair, pdf-to-html rely on pdf.js/DOM
+  // and are validated in the browser; skipped in the node test runner.
 
   console.log(`\n🎉 All ${passed}/${total} automated verification tests PASSED!\n`);
 }

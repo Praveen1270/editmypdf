@@ -83,7 +83,7 @@ All PDF processing occurs **100% locally in your browser** using WebAssembly, HT
 # Install dependencies
 npm install
 
-# Run automated PDF engine test suite (39/39 tests)
+# Run automated PDF engine test suite (42/42 tests)
 npm test
 
 # Generate + verify the /edit-pdf editor matrix (84/84 checks:

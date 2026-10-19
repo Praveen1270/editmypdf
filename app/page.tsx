@@ -5,7 +5,7 @@ import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 export const metadata: Metadata = {
   title: "EditMyPDF — Free Online PDF Tools",
   description:
-    "All your PDF tools. One private workspace. 22 client-side PDF utilities to edit text, merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
+    "All your PDF tools. One private workspace. 39 client-side PDF utilities to edit text, merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
   keywords: [
     "PDF tools",
     "edit PDF text",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "EditMyPDF — Privacy-First PDF Utilities",
-    description: "22 functional PDF tools that run locally in your browser. Files never leave your device.",
+    description: "39 functional PDF tools that run locally in your browser. Files never leave your device.",
     type: "website",
   },
 };
