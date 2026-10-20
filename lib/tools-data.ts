@@ -75,7 +75,7 @@ export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
     id: "convert-files",
     name: "Convert files",
     description: "Transform PDFs into image formats, plain text, or monochrome",
-    toolIds: ["pdf-to-images", "images-to-pdf", "pdf-to-text", "pdf-to-grayscale", "invert", "pdf-to-html", "scan-to-pdf", "pdf-to-epub", "ocr", "excel-to-pdf", "csv-to-pdf", "markdown-to-pdf", "html-to-pdf", "word-to-pdf", "pdf-to-word", "ebook-to-pdf", "create-pdf", "p2p-share", "whiteboard", "chat-with-pdf", "ai-summarizer", "pdf-to-excel", "headers-footers"],
+    toolIds: ["pdf-to-images", "images-to-pdf", "pdf-to-text", "pdf-to-grayscale", "invert", "pdf-to-html", "scan-to-pdf", "pdf-to-epub", "ocr", "excel-to-pdf", "csv-to-pdf", "markdown-to-pdf", "html-to-pdf", "word-to-pdf", "pdf-to-word", "ebook-to-pdf", "create-pdf", "p2p-share", "whiteboard", "chat-with-pdf", "ai-summarizer", "pdf-to-excel", "headers-footers", "latex-resume"],
   },
   {
     id: "optimize",
@@ -1391,8 +1391,29 @@ export const PDF_TOOLS: ToolItem[] = [
     limitations: ["Data clears if browser data is cleared; back up regularly."],
     faq: [{ q: "Does it upload data?", a: "No." }],
   },
+  {
+    id: "latex-resume",
+    name: "LaTeX Resume",
+    title: "LaTeX Resume Builder — Free ATS-Friendly Resume",
+    href: "/latex-resume",
+    category: "convert",
+    categoryName: "Convert and Compress",
+    sidebarCategory: "create-convert-pdf",
+    description: "Build an ATS-friendly resume with four typeset templates. Export PDF or .tex. Everything runs in your browser.",
+    shortDesc: "Build an ATS-friendly resume and export PDF or .tex.",
+    iconName: "FileText",
+    keywords: ["resume", "cv", "latex", "ats", "builder"],
+    steps: [
+      { title: "Open builder", desc: "A complete example resume is already loaded." },
+      { title: "Edit details", desc: "Replace name, contact, roles and bullets." },
+      { title: "Pick template", desc: "Choose Classic, Modern, Sidebar or Academic CV." },
+      { title: "Download", desc: "Save as PDF or export .tex for Overleaf." },
+    ],
+    features: ["Four typeset templates", "ATS warnings", "Export PDF or .tex", "Import .tex", "Autosave in browser"],
+    limitations: ["Runs in browser; no server upload."],
+    faq: [{ q: "Is it free?", a: "Yes, no sign-up, no watermark." }],
+  },
 ];
-
 export function getToolsBySidebarCategory(categoryId: SidebarCategoryId): ToolItem[] {
   return PDF_TOOLS.filter((t) => t.sidebarCategory === categoryId);
 }
