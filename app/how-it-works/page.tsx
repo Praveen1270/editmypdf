@@ -114,7 +114,7 @@ export default function HowItWorksPage() {
               Self-Hosted Workers & Offline Readiness
             </h2>
             <p className="text-text-secondary">
-              Many web tools that claim to be client-side secretly fetch scripts, fonts, or tracking beacons from third-party CDNs during operation. EditMyPDF self-hosts its WebAssembly workers (<code>/pdf.worker.min.mjs</code>) directly on our origin. Once cached by your browser, all 20 PDF utilities operate with 100% independence from the internet.
+              Many web tools that claim to be client-side secretly fetch scripts, fonts, or tracking beacons from third-party CDNs during operation. EditMyPDF self-hosts its WebAssembly workers (<code>/pdf.worker.min.mjs</code>) directly on our origin. Once cached by your browser, all 57 PDF utilities operate with 100% independence from the internet.
             </p>
           </section>
 
@@ -123,7 +123,7 @@ export default function HowItWorksPage() {
               href="/#tools"
               className="inline-flex items-center justify-center rounded-lg bg-action-primary px-6 py-2.5 text-xs font-semibold text-action-primary-text shadow-sm hover:opacity-90 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
-              Explore All 20 PDF Tools
+              Explore All 57 PDF Tools
             </Link>
           </div>
         </div>

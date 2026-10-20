@@ -93,7 +93,7 @@ export function WebsiteJsonLd() {
     "@type": "WebSite",
     "name": "EditMyPDF",
     "url": baseUrl,
-    "description": "Privacy-first PDF utility suite running 100% locally in your browser with 22 functional tools.",
+    "description": "Privacy-first PDF utility suite running 100% locally in your browser with 57 functional tools.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {

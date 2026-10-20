@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HelpCircle, ChevronDown, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { PDF_TOOLS } from "@/lib/tools-data";
 
 interface FaqItem {
   q: string;
@@ -54,12 +55,12 @@ const FAQ_DATA: FaqItem[] = [
   {
     category: "technical",
     q: "Can I use EditMyPDF completely offline?",
-    a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 22 PDF utilities will continue working offline.",
+    a: `Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all ${PDF_TOOLS.length} PDF utilities will continue working offline.`,
   },
   {
     category: "privacy",
     q: "Do I need an account or subscription to use EditMyPDF?",
-    a: "No. EditMyPDF requires no account, registration, or credit card. All 39 tools are completely free to use without restrictions.",
+    a: `No. EditMyPDF requires no account, registration, or credit card. All ${PDF_TOOLS.length} tools are completely free to use without restrictions.`,
   },
 ];
 

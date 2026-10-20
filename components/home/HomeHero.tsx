@@ -7,6 +7,7 @@ import {
   ArrowDown,
   Loader2,
 } from "lucide-react";
+import { PDF_TOOLS } from "@/lib/tools-data";
 import { setActiveDocument } from "@/lib/active-document";
 import { getPdfInfo } from "@/lib/pdf/pdf-loader";
 import { addRecentFile } from "@/lib/storage";
@@ -175,7 +176,7 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
           href="#tools"
           className="inline-flex items-center gap-1 text-black dark:text-white font-bold hover:underline"
         >
-          <span>Discover all 33 tools</span>
+          <span>Discover all {PDF_TOOLS.length} tools</span>
           <ArrowDown className="h-3.5 w-3.5 stroke-[2.5]" />
         </a>
       </div>

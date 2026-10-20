@@ -32,7 +32,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Can I use EditMyPDF completely offline?",
-    a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 20 PDF utilities will continue working offline.",
+    a: "Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all 57 PDF utilities will continue working offline.",
   },
 ];
 

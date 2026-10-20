@@ -1,3 +1,4 @@
+import { PDF_TOOLS } from "@/lib/tools-data";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, Shield, ArrowRight, Zap } from "lucide-react";
@@ -80,7 +81,7 @@ export default function AboutPage() {
                 href="/#tools"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-5 py-2.5 text-xs font-semibold text-action-primary-text transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               >
-                <span>Explore All 20 Tools</span>
+                <span>Explore All {PDF_TOOLS.length} Tools</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

@@ -18,7 +18,7 @@ export default function NotFound() {
             This page does not exist.
           </h1>
           <p className="text-sm text-text-secondary leading-relaxed max-w-md mx-auto">
-            The link you followed may be broken or the page may have been moved. You can return home or jump straight to any of our 22 client-side PDF tools.
+            The link you followed may be broken or the page may have been moved. You can return home or jump straight to any of our  client-side PDF tools.
           </p>
         </div>
 
@@ -35,7 +35,7 @@ export default function NotFound() {
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-action-secondary px-5 py-2.5 text-xs font-semibold text-action-secondary-text hover:bg-surface-strong transition w-full sm:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             <Search className="h-4 w-4" />
-            <span>Browse All 20 Tools</span>
+            <span>Browse All  Tools</span>
           </Link>
         </div>
 

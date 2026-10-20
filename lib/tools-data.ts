@@ -80,7 +80,7 @@ export const MASTER_CATEGORIES: MasterCategoryDef[] = [
 
 export function getMasterCategoryId(tool: ToolItem): MasterCategoryId {
   const id = tool.id;
-  if (id === "workflows") return "workflows";
+  if (id === "workflows" || id.startsWith("workflow-")) return "workflows";
   if (["merge", "split", "remove-pages", "extract", "organize", "scan-to-pdf", "rotate", "p2p-share", "whiteboard"].includes(id)) {
     return "organize";
   }
@@ -164,6 +164,75 @@ export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
 ];
 
 export const PDF_TOOLS: ToolItem[] = [
+  // --- Category: Workflows ---
+  {
+    id: "workflow-merge-compress",
+    name: "Merge & Compress",
+    title: "Merge & Compress PDF Workflow",
+    href: "/workflows?preset=merge-compress",
+    category: "organize",
+    categoryName: "Workflows",
+    sidebarCategory: "scan-workflow",
+    description: "Combine multiple PDFs in sequence, then losslessly optimize file size in browser RAM.",
+    shortDesc: "Merge multiple documents then compress output.",
+    iconName: "Layers",
+    keywords: ["workflow", "merge compress", "combine optimize", "pipeline"],
+    steps: [{ title: "Upload", desc: "Select 2 or more PDFs." }, { title: "Run", desc: "Merge and compress in memory." }, { title: "Download", desc: "Save optimized single PDF." }],
+    features: ["Zero upload memory execution", "Sequential merge", "Stream compression"],
+    limitations: ["Requires 2 or more input PDFs"],
+    faq: [{ q: "Are files uploaded?", a: "No, everything runs in your local browser RAM." }],
+  },
+  {
+    id: "workflow-compress-protect",
+    name: "Compress & Protect",
+    title: "Compress & Protect PDF Workflow",
+    href: "/workflows?preset=compress-protect",
+    category: "security",
+    categoryName: "Workflows",
+    sidebarCategory: "scan-workflow",
+    description: "Optimize document size and apply AES-256 client-side password protection in one step.",
+    shortDesc: "Compress document size and encrypt with AES-256.",
+    iconName: "Lock",
+    keywords: ["workflow", "compress protect", "encrypt compress", "secure pdf"],
+    steps: [{ title: "Upload", desc: "Select PDF to optimize." }, { title: "Password", desc: "Enter encryption password." }, { title: "Run", desc: "Compress and encrypt." }],
+    features: ["AES-256 encryption", "Stream compression", "Private and instant"],
+    limitations: ["Remember your password; passwords cannot be recovered."],
+    faq: [{ q: "What encryption is used?", a: "Native Web Crypto standard AES-256." }],
+  },
+  {
+    id: "workflow-rotate-numbers",
+    name: "Rotate & Add Numbers",
+    title: "Rotate & Add Page Numbers Workflow",
+    href: "/workflows?preset=rotate-numbers",
+    category: "layout",
+    categoryName: "Workflows",
+    sidebarCategory: "scan-workflow",
+    description: "Permanently rotate all pages and stamp clean sequential page numbers.",
+    shortDesc: "Fix page orientation and stamp page numbers.",
+    iconName: "RotateCw",
+    keywords: ["workflow", "rotate number", "page numbers", "orientation"],
+    steps: [{ title: "Upload", desc: "Select PDF document." }, { title: "Configure", desc: "Choose angle and placement." }, { title: "Run", desc: "Rotate and number pages." }],
+    features: ["Multi-angle rotation", "Sequential page numbers", "Custom placement"],
+    limitations: ["Applies uniform rotation across document"],
+    faq: [{ q: "Can I choose number placement?", a: "Yes, bottom center or bottom right." }],
+  },
+  {
+    id: "workflow-flatten-sanitize",
+    name: "Flatten & Sanitize",
+    title: "Flatten & Sanitize Metadata Workflow",
+    href: "/workflows?preset=flatten-sanitize",
+    category: "security",
+    categoryName: "Workflows",
+    sidebarCategory: "scan-workflow",
+    description: "Flatten interactive AcroForms & annotations and scrub personal author metadata for secure public distribution.",
+    shortDesc: "Flatten form fields and wipe personal metadata.",
+    iconName: "Shield",
+    keywords: ["workflow", "flatten sanitize", "metadata scrub", "secure sharing"],
+    steps: [{ title: "Upload", desc: "Select PDF document." }, { title: "Run", desc: "Flatten forms and scrub metadata." }, { title: "Download", desc: "Save clean confidential PDF." }],
+    features: ["Form field flattening", "Metadata scrubbing", "Print-ready output"],
+    limitations: ["Flattened forms can no longer be edited interactively"],
+    faq: [{ q: "What metadata is removed?", a: "Title, author, subject, creator, and producer tags." }],
+  },
   // --- Category 1: Organize PDFs ---
   {
     id: "merge",
