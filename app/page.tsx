@@ -3,9 +3,9 @@ import { HomeClient } from "@/components/home/HomeClient";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
-  title: "EditMyPDF — Free Online PDF Tools",
+  title: "Free PDF Tools Online – Edit, Convert & Compress PDFs | EditMyPDF",
   description:
-    "All your PDF tools. One private workspace. 39 client-side PDF utilities to edit text, merge, split, compress, extract, crop, resize, and encrypt PDFs with zero server uploads.",
+    "Merge, split, compress, convert, edit, and organize PDF files for free. Process supported documents directly in your browser with no account or file upload required.",
   keywords: [
     "PDF tools",
     "edit PDF text",

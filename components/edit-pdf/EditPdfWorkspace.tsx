@@ -113,6 +113,7 @@ export function EditPdfWorkspace() {
 
   const pdfBytesRef = useRef<Uint8Array | null>(null);
   const pdfDocRef = useRef<any>(null);
+  const handleDownloadRef = useRef<() => void>(() => {});
   const pdfjsRef = useRef<any>(null);
   const pendingBytesRef = useRef<Uint8Array | null>(null);
   const stateRef = useRef<EditorSnapshot>({ pages: [], overlays: [], fills: [] });
@@ -1139,6 +1140,11 @@ export function EditPdfWorkspace() {
         redo();
         return;
       }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleDownloadRef.current?.();
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
         if (typing) return;
         e.preventDefault();
@@ -1246,6 +1252,7 @@ export function EditPdfWorkspace() {
       setStage("editor");
     }
   }, [blocksBySrc, endTransient, fileName, pages.length, pushToast]);
+  handleDownloadRef.current = handleDownload;
 
   const editAnother = useCallback(() => {
     clearActiveDocument();

@@ -62,6 +62,20 @@ export function InlineTextEditor(props: InlineEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value.text, value.fontSize, value.fontId, value.bold, value.italic, geometry.width]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        props.onClose();
+      } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        props.onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [props.onClose]);
+
   const fontFamily = fontFamilyForValue(block, value);
 
   return (
@@ -71,7 +85,7 @@ export function InlineTextEditor(props: InlineEditorProps) {
       onPointerDown={(e) => e.stopPropagation()}
       onDoubleClick={(e) => e.stopPropagation()}
     >
-      {/* Floating format bar (matches Sejda-style template with clean spacing and button groups) */}
+      {/* Floating format bar (matches Sejda & Stirling-PDF style with clean spacing and button groups) */}
       <div
         className={`absolute ${
           geometry.top < 65 ? "top-[calc(100%+14px)]" : "-top-14"
@@ -115,20 +129,35 @@ export function InlineTextEditor(props: InlineEditorProps) {
           </FormatToggle>
         </div>
 
-        {/* Font Size & Font Family */}
+        {/* Font Size with Stepper & Font Family */}
         <div className="flex items-center px-1.5 gap-1.5">
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] font-semibold text-muted-foreground select-none">T↕</span>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => props.onPatch({ fontSize: Math.max(6, value.fontSize - 1) })}
+              className="flex h-6 w-5 items-center justify-center rounded border border-border bg-surface text-[10px] font-bold text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
+              title="Decrease font size (-1pt)"
+            >
+              -
+            </button>
             <input
               type="number"
               min={6}
               max={144}
               value={value.fontSize}
               onChange={(e) => props.onPatch({ fontSize: Math.max(6, Math.min(144, Number(e.target.value) || 12)) })}
-              className="h-7 w-12 rounded border border-border bg-surface px-1 text-[11px] font-mono text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="h-6 w-11 rounded border border-border bg-surface text-center text-[11px] font-mono font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               title="Font size (pt)"
               aria-label="Font size in points"
             />
+            <button
+              type="button"
+              onClick={() => props.onPatch({ fontSize: Math.min(144, value.fontSize + 1) })}
+              className="flex h-6 w-5 items-center justify-center rounded border border-border bg-surface text-[10px] font-bold text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
+              title="Increase font size (+1pt)"
+            >
+              +
+            </button>
           </div>
 
           <select
@@ -158,16 +187,36 @@ export function InlineTextEditor(props: InlineEditorProps) {
           </select>
         </div>
 
-        {/* Text Color */}
-        <div className="flex items-center px-1.5">
-          <label className="relative flex items-center justify-center cursor-pointer" title="Color palette">
+        {/* Text Color Swatches & Picker */}
+        <div className="flex items-center px-1.5 gap-1">
+          {[
+            { hex: "#000000", title: "Black" },
+            { hex: "#1f2937", title: "Charcoal" },
+            { hex: "#1e3a8a", title: "Navy" },
+            { hex: "#dc2626", title: "Red" },
+            { hex: "#16a34a", title: "Green" },
+          ].map((c) => (
+            <button
+              key={c.hex}
+              type="button"
+              title={c.title}
+              onClick={() => props.onPatch({ colorHex: c.hex })}
+              className={`h-4 w-4 rounded-full border border-black/20 transition ${
+                value.colorHex.toLowerCase() === c.hex.toLowerCase()
+                  ? "ring-2 ring-primary ring-offset-1 scale-110"
+                  : "hover:scale-105"
+              }`}
+              style={{ backgroundColor: c.hex }}
+            />
+          ))}
+          <label className="relative ml-0.5 flex items-center justify-center cursor-pointer" title="Custom color">
             <input
               type="color"
               value={value.colorHex}
               onChange={(e) => props.onPatch({ colorHex: e.target.value })}
               className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-              title="Text color"
-              aria-label="Text color"
+              title="Custom text color"
+              aria-label="Custom text color"
             />
             <span
               className="h-5 w-5 rounded-full border border-black/20 shadow-sm"

@@ -51,6 +51,66 @@ export const CATEGORIES: { id: ToolCategory; name: string }[] = [
   { id: "security", name: "Secure and Inspect" },
 ];
 
+export type MasterCategoryId =
+  | "all"
+  | "workflows"
+  | "organize"
+  | "optimize"
+  | "convert"
+  | "edit"
+  | "security"
+  | "intelligence";
+
+export interface MasterCategoryDef {
+  id: MasterCategoryId;
+  name: string;
+  description: string;
+}
+
+export const MASTER_CATEGORIES: MasterCategoryDef[] = [
+  { id: "all", name: "All Tools", description: "Complete browser-based PDF toolkit" },
+  { id: "workflows", name: "Workflows", description: "Chained multi-step automated operations" },
+  { id: "organize", name: "Organize PDF", description: "Merge, split, reorder, rotate, remove, and extract pages" },
+  { id: "optimize", name: "Optimize PDF", description: "Compress, repair, OCR, and streamline PDF files" },
+  { id: "convert", name: "Convert PDF", description: "Convert between PDF, Office, images, HTML, and Markdown" },
+  { id: "edit", name: "Edit PDF", description: "Edit text, annotate, watermark, crop, and fill PDF forms" },
+  { id: "security", name: "PDF Security", description: "Protect, unlock, sign, redact, and compare documents" },
+  { id: "intelligence", name: "PDF Intelligence", description: "AI summarizer, document translator, and smart extraction" },
+];
+
+export function getMasterCategoryId(tool: ToolItem): MasterCategoryId {
+  const id = tool.id;
+  if (id === "workflows") return "workflows";
+  if (["merge", "split", "remove-pages", "extract", "organize", "scan-to-pdf", "rotate", "p2p-share", "whiteboard"].includes(id)) {
+    return "organize";
+  }
+  if (["compress", "repair", "ocr", "flatten", "page-counter", "privacy-scan", "fingerprint"].includes(id)) {
+    return "optimize";
+  }
+  if ([
+    "images-to-pdf", "word-to-pdf", "powerpoint-to-pdf", "excel-to-pdf", "html-to-pdf",
+    "pdf-to-images", "pdf-to-word", "pdf-to-powerpoint", "pdf-to-excel", "pdf-to-pdfa",
+    "pdf-to-text", "pdf-to-grayscale", "invert", "csv-to-pdf", "markdown-to-pdf",
+    "ebook-to-pdf", "pdf-to-epub", "pdf-to-html", "create-pdf"
+  ].includes(id)) {
+    return "convert";
+  }
+  if ([
+    "edit-pdf", "add-text", "watermark", "page-numbers", "crop", "resize",
+    "pdf-forms", "metadata-editor", "headers-footers", "latex-resume", "gst-invoice", "pos-billing"
+  ].includes(id)) {
+    return "edit";
+  }
+  if (["protect", "unlock", "sign-pdf", "redact", "compare"].includes(id)) {
+    return "security";
+  }
+  if (["ai-summarizer", "translate-pdf", "pdf-to-markdown", "chat-with-pdf"].includes(id)) {
+    return "intelligence";
+  }
+  return "organize";
+}
+
+
 export interface ToolDirectoryCategory {
   id: string;
   name: string;
@@ -63,31 +123,31 @@ export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
     id: "organize-pages",
     name: "Organize pages",
     description: "Reorder, combine, divide, and orient your documents",
-    toolIds: ["merge", "split", "organize", "rotate", "extract"],
+    toolIds: ["merge", "split", "organize", "rotate", "extract", "remove-pages"],
   },
   {
     id: "edit-pdf",
     name: "Edit PDF",
     description: "Modify content, margins, page numbers, text, and properties",
-    toolIds: ["edit-pdf", "add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor"],
+    toolIds: ["edit-pdf", "add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor", "sign-pdf", "pdf-forms"],
   },
   {
     id: "convert-files",
     name: "Convert files",
     description: "Transform PDFs into image formats, plain text, or monochrome",
-    toolIds: ["pdf-to-images", "images-to-pdf", "pdf-to-text", "pdf-to-grayscale", "invert", "pdf-to-html", "scan-to-pdf", "pdf-to-epub", "ocr", "excel-to-pdf", "csv-to-pdf", "markdown-to-pdf", "html-to-pdf", "word-to-pdf", "pdf-to-word", "ebook-to-pdf", "create-pdf", "p2p-share", "whiteboard", "chat-with-pdf", "ai-summarizer", "pdf-to-excel", "headers-footers", "latex-resume"],
+    toolIds: ["pdf-to-images", "images-to-pdf", "pdf-to-text", "pdf-to-grayscale", "invert", "pdf-to-html", "scan-to-pdf", "pdf-to-epub", "ocr", "excel-to-pdf", "csv-to-pdf", "markdown-to-pdf", "html-to-pdf", "word-to-pdf", "pdf-to-word", "ebook-to-pdf", "create-pdf", "p2p-share", "whiteboard", "chat-with-pdf", "ai-summarizer", "pdf-to-excel", "headers-footers", "latex-resume", "pdf-to-powerpoint", "powerpoint-to-pdf", "pdf-to-markdown", "translate-pdf", "pdf-to-pdfa"],
   },
   {
     id: "optimize",
     name: "Optimize",
     description: "Reduce file sizes, count pages, and compare document changes",
-    toolIds: ["compress", "page-counter", "compare"],
+    toolIds: ["compress", "page-counter", "compare", "workflows"],
   },
   {
     id: "security",
     name: "Security",
     description: "AES-256 client-side encryption and password removal",
-    toolIds: ["protect", "unlock", "flatten", "redact", "privacy-scan", "repair", "fingerprint"],
+    toolIds: ["protect", "unlock", "flatten", "redact", "privacy-scan", "repair", "fingerprint", "sign-pdf", "translate-pdf"],
   },
   {
     id: "business",
@@ -1412,6 +1472,159 @@ export const PDF_TOOLS: ToolItem[] = [
     features: ["Four typeset templates", "ATS warnings", "Export PDF or .tex", "Import .tex", "Autosave in browser"],
     limitations: ["Runs in browser; no server upload."],
     faq: [{ q: "Is it free?", a: "Yes, no sign-up, no watermark." }],
+  },
+  {
+    id: "remove-pages",
+    name: "Remove PDF Pages",
+    title: "Remove PDF Pages — Delete Pages from a PDF",
+    href: "/remove-pdf-pages",
+    category: "organize",
+    categoryName: "Organize PDFs",
+    sidebarCategory: "page-management",
+    description: "Select pages to delete and export the remaining document.",
+    shortDesc: "Delete selected pages from a PDF.",
+    iconName: "Trash2",
+    keywords: ["remove pages", "delete pages", "drop pages"],
+    steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Select", desc: "Choose pages to remove." }, { title: "Download", desc: "Export remaining pages." }],
+    features: ["Visual thumbnail selection", "Keeps remaining pages in order"],
+    limitations: ["Cannot remove all pages; at least one must remain."],
+    faq: [{ q: "Is it local?", a: "Yes, runs in browser." }],
+  },
+  {
+    id: "sign-pdf",
+    name: "Sign PDF",
+    title: "Sign PDF — Add a Visual Signature",
+    href: "/sign-pdf",
+    category: "security",
+    categoryName: "Secure and Inspect",
+    sidebarCategory: "security-privacy",
+    description: "Add a visual signature image to a page of your PDF.",
+    shortDesc: "Add a signature image to a PDF.",
+    iconName: "PenLine",
+    keywords: ["sign", "signature", "visual signature"],
+    steps: [{ title: "Upload PDF", desc: "Drop a PDF." }, { title: "Signature", desc: "Choose a PNG/JPG signature." }, { title: "Download", desc: "Export signed PDF." }],
+    features: ["PNG and JPG signatures", "Page selection"],
+    limitations: ["Visual signature only; not a cryptographic digital signature."],
+    faq: [{ q: "Is it legally binding?", a: "A visual signature is not equivalent to a cryptographic digital signature." }],
+  },
+  {
+    id: "pdf-to-markdown",
+    name: "PDF to Markdown",
+    title: "PDF to Markdown — Extract Text as Markdown",
+    href: "/pdf-to-markdown",
+    category: "convert",
+    categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
+    description: "Extract text from a PDF and format it as Markdown with headings.",
+    shortDesc: "Convert PDF text to Markdown.",
+    iconName: "FileCode",
+    keywords: ["pdf to markdown", "markdown", "md"],
+    steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Convert", desc: "Extract and format." }, { title: "Download", desc: "Export .md." }],
+    features: ["Heading detection by font size", "Per-page sections"],
+    limitations: ["Complex layouts are approximated."],
+    faq: [{ q: "Are images included?", a: "Images are not extracted in this build." }],
+  },
+  {
+    id: "pdf-to-powerpoint",
+    name: "PDF to PowerPoint",
+    title: "PDF to PowerPoint — Convert PDF to PPTX",
+    href: "/pdf-to-powerpoint",
+    category: "convert",
+    categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
+    description: "Convert PDF pages into a PowerPoint presentation with extracted text.",
+    shortDesc: "Convert PDF to PPTX.",
+    iconName: "Presentation",
+    keywords: ["pdf to powerpoint", "pdf to pptx"],
+    steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Convert", desc: "Build PPTX." }, { title: "Download", desc: "Export .pptx." }],
+    features: ["One slide per page", "Text positioning"],
+    limitations: ["Complex graphics are not preserved."],
+    faq: [{ q: "Is layout exact?", a: "Text positions are approximated." }],
+  },
+  {
+    id: "powerpoint-to-pdf",
+    name: "PowerPoint to PDF",
+    title: "PowerPoint to PDF — Convert PPTX to PDF",
+    href: "/powerpoint-to-pdf",
+    category: "convert",
+    categoryName: "Convert and Compress",
+    sidebarCategory: "create-convert-pdf",
+    description: "Convert a PowerPoint presentation to PDF using extracted slide text.",
+    shortDesc: "Convert PPTX to PDF.",
+    iconName: "FileType",
+    keywords: ["powerpoint to pdf", "pptx to pdf"],
+    steps: [{ title: "Upload", desc: "Drop a .pptx." }, { title: "Convert", desc: "Extract text." }, { title: "Download", desc: "Export PDF." }],
+    features: ["One page per slide", "Text extraction"],
+    limitations: ["Visual layout, images and charts are not preserved."],
+    faq: [{ q: "Are animations preserved?", a: "No." }],
+  },
+  {
+    id: "pdf-forms",
+    name: "PDF Forms",
+    title: "PDF Forms — Fill Interactive Forms",
+    href: "/pdf-forms",
+    category: "layout",
+    categoryName: "Edit Page Layout",
+    sidebarCategory: "edit-annotate",
+    description: "Detect and fill interactive form fields, then save the completed document.",
+    shortDesc: "Fill PDF form fields.",
+    iconName: "FormInput",
+    keywords: ["pdf forms", "fill form", "acroform"],
+    steps: [{ title: "Upload", desc: "Drop a form PDF." }, { title: "Fill", desc: "Enter values." }, { title: "Download", desc: "Export filled PDF." }],
+    features: ["Text, checkbox, radio, dropdown fields"],
+    limitations: ["XFA forms are not supported."],
+    faq: [{ q: "Are values saved?", a: "Yes, into the PDF." }],
+  },
+  {
+    id: "translate-pdf",
+    name: "Translate PDF",
+    title: "Translate PDF — Extract Text for Translation",
+    href: "/translate-pdf",
+    category: "convert",
+    categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
+    description: "Extract document text for translation without sending it to a service.",
+    shortDesc: "Extract PDF text for translation.",
+    iconName: "Languages",
+    keywords: ["translate pdf", "translation"],
+    steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Extract", desc: "Get text." }, { title: "Translate", desc: "Use your preferred tool." }],
+    features: ["Local text extraction"],
+    limitations: ["No translation engine is bundled; text is not sent externally."],
+    faq: [{ q: "Is text uploaded?", a: "No." }],
+  },
+  {
+    id: "pdf-to-pdfa",
+    name: "PDF to PDF/A",
+    title: "PDF to PDF/A — Archival Conversion",
+    href: "/pdf-to-pdfa",
+    category: "convert",
+    categoryName: "Convert and Compress",
+    sidebarCategory: "convert-other",
+    description: "Convert a PDF to a PDF/A archival document.",
+    shortDesc: "Convert PDF to PDF/A.",
+    iconName: "Archive",
+    keywords: ["pdf to pdfa", "pdf/a", "archive"],
+    steps: [{ title: "Status", desc: "See availability." }],
+    features: [],
+    limitations: ["Not implemented in this browser build; no fake conversion is performed."],
+    faq: [{ q: "Why not?", a: "Verifiable PDF/A conformance requires an archival validation engine not bundled here." }],
+  },
+  {
+    id: "workflows",
+    name: "Workflows",
+    title: "Workflows — Multi-Step PDF Tasks",
+    href: "/workflows",
+    category: "organize",
+    categoryName: "Organize PDFs",
+    sidebarCategory: "scan-workflow",
+    description: "Run common multi-step PDF tasks such as merge then compress.",
+    shortDesc: "Multi-step PDF workflows.",
+    iconName: "Workflow",
+    keywords: ["workflow", "merge compress", "pipeline"],
+    steps: [{ title: "Select", desc: "Choose files." }, { title: "Run", desc: "Merge then compress." }, { title: "Download", desc: "Export result." }],
+    features: ["Merge then compress workflow"],
+    limitations: ["Additional workflows can be added."],
+    faq: [{ q: "Is it local?", a: "Yes." }],
   },
 ];
 export function getToolsBySidebarCategory(categoryId: SidebarCategoryId): ToolItem[] {
