@@ -32,7 +32,7 @@ export function HowItWorksSection() {
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">
           How EditMyPDF Works
         </h2>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        <p className="mt-2 text-sm text-[#52504e] dark:text-[#d6d3d1] leading-relaxed">
           Perform complete PDF modifications right in your browser in three effortless steps.
         </p>
       </div>
@@ -56,7 +56,7 @@ export function HowItWorksSection() {
               <h3 className="text-base font-bold text-black dark:text-white mb-2">
                 {s.title}
               </h3>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[#52504e] dark:text-[#d6d3d1] leading-relaxed">
                 {s.description}
               </p>
             </div>

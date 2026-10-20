@@ -4,14 +4,14 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export function Footer() {
   return (
-    <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black py-14 text-sm text-zinc-600 dark:text-zinc-400 transition-colors">
+    <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black py-14 text-sm text-[#52504e] dark:text-[#d6d3d1] transition-colors">
       <div className="mx-auto max-w-content px-4 sm:px-6 lg:px-8">
         {/* Main Footer Links Categorized Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
           {/* Brand Info & Privacy Guarantee Column */}
           <div className="col-span-2 pr-0 lg:pr-6">
             <BrandLogo markSize={26} />
-            <p className="mt-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 max-w-sm">
+            <p className="mt-3 text-xs leading-relaxed text-[#52504e] dark:text-[#d6d3d1] max-w-sm">
               EditMyPDF is a complete online PDF workspace for editing, organizing, converting, and managing PDF documents directly in your browser.
             </p>
 
@@ -19,7 +19,7 @@ export function Footer() {
               <ShieldCheck className="h-4 w-4 text-black dark:text-white stroke-[2]" />
               <span>100% In-Browser Privacy Guarantee</span>
             </div>
-            <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-[11px] text-[#52504e] dark:text-[#d6d3d1]">
               Files never leave your computer. Built with WebAssembly and Web Crypto.
             </p>
 
@@ -155,7 +155,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar: Copyright & Company Links */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 dark:border-zinc-800 pt-6 sm:flex-row text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-zinc-200 dark:border-zinc-800 pt-6 sm:flex-row text-xs text-[#52504e] dark:text-[#d6d3d1]">
           <p>© {new Date().getFullYear()} EditMyPDF. 100% Free, Private, Browser-Based Document Workspace.</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link href="/about" className="hover:text-black dark:hover:text-white transition-colors">About</Link>

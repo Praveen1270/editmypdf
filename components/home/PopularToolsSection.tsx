@@ -30,7 +30,7 @@ export function PopularToolsSection() {
             <Sparkles className="h-4 w-4 text-black dark:text-white stroke-[2]" />
             <span>Popular PDF Tools</span>
           </h2>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+          <p className="text-xs text-[#52504e] dark:text-[#d6d3d1] mt-0.5">
             Quick direct access to our most frequently used document utilities.
           </p>
         </div>

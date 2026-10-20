@@ -73,7 +73,7 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
   // If already running inside installed standalone app, show subtle monochrome status
   if (isStandalone || installed) {
     return (
-      <div id={id} className={`inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-secondary ${className}`}>
+      <div id={id} className={`inline-flex h-9 items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 px-2.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 shrink-0 whitespace-nowrap ${className}`}>
         <Check className="h-3.5 w-3.5 text-text-primary" />
         <span>Installed</span>
       </div>
@@ -87,7 +87,7 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
         type="button"
         onClick={handleInstallClick}
         aria-label="Install EditMyPDF Application"
-        className={`inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs font-semibold text-text-primary transition hover:bg-surface-raised focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${className}`}
+        className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-xs font-semibold text-black dark:text-white transition hover:border-black dark:hover:border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white shrink-0 whitespace-nowrap ${className}`}
       >
         <Download className="h-3.5 w-3.5" />
         <span>{compact ? "Install" : "Install App"}</span>

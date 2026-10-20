@@ -36,7 +36,7 @@ export function PrivacySecuritySection() {
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">
             Your Documents Never Leave Your Device
           </h2>
-          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          <p className="mt-3 text-sm text-[#52504e] dark:text-[#d6d3d1] leading-relaxed">
             Traditional online PDF converters upload your confidential agreements, bank statements, and tax returns to cloud servers. EditMyPDF was engineered from the ground up to run entirely in client-side WebAssembly, ensuring total data privacy.
           </p>
         </div>
@@ -55,7 +55,7 @@ export function PrivacySecuritySection() {
                 <h3 className="text-sm font-bold text-black dark:text-white mb-1.5">
                   {h.title}
                 </h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                <p className="text-xs text-[#52504e] dark:text-[#d6d3d1] leading-relaxed">
                   {h.desc}
                 </p>
               </div>

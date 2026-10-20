@@ -34,13 +34,13 @@ export function ToolDirectory() {
   }, []);
 
   return (
-    <section id="tools" className="mt-8 pt-4 scroll-mt-20">
-      {/* Category Filter Navigation Bar — Full-width clean horizontal tabs (No redundant search bar) */}
-      <div className="mb-8">
+    <section id="tools" className="mt-6 pt-2 scroll-mt-20">
+      {/* Category Filter Navigation Bar — Full-width clean horizontal tabs with no scrollbar */}
+      <div className="mb-7">
         <div
           role="tablist"
           aria-label="PDF tool categories"
-          className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none w-full"
+          className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none no-scrollbar w-full px-0.5"
         >
           {MASTER_CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
@@ -55,15 +55,15 @@ export function ToolDirectory() {
                 aria-selected={isSelected}
                 aria-controls="tool-grid-panel"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white shrink-0 ${
+                className={`relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white ${
                   isSelected
-                    ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
-                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:border-black/40 dark:hover:border-white/40 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
+                    ? "bg-black text-white dark:bg-white dark:text-black shadow-xs font-bold"
+                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[#52504e] dark:text-[#d6d3d1] hover:text-black dark:hover:text-white hover:border-black/30 dark:hover:border-white/30 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
                 }`}
               >
                 <span>{cat.name}</span>
                 <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
                     isSelected
                       ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
                       : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"

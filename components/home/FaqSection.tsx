@@ -47,7 +47,7 @@ export function FaqSection() {
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">
           Frequently Asked Questions
         </h2>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        <p className="mt-2 text-sm text-[#52504e] dark:text-[#d6d3d1] leading-relaxed">
           Everything you need to know about our privacy architecture, performance, and supported formats.
         </p>
       </div>
@@ -77,7 +77,7 @@ export function FaqSection() {
               </button>
 
               {isOpen && (
-                <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+                <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-[#52504e] dark:text-[#d6d3d1] leading-relaxed border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
                   {faq.a}
                 </div>
               )}

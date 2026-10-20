@@ -165,11 +165,11 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
             <BrandLogo markSize={26} />
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-bold" aria-label="Main Navigation">
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs font-semibold shrink-0" aria-label="Main Navigation">
               {/* Direct Link: Merge PDF */}
               <Link
                 href="/merge-pdf"
-                className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
                   pathname === "/merge-pdf"
                     ? "bg-black text-white dark:bg-white dark:text-black"
                     : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -181,7 +181,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
               {/* Direct Link: Split PDF */}
               <Link
                 href="/split-pdf"
-                className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
                   pathname === "/split-pdf"
                     ? "bg-black text-white dark:bg-white dark:text-black"
                     : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -193,7 +193,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
               {/* Direct Link: Compress PDF */}
               <Link
                 href="/compress-pdf"
-                className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
                   pathname === "/compress-pdf"
                     ? "bg-black text-white dark:bg-white dark:text-black"
                     : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -214,7 +214,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                   onClick={() => setConvertOpen((prev) => !prev)}
                   aria-expanded={convertOpen}
                   aria-haspopup="true"
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 transition-colors ${
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
                     convertOpen
                       ? "bg-black text-white dark:bg-white dark:text-black"
                       : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -310,7 +310,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                   onClick={() => setAllToolsOpen((prev) => !prev)}
                   aria-expanded={allToolsOpen}
                   aria-haspopup="true"
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 transition-colors ${
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
                     allToolsOpen
                       ? "bg-black text-white dark:bg-white dark:text-black"
                       : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -359,7 +359,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
               {/* Direct Link: About */}
               <Link
                 href="/about"
-                className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
                   pathname === "/about"
                     ? "bg-black text-white dark:bg-white dark:text-black"
                     : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -376,12 +376,12 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
             <button
               type="button"
               onClick={onOpenSearch}
-              className="flex h-9 items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 sm:px-3 text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 transition hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white"
+              className="flex h-9 items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 transition hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white shrink-0 whitespace-nowrap"
               aria-label="Find a PDF tool"
             >
               <Search className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400 stroke-[2]" />
-              <span className="hidden sm:inline">Find a PDF tool</span>
-              <kbd className="hidden xl:inline-flex items-center rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 dark:text-zinc-300 ml-1">
+              <span className="hidden sm:inline whitespace-nowrap">Find a PDF tool</span>
+              <kbd className="hidden xl:inline-flex items-center rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 dark:text-zinc-300 ml-1 shrink-0 whitespace-nowrap">
                 Ctrl K
               </kbd>
             </button>
