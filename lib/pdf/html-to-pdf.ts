@@ -8,6 +8,35 @@ export interface HtmlToPdfOptions {
 
 const PAGE = { a4: { w: 595.28, h: 841.89 }, letter: { w: 612, h: 792 } };
 
+function safeFontText(text: string, font: any): string {
+  if (!text) return "";
+  const normalized = text
+    .replace(/[\u2192\u279E\u2794]/g, "->")
+    .replace(/[\u2190]/g, "<-")
+    .replace(/[\u2194]/g, "<->")
+    .replace(/[\u2013]/g, "-")
+    .replace(/[\u2014]/g, "--")
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+    .replace(/[\u2026]/g, "...")
+    .replace(/[\u2022\u25CF\u25CB\u25AA]/g, "*")
+    .replace(/[\u00B7]/g, "|")
+    .replace(/[\u2713\u2714]/g, "[x]")
+    .replace(/[\u2717\u2718]/g, "[ ]");
+
+  let result = "";
+  for (let i = 0; i < normalized.length; i++) {
+    const char = normalized[i];
+    try {
+      font.encodeText(char);
+      result += char;
+    } catch {
+      result += " ";
+    }
+  }
+  return result;
+}
+
 /**
  * Converts an HTML string to a paginated PDF by walking the DOM.
  */
@@ -33,7 +62,8 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
   const ensure = (h: number) => { if (y - h < margin) newPage(); };
 
   const drawWrapped = (text: string, size: number, f: any, color = rgb(0, 0, 0), indent = 0) => {
-    const words = text.split(/\s+/);
+    const sanitized = safeFontText(text, f);
+    const words = sanitized.split(/\s+/);
     let line = "";
     const lh = size + 4;
     const startX = margin + indent;
@@ -41,12 +71,20 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
     const flush = (ln: string) => {
       if (!ln.trim()) return;
       ensure(lh);
-      page.drawText(ln, { x: startX, y: y - size, size, font: f, color });
+      const safeLn = safeFontText(ln, f);
+      page.drawText(safeLn, { x: startX, y: y - size, size, font: f, color });
       y -= lh;
     };
     for (const w of words) {
       const test = line ? line + " " + w : w;
-      if (f.widthOfTextAtSize(test, size) > maxW && line) { flush(line); line = w; }
+      let width = 0;
+      try {
+        width = f.widthOfTextAtSize(test, size);
+      } catch {
+        const safeTest = safeFontText(test, f);
+        width = f.widthOfTextAtSize(safeTest, size);
+      }
+      if (width > maxW && line) { flush(line); line = w; }
       else line = test;
     }
     if (line) flush(line);
@@ -89,7 +127,7 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
       for (const line of code.split("\n")) {
         ensure(ctx.size + 2);
         page.drawRectangle({ x: margin + ctx.indent, y: y - ctx.size - 2, width: usableW - ctx.indent, height: ctx.size + 4, color: rgb(0.95, 0.95, 0.95) });
-        page.drawText(line || " ", { x: margin + ctx.indent + 4, y: y - ctx.size, size: ctx.size - 1, font: mono, color: rgb(0.2, 0.2, 0.2) });
+        page.drawText(safeFontText(line || " ", mono), { x: margin + ctx.indent + 4, y: y - ctx.size, size: ctx.size - 1, font: mono, color: rgb(0.2, 0.2, 0.2) });
         y -= ctx.size + 2;
       }
       y -= 6;
@@ -136,7 +174,7 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
         let x = margin + ctx.indent;
         page.drawRectangle({ x: margin + ctx.indent, y: y - rh + 2, width: usableW - ctx.indent, height: rh, color: rgb(0.88, 0.88, 0.88) });
         for (let c = 0; c < colCount; c++) {
-          page.drawText(String(rows[0][c] ?? "").slice(0, 30), { x: x + 3, y: y - ctx.size, size: ctx.size, font: bold, color: rgb(0, 0, 0) });
+          page.drawText(safeFontText(String(rows[0][c] ?? "").slice(0, 30), bold), { x: x + 3, y: y - ctx.size, size: ctx.size, font: bold, color: rgb(0, 0, 0) });
           page.drawRectangle({ x, y: y - rh + 2, width: colW, height: rh, borderColor: rgb(0.6, 0.6, 0.6), borderWidth: 0.5 });
           x += colW;
         }
@@ -145,7 +183,7 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
           if (y < margin + rh) newPage();
           x = margin + ctx.indent;
           for (let c = 0; c < colCount; c++) {
-            page.drawText(String(rows[r][c] ?? "").slice(0, 30), { x: x + 3, y: y - ctx.size, size: ctx.size, font, color: rgb(0, 0, 0) });
+            page.drawText(safeFontText(String(rows[r][c] ?? "").slice(0, 30), font), { x: x + 3, y: y - ctx.size, size: ctx.size, font, color: rgb(0, 0, 0) });
             page.drawRectangle({ x, y: y - rh + 2, width: colW, height: rh, borderColor: rgb(0.7, 0.7, 0.7), borderWidth: 0.5 });
             x += colW;
           }
