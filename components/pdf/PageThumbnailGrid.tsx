@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RotateCw, Check, Loader2 } from "lucide-react";
-import { renderPageToCanvas } from "@/lib/pdf/pdf-loader";
+import { renderAllThumbnails } from "@/lib/pdf/pdf-loader";
 
 interface PageThumbnailGridProps {
   pdfBytes: Uint8Array;
@@ -25,13 +25,41 @@ export function PageThumbnailGrid({
   selectable = false,
   rotatable = false,
 }: PageThumbnailGridProps) {
+  const [thumbnails, setThumbnails] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    if (!pdfBytes) {
+      setThumbnails({});
+      return;
+    }
+
+    let isCancelled = false;
+
+    renderAllThumbnails(
+      pdfBytes,
+      0.4,
+      (pageIdx, dataUrl) => {
+        if (!isCancelled) {
+          setThumbnails((prev) => ({ ...prev, [pageIdx]: dataUrl }));
+        }
+      },
+      () => isCancelled
+    ).catch((err) => {
+      console.error("Error generating thumbnails in grid:", err);
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [pdfBytes]);
+
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {Array.from({ length: pageCount }).map((_, pageIdx) => (
         <ThumbnailItem
           key={pageIdx}
           pageIndex={pageIdx}
-          pdfBytes={pdfBytes}
+          thumbnailUrl={thumbnails[pageIdx]}
           rotation={rotations[pageIdx] || 0}
           isSelected={selectedPages.includes(pageIdx)}
           onToggleSelect={onToggleSelect ? () => onToggleSelect(pageIdx) : undefined}
@@ -46,7 +74,7 @@ export function PageThumbnailGrid({
 
 function ThumbnailItem({
   pageIndex,
-  pdfBytes,
+  thumbnailUrl,
   rotation,
   isSelected,
   onToggleSelect,
@@ -55,7 +83,7 @@ function ThumbnailItem({
   rotatable,
 }: {
   pageIndex: number;
-  pdfBytes: Uint8Array;
+  thumbnailUrl?: string;
   rotation: number;
   isSelected: boolean;
   onToggleSelect?: () => void;
@@ -63,33 +91,6 @@ function ThumbnailItem({
   selectable: boolean;
   rotatable: boolean;
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    let isCancelled = false;
-    setLoading(true);
-
-    if (canvasRef.current && pdfBytes) {
-      renderPageToCanvas(pdfBytes, pageIndex + 1, canvasRef.current, 0.4)
-        .then(() => {
-          if (!isCancelled) setLoading(false);
-        })
-        .catch((err) => {
-          console.error("Error rendering thumbnail:", err);
-          if (!isCancelled) {
-            setError(true);
-            setLoading(false);
-          }
-        });
-    }
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [pdfBytes, pageIndex]);
-
   return (
     <div
       onClick={selectable && onToggleSelect ? onToggleSelect : undefined}
@@ -97,32 +98,41 @@ function ThumbnailItem({
         selectable ? "cursor-pointer" : ""
       } ${
         isSelected
-          ? "border-border-strong bg-surface-raised ring-2 ring-border-strong"
-          : "border-border bg-surface-base hover:border-border-strong"
+          ? "border-black dark:border-white bg-zinc-100 dark:bg-zinc-800 ring-2 ring-black dark:ring-white"
+          : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-black dark:hover:border-white"
       }`}
     >
-      <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-surface-raised">
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-surface-base/80">
-            <Loader2 className="h-5 w-5 animate-spin text-text-secondary" />
+      <div className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-lg bg-zinc-50 dark:bg-zinc-950 shadow-inner">
+        {thumbnailUrl ? (
+          <div
+            style={{ transform: `rotate(${rotation}deg)` }}
+            className="flex h-full w-full items-center justify-center transition-transform duration-200 p-1"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={thumbnailUrl}
+              alt={`Page ${pageIndex + 1}`}
+              className="max-h-full max-w-full object-contain pointer-events-none select-none rounded shadow-xs"
+            />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-1.5 p-4 text-zinc-400">
+            <Loader2 className="h-5 w-5 animate-spin text-black dark:text-white stroke-[2]" />
+            <span className="text-[10px] font-mono font-medium text-zinc-500 dark:text-zinc-400">
+              #{pageIndex + 1}
+            </span>
           </div>
         )}
 
-        <canvas
-          ref={canvasRef}
-          className="max-h-full max-w-full object-contain transition-transform duration-200 bg-white"
-          style={{ transform: `rotate(${rotation}deg)` }}
-        />
-
         {selectable && (
           <div
-            className={`absolute top-2 left-2 flex h-5 w-5 items-center justify-center rounded-full border text-action-primary-text transition-colors ${
+            className={`absolute top-2 left-2 flex h-5 w-5 items-center justify-center rounded-full border text-white transition-colors ${
               isSelected
-                ? "border-action-primary bg-action-primary"
-                : "border-border bg-surface-base text-transparent"
+                ? "border-black dark:border-white bg-black dark:bg-white text-white dark:text-black"
+                : "border-zinc-300 dark:border-zinc-700 bg-white/90 dark:bg-zinc-900/90 text-transparent"
             }`}
           >
-            {isSelected && <Check className="h-3 w-3" />}
+            {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
           </div>
         )}
 
@@ -135,16 +145,16 @@ function ThumbnailItem({
               e.stopPropagation();
               onRotate();
             }}
-            className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-md bg-surface-base text-text-primary shadow-sm hover:bg-surface-raised border border-border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-lg bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white"
           >
-            <RotateCw className="h-3.5 w-3.5" />
+            <RotateCw className="h-3.5 w-3.5 stroke-[2]" />
           </button>
         )}
       </div>
 
-      <div className="mt-2 flex w-full items-center justify-between px-1 text-xs text-text-secondary">
-        <span>Page {pageIndex + 1}</span>
-        {rotation > 0 && <span className="font-mono text-[10px] text-text-tertiary">{rotation}°</span>}
+      <div className="mt-2 flex w-full items-center justify-between px-1 text-xs text-zinc-600 dark:text-zinc-400">
+        <span className="font-semibold text-black dark:text-white">Page {pageIndex + 1}</span>
+        {rotation > 0 && <span className="font-mono text-[10px] text-zinc-500 font-bold">{rotation}°</span>}
       </div>
     </div>
   );

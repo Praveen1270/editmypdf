@@ -110,3 +110,39 @@ export async function renderPageToImageBlob(
     );
   });
 }
+
+
+export async function renderAllThumbnails(
+  bytes: Uint8Array,
+  scale: number = 0.45,
+  onThumbnail?: (pageIndex: number, dataUrl: string) => void,
+  isCancelled?: () => boolean
+): Promise<string[]> {
+  const pdfjs = await getPdfjs();
+  const loadingTask = pdfjs.getDocument({ data: bytes.slice() });
+  const doc = await loadingTask.promise;
+  const urls: string[] = [];
+
+  try {
+    for (let i = 0; i < doc.numPages; i++) {
+      if (isCancelled && isCancelled()) break;
+      const page = await doc.getPage(i + 1);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        urls[i] = dataUrl;
+        if (onThumbnail) {
+          onThumbnail(i, dataUrl);
+        }
+      }
+    }
+    return urls;
+  } finally {
+    await doc.destroy();
+  }
+}
