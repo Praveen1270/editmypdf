@@ -5,40 +5,20 @@ import {
   MASTER_CATEGORIES,
   MasterCategoryId,
   PDF_TOOLS,
-  ToolItem,
   getMasterCategoryId,
 } from "@/lib/tools-data";
 import { ToolCard } from "./ToolCard";
-import { GlobalToolSearch } from "./GlobalToolSearch";
-import { Search, Sparkles } from "lucide-react";
 
 export function ToolDirectory() {
   const [selectedCategory, setSelectedCategory] = useState<MasterCategoryId>("all");
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter tools based on category and search query
+  // Filter tools based on selected category
   const displayedTools = useMemo(() => {
-    let list = PDF_TOOLS;
-
-    // Filter by category if not 'all'
-    if (selectedCategory !== "all") {
-      list = list.filter((tool) => getMasterCategoryId(tool) === selectedCategory);
+    if (selectedCategory === "all") {
+      return PDF_TOOLS;
     }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      list = list.filter(
-        (tool) =>
-          tool.name.toLowerCase().includes(q) ||
-          tool.shortDesc.toLowerCase().includes(q) ||
-          tool.categoryName.toLowerCase().includes(q) ||
-          tool.keywords.some((k) => k.toLowerCase().includes(q))
-      );
-    }
-
-    return list;
-  }, [selectedCategory, searchQuery]);
+    return PDF_TOOLS.filter((tool) => getMasterCategoryId(tool) === selectedCategory);
+  }, [selectedCategory]);
 
   // Counts per category
   const categoryCounts = useMemo(() => {
@@ -55,13 +35,12 @@ export function ToolDirectory() {
 
   return (
     <section id="tools" className="mt-8 pt-4 scroll-mt-20">
-      {/* Category Filter Navigation Bar & Search */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        {/* Horizontal Category Filter Pills */}
+      {/* Category Filter Navigation Bar — Full-width clean horizontal tabs (No redundant search bar) */}
+      <div className="mb-8">
         <div
           role="tablist"
           aria-label="PDF tool categories"
-          className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none w-full md:max-w-3xl"
+          className="flex items-center gap-2 overflow-x-auto pb-3 scrollbar-none w-full"
         >
           {MASTER_CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
@@ -75,22 +54,19 @@ export function ToolDirectory() {
                 id={`tab-${cat.id}`}
                 aria-selected={isSelected}
                 aria-controls="tool-grid-panel"
-                onClick={() => {
-                  setSelectedCategory(cat.id);
-                  setSearchQuery("");
-                }}
-                className={`relative inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white shrink-0 ${
                   isSelected
-                    ? "bg-foreground text-background shadow-sm"
-                    : "bg-surface border border-border text-muted-foreground hover:text-foreground hover:bg-surface-subtle"
+                    ? "bg-black text-white dark:bg-white dark:text-black shadow-sm"
+                    : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:border-black/40 dark:hover:border-white/40 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
                 }`}
               >
                 <span>{cat.name}</span>
                 <span
-                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
                     isSelected
-                      ? "bg-background/20 text-background"
-                      : "bg-surface-subtle text-muted-foreground"
+                      ? "bg-white/20 text-white dark:bg-black/20 dark:text-black"
+                      : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
                   }`}
                 >
                   {count}
@@ -99,33 +75,7 @@ export function ToolDirectory() {
             );
           })}
         </div>
-
-        {/* Live Filter Search Input */}
-        <div className="w-full md:w-64 shrink-0">
-          <GlobalToolSearch
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery("")}
-            onSubmit={() => {}}
-          />
-        </div>
       </div>
-
-      {/* Search status notification if active */}
-      {searchQuery.trim() && (
-        <div className="flex items-center justify-between mb-4 px-1 text-xs text-muted-foreground">
-          <span>
-            Found <strong>{displayedTools.length}</strong> tools matching &ldquo;{searchQuery}&rdquo;
-          </span>
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="text-accent hover:underline font-medium"
-          >
-            Clear filter
-          </button>
-        </div>
-      )}
 
       {/* 5-Column Responsive Tool Card Grid */}
       <div
@@ -134,33 +84,11 @@ export function ToolDirectory() {
         aria-labelledby={`tab-${selectedCategory}`}
         className="w-full"
       >
-        {displayedTools.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4">
-            {displayedTools.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-border bg-surface p-12 text-center shadow-paper">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-surface-subtle text-muted-foreground mb-3">
-              <Search className="h-6 w-6" />
-            </div>
-            <h3 className="text-base font-bold text-foreground">No tools found</h3>
-            <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
-              We couldn&apos;t find any tools matching &ldquo;{searchQuery}&rdquo; in this category.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("all");
-              }}
-              className="mt-4 rounded-xl border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground hover:bg-surface-subtle transition shadow-sm"
-            >
-              Reset to All Tools
-            </button>
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4">
+          {displayedTools.map((tool) => (
+            <ToolCard key={tool.id} tool={tool} />
+          ))}
+        </div>
       </div>
     </section>
   );

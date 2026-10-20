@@ -26,17 +26,17 @@ const HIGHLIGHTS = [
 
 export function PrivacySecuritySection() {
   return (
-    <section className="mt-20 pt-12 border-t border-border">
-      <div className="rounded-3xl border border-border bg-gradient-to-br from-surface to-surface-subtle/50 p-8 sm:p-12 shadow-paper">
+    <section className="mt-20 pt-12 border-t border-zinc-200 dark:border-zinc-800">
+      <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-8 sm:p-12 shadow-sm">
         <div className="max-w-2xl mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-3">
-            <ShieldCheck className="h-4 w-4" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3.5 py-1 text-xs font-bold text-black dark:text-white mb-3 shadow-xs">
+            <ShieldCheck className="h-4 w-4 text-black dark:text-white stroke-[2]" />
             <span>Privacy By Architecture</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">
             Your Documents Never Leave Your Device
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
             Traditional online PDF converters upload your confidential agreements, bank statements, and tax returns to cloud servers. EditMyPDF was engineered from the ground up to run entirely in client-side WebAssembly, ensuring total data privacy.
           </p>
         </div>
@@ -47,15 +47,15 @@ export function PrivacySecuritySection() {
             return (
               <div
                 key={h.title}
-                className="rounded-2xl border border-border bg-surface p-5 shadow-sm"
+                className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-xs"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent mb-3.5">
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white mb-3.5">
+                  <Icon className="h-5 w-5 text-black dark:text-white stroke-[2]" />
                 </div>
-                <h3 className="text-sm font-bold text-foreground mb-1.5">
+                <h3 className="text-sm font-bold text-black dark:text-white mb-1.5">
                   {h.title}
                 </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   {h.desc}
                 </p>
               </div>

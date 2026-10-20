@@ -5,7 +5,7 @@
 @layer base {
   :root,
   [data-theme="light"] {
-    --background: oklch(0.99 0 0);
+    --background: oklch(1.00 0 0);
     --foreground: oklch(0 0 0);
     --card: oklch(1.00 0 0);
     --card-foreground: oklch(0 0 0);
@@ -17,8 +17,8 @@
     --secondary-foreground: oklch(0 0 0);
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.44 0 0);
-    --accent: oklch(0.94 0 0);
-    --accent-hover: oklch(0.88 0 0);
+    --accent: oklch(0 0 0);
+    --accent-hover: oklch(0.20 0 0);
     --accent-foreground: oklch(0 0 0);
     --destructive: oklch(0.63 0.19 23.03);
     --destructive-foreground: oklch(1.00 0 0);
@@ -65,7 +65,7 @@
     --color-surface-base: var(--background);
     --color-surface-muted: var(--muted);
     --color-surface-raised: var(--secondary);
-    --color-surface-strong: var(--accent);
+    --color-surface-strong: var(--secondary);
 
     --color-border: var(--border);
     --color-border-strong: var(--border);
@@ -92,9 +92,9 @@
     --secondary-foreground: oklch(1.00 0 0);
     --muted: oklch(0.23 0 0);
     --muted-foreground: oklch(0.72 0 0);
-    --accent: oklch(0.32 0 0);
-    --accent-hover: oklch(0.38 0 0);
-    --accent-foreground: oklch(1.00 0 0);
+    --accent: oklch(1.00 0 0);
+    --accent-hover: oklch(0.85 0 0);
+    --accent-foreground: oklch(0 0 0);
     --destructive: oklch(0.69 0.20 23.91);
     --destructive-foreground: oklch(0 0 0);
     --success: oklch(0.65 0.2 145);
@@ -134,7 +134,7 @@
     --color-surface-base: var(--background);
     --color-surface-muted: var(--muted);
     --color-surface-raised: var(--secondary);
-    --color-surface-strong: var(--accent);
+    --color-surface-strong: var(--secondary);
 
     --color-border: var(--border);
     --color-border-strong: var(--border);

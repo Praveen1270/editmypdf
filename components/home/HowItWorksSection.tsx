@@ -24,15 +24,15 @@ const STEPS = [
 
 export function HowItWorksSection() {
   return (
-    <section className="mt-20 pt-12 border-t border-border">
+    <section className="mt-20 pt-12 border-t border-zinc-200 dark:border-zinc-800">
       <div className="text-center max-w-2xl mx-auto mb-12">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-semibold text-accent mb-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3.5 py-1 text-xs font-bold text-black dark:text-white mb-3">
           Simple & Fast
         </span>
-        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white">
           How EditMyPDF Works
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
           Perform complete PDF modifications right in your browser in three effortless steps.
         </p>
       </div>
@@ -43,20 +43,20 @@ export function HowItWorksSection() {
           return (
             <div
               key={s.step}
-              className="relative rounded-2xl border border-border bg-surface p-6 shadow-paper hover:shadow-paper-elevated transition duration-200"
+              className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm hover:shadow-md hover:border-black dark:hover:border-white transition duration-150"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 border border-accent/20 text-accent">
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white">
+                  <Icon className="h-5 w-5 text-black dark:text-white stroke-[2]" />
                 </div>
-                <span className="font-mono text-2xl font-black text-muted-foreground/30">
+                <span className="font-mono text-2xl font-black text-zinc-300 dark:text-zinc-700">
                   {s.step}
                 </span>
               </div>
-              <h3 className="text-base font-bold text-foreground mb-2">
+              <h3 className="text-base font-bold text-black dark:text-white mb-2">
                 {s.title}
               </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                 {s.description}
               </p>
             </div>

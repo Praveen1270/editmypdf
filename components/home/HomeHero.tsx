@@ -1,15 +1,11 @@
 "use client";
 
 import React, { useRef, useState, DragEvent, ChangeEvent } from "react";
-import Link from "next/link";
 import {
   ShieldCheck,
-  FileText,
   UploadCloud,
   ArrowDown,
   Loader2,
-  Lock,
-  Sparkles,
 } from "lucide-react";
 import { setActiveDocument } from "@/lib/active-document";
 import { getPdfInfo } from "@/lib/pdf/pdf-loader";
@@ -109,25 +105,25 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
         onChange={handleInputChange}
       />
 
-      {/* Subtle Privacy & Free Badge */}
-      <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-foreground shadow-sm mb-5">
-        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="font-semibold text-accent">100% Free & Private</span>
-        <span className="text-muted-foreground/60">·</span>
-        <span className="text-muted-foreground">Zero Server Uploads</span>
+      {/* High-Contrast Badge */}
+      <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3.5 py-1.5 text-xs font-medium text-zinc-900 dark:text-zinc-100 shadow-sm mb-5">
+        <span className="flex h-2 w-2 rounded-full bg-black dark:bg-white" />
+        <span className="font-bold text-black dark:text-white">100% Free & Private</span>
+        <span className="text-zinc-400 dark:text-zinc-600">·</span>
+        <span className="text-zinc-700 dark:text-zinc-300">Zero Server Uploads</span>
       </div>
 
-      {/* Primary Headline (Section 3.B) */}
-      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-[1.12]">
+      {/* Primary Headline */}
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-black dark:text-white leading-[1.12]">
         Every tool you need to work with PDFs in one place
       </h1>
 
-      {/* Short Subtitle (Section 3.B) */}
-      <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+      {/* Short Subtitle */}
+      <p className="mt-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl mx-auto">
         Edit, convert, compress, merge, split, and sign PDF documents directly in your web browser. Completely free, no registration, no watermarks, and files stay strictly on your device.
       </p>
 
-      {/* Interactive Quick File Dropzone & Actions */}
+      {/* Interactive Quick File Dropzone */}
       <div className="mt-7">
         <div
           onDrop={handleDrop}
@@ -136,27 +132,27 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
           onClick={() => fileInputRef.current?.click()}
           className={`cursor-pointer max-w-xl mx-auto rounded-2xl border-2 border-dashed p-6 sm:p-8 transition-all duration-150 ${
             isDragOver
-              ? "border-accent bg-accent/5 ring-4 ring-accent/10 scale-[1.01]"
-              : "border-border bg-surface hover:border-border-strong hover:bg-surface-subtle/50 shadow-paper"
+              ? "border-black dark:border-white bg-zinc-100 dark:bg-zinc-800 scale-[1.01]"
+              : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900/60 hover:border-black dark:hover:border-white shadow-sm"
           }`}
         >
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-2">
-              <Loader2 className="h-7 w-7 animate-spin text-accent" />
-              <p className="mt-2 text-xs font-semibold text-foreground">Reading document in memory...</p>
+              <Loader2 className="h-7 w-7 animate-spin text-black dark:text-white" />
+              <p className="mt-2 text-xs font-semibold text-black dark:text-white">Reading document in memory...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 border border-accent/20 text-accent mb-3">
-                <UploadCloud className="h-6 w-6" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white mb-3">
+                <UploadCloud className="h-6 w-6 text-black dark:text-white stroke-[2]" />
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-2 mb-1">
-                <span className="rounded-lg bg-foreground text-background px-3.5 py-1.5 text-xs font-semibold shadow-sm hover:opacity-90 transition">
+                <span className="rounded-lg bg-black text-white dark:bg-white dark:text-black px-4 py-2 text-xs font-bold shadow-sm hover:opacity-90 transition">
                   Select PDF file
                 </span>
-                <span className="text-xs text-muted-foreground">or drop file here</span>
+                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">or drop file here</span>
               </div>
-              <p className="text-[11px] text-muted-foreground/75 mt-1">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
                 Supports documents up to 150MB in client-side RAM
               </p>
             </div>
@@ -164,23 +160,23 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
         </div>
 
         {errorMessage && (
-          <p className="mt-2 text-xs font-medium text-red-500">{errorMessage}</p>
+          <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400">{errorMessage}</p>
         )}
       </div>
 
-      {/* Subtle Privacy Statement & Fast Anchor Link */}
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5 font-medium text-foreground">
-          <ShieldCheck className="h-4 w-4 text-emerald-500" />
+      {/* High-Contrast Privacy Statement & Fast Anchor Link */}
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-3 text-xs">
+        <span className="flex items-center gap-1.5 font-semibold text-black dark:text-white">
+          <ShieldCheck className="h-4 w-4 text-black dark:text-white stroke-[2]" />
           <span>Files stay strictly on your device</span>
         </span>
-        <span>·</span>
+        <span className="text-zinc-400 dark:text-zinc-600">·</span>
         <a
           href="#tools"
-          className="inline-flex items-center gap-1 text-accent hover:underline font-semibold"
+          className="inline-flex items-center gap-1 text-black dark:text-white font-bold hover:underline"
         >
           <span>Discover all 33 tools</span>
-          <ArrowDown className="h-3 w-3" />
+          <ArrowDown className="h-3.5 w-3.5 stroke-[2.5]" />
         </a>
       </div>
     </div>

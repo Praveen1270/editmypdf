@@ -7,7 +7,6 @@ import {
   Search,
   Menu,
   ChevronDown,
-  ArrowRight,
   Files,
   Scissors,
   Minimize2,
@@ -159,21 +158,21 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 h-16 w-full border-b border-border bg-surface/95 backdrop-blur-md transition-colors duration-150">
+      <header className="sticky top-0 z-40 h-16 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-black/95 backdrop-blur-md transition-colors duration-150">
         <div className="mx-auto flex h-full max-w-content items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Left: Brand Logo + Desktop Nav */}
           <div className="flex items-center gap-4 lg:gap-6">
             <BrandLogo markSize={26} />
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-0.5 text-xs font-semibold" aria-label="Main Navigation">
+            <nav className="hidden lg:flex items-center gap-1 text-xs font-bold" aria-label="Main Navigation">
               {/* Direct Link: Merge PDF */}
               <Link
                 href="/merge-pdf"
                 className={`rounded-lg px-2.5 py-1.5 transition-colors ${
                   pathname === "/merge-pdf"
-                    ? "text-foreground bg-surface-subtle font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-surface-subtle/70"
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 Merge PDF
@@ -184,8 +183,8 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 href="/split-pdf"
                 className={`rounded-lg px-2.5 py-1.5 transition-colors ${
                   pathname === "/split-pdf"
-                    ? "text-foreground bg-surface-subtle font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-surface-subtle/70"
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 Split PDF
@@ -196,8 +195,8 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 href="/compress-pdf"
                 className={`rounded-lg px-2.5 py-1.5 transition-colors ${
                   pathname === "/compress-pdf"
-                    ? "text-foreground bg-surface-subtle font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-surface-subtle/70"
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 Compress PDF
@@ -217,8 +216,8 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                   aria-haspopup="true"
                   className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 transition-colors ${
                     convertOpen
-                      ? "text-foreground bg-surface-subtle font-bold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-surface-subtle/70"
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   }`}
                 >
                   <span>Convert PDF</span>
@@ -230,10 +229,10 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                     className="absolute left-0 top-full pt-2 z-50 w-[540px] animate-in fade-in slide-in-from-top-1 duration-150"
                     role="menu"
                   >
-                    <div className="rounded-2xl border border-border bg-surface p-4 shadow-paper-elevated grid grid-cols-2 gap-4">
+                    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-xl grid grid-cols-2 gap-4">
                       {/* Convert to PDF Column */}
                       <div>
-                        <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 mb-2">
+                        <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 mb-2">
                           Convert to PDF
                         </div>
                         <div className="space-y-1">
@@ -243,17 +242,17 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                               <Link
                                 key={item.href}
                                 href={item.href}
-                                className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-surface-subtle transition group text-left"
+                                className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition group text-left"
                                 role="menuitem"
                               >
-                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 text-accent shrink-0 mt-0.5">
-                                  <Icon className="h-4 w-4" />
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white shrink-0 mt-0.5">
+                                  <Icon className="h-4 w-4 stroke-[2]" />
                                 </div>
                                 <div>
-                                  <div className="font-semibold text-xs text-foreground group-hover:text-accent transition-colors">
+                                  <div className="font-bold text-xs text-black dark:text-white transition-colors">
                                     {item.name}
                                   </div>
-                                  <div className="text-[11px] text-muted-foreground line-clamp-1">
+                                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-1">
                                     {item.desc}
                                   </div>
                                 </div>
@@ -265,7 +264,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
 
                       {/* Convert from PDF Column */}
                       <div>
-                        <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 mb-2">
+                        <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 mb-2">
                           Convert from PDF
                         </div>
                         <div className="space-y-1">
@@ -275,17 +274,17 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                               <Link
                                 key={item.href}
                                 href={item.href}
-                                className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-surface-subtle transition group text-left"
+                                className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition group text-left"
                                 role="menuitem"
                               >
-                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 text-accent shrink-0 mt-0.5">
-                                  <Icon className="h-4 w-4" />
+                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white shrink-0 mt-0.5">
+                                  <Icon className="h-4 w-4 stroke-[2]" />
                                 </div>
                                 <div>
-                                  <div className="font-semibold text-xs text-foreground group-hover:text-accent transition-colors">
+                                  <div className="font-bold text-xs text-black dark:text-white transition-colors">
                                     {item.name}
                                   </div>
-                                  <div className="text-[11px] text-muted-foreground line-clamp-1">
+                                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-1">
                                     {item.desc}
                                   </div>
                                 </div>
@@ -313,8 +312,8 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                   aria-haspopup="true"
                   className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 transition-colors ${
                     allToolsOpen
-                      ? "text-foreground bg-surface-subtle font-bold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-surface-subtle/70"
+                      ? "bg-black text-white dark:bg-white dark:text-black"
+                      : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   }`}
                 >
                   <span>All PDF Tools</span>
@@ -326,10 +325,10 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                     className="absolute -left-32 top-full pt-2 z-50 w-[780px] animate-in fade-in slide-in-from-top-1 duration-150"
                     role="menu"
                   >
-                    <div className="rounded-2xl border border-border bg-surface p-5 shadow-paper-elevated grid grid-cols-5 gap-4">
+                    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-xl grid grid-cols-5 gap-4">
                       {ALL_TOOLS_CATEGORIES.map((cat) => (
                         <div key={cat.title}>
-                          <div className="pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border/60 mb-2">
+                          <div className="pb-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 mb-2">
                             {cat.title}
                           </div>
                           <div className="space-y-1">
@@ -339,11 +338,11 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                                 <Link
                                   key={tool.href}
                                   href={tool.href}
-                                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-surface-subtle transition group text-left"
+                                  className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition group text-left"
                                   role="menuitem"
                                 >
-                                  <Icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent transition-colors shrink-0" />
-                                  <span className="text-xs text-foreground group-hover:text-accent transition-colors truncate">
+                                  <Icon className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors shrink-0 stroke-[2]" />
+                                  <span className="text-xs font-medium text-black dark:text-white transition-colors truncate">
                                     {tool.name}
                                   </span>
                                 </Link>
@@ -362,8 +361,8 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 href="/about"
                 className={`rounded-lg px-2.5 py-1.5 transition-colors ${
                   pathname === "/about"
-                    ? "text-foreground bg-surface-subtle font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-surface-subtle/70"
+                    ? "bg-black text-white dark:bg-white dark:text-black"
+                    : "text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 About
@@ -377,17 +376,17 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
             <button
               type="button"
               onClick={onOpenSearch}
-              className="flex h-9 items-center gap-2 rounded-lg border border-border bg-surface px-2.5 sm:px-3 text-xs sm:text-sm text-muted-foreground transition hover:border-border-strong hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-9 items-center gap-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 sm:px-3 text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 transition hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white"
               aria-label="Find a PDF tool"
             >
-              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <Search className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400 stroke-[2]" />
               <span className="hidden sm:inline">Find a PDF tool</span>
-              <kbd className="hidden xl:inline-flex items-center rounded border border-border bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground ml-1">
+              <kbd className="hidden xl:inline-flex items-center rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600 dark:text-zinc-300 ml-1">
                 Ctrl K
               </kbd>
             </button>
 
-            {/* Subtle PWA Install Action */}
+            {/* PWA Install Action */}
             <div className="hidden sm:block">
               <InstallAppButton />
             </div>
@@ -399,10 +398,10 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
             <button
               type="button"
               onClick={() => setMobileNavOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-foreground lg:hidden transition hover:bg-surface-subtle focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-black dark:text-white lg:hidden transition hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white"
               aria-label="Open mobile menu"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5 stroke-[2]" />
             </button>
           </div>
         </div>

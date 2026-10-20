@@ -164,7 +164,7 @@ export function DocumentDropzone() {
           {/* Header of Active Document */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 border border-accent/20 text-accent">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white">
                 <FileText className="h-6 w-6" />
               </div>
               <div className="min-w-0">
@@ -236,21 +236,21 @@ export function DocumentDropzone() {
                     href={action.href}
                     className={`group flex flex-col justify-between rounded-xl border p-3.5 transition shadow-sm hover:shadow-paper ${
                       isEditor
-                        ? "border-blue-500/50 bg-blue-50/40 dark:bg-blue-950/20 ring-1 ring-blue-500/30"
+                        ? "border-black dark:border-white bg-zinc-50 dark:bg-zinc-900 ring-1 ring-black/10 dark:ring-white/10"
                         : "border-border bg-surface-subtle/50 hover:border-border-strong hover:bg-surface"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${
                         isEditor
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
                           : "border-border bg-surface text-foreground group-hover:bg-foreground group-hover:text-background group-hover:border-foreground"
                       }`}>
                         <Icon className="h-4 w-4" />
                       </div>
                       <div className="flex items-center gap-1">
                         {isEditor && (
-                          <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Editor</span>
+                          <span className="text-[10px] font-bold text-black dark:text-white uppercase tracking-wider">Editor</span>
                         )}
                         <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
                       </div>
@@ -284,7 +284,7 @@ export function DocumentDropzone() {
         >
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-4">
-              <Loader2 className="h-8 w-8 animate-spin text-accent" />
+              <Loader2 className="h-8 w-8 animate-spin text-black dark:text-white" />
               <p className="mt-3 text-sm font-medium text-foreground">Reading document in memory...</p>
             </div>
           ) : (
@@ -323,7 +323,7 @@ export function DocumentDropzone() {
               <div className="mt-6 flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
                 <p>Accepts standard PDF documents up to 150MB</p>
                 <div className="flex items-center gap-1.5 font-medium text-foreground/80">
-                  <ShieldCheck className="h-3.5 w-3.5 text-accent" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-black dark:text-white" />
                   <span>Processed 100% locally in your browser. Files never leave your device.</span>
                 </div>
               </div>
