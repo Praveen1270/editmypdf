@@ -2,6 +2,11 @@ import Link from "next/link";
 import { FileQuestion, Home, Search } from "lucide-react";
 import { PDF_TOOLS } from "@/lib/tools-data";
 
+export const metadata = {
+  title: "Page Not Found — EditMyPDF",
+  robots: { index: false, follow: false },
+};
+
 export default function NotFound() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-background text-text-primary px-4 py-16">

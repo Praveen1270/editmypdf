@@ -132,11 +132,11 @@ export function Footer() {
               Convert PDF
             </h4>
             <div className="flex flex-col gap-2 text-xs">
-              <Link href="/jpg-to-pdf" className="hover:text-black dark:hover:text-white transition-colors">JPG to PDF</Link>
+              <Link href="/images-to-pdf" className="hover:text-black dark:hover:text-white transition-colors">JPG to PDF</Link>
               <Link href="/word-to-pdf" className="hover:text-black dark:hover:text-white transition-colors">Word to PDF</Link>
               <Link href="/powerpoint-to-pdf" className="hover:text-black dark:hover:text-white transition-colors">PowerPoint to PDF</Link>
               <Link href="/excel-to-pdf" className="hover:text-black dark:hover:text-white transition-colors">Excel to PDF</Link>
-              <Link href="/pdf-to-jpg" className="hover:text-black dark:hover:text-white transition-colors">PDF to JPG</Link>
+              <Link href="/pdf-to-images" className="hover:text-black dark:hover:text-white transition-colors">PDF to JPG</Link>
               <Link href="/pdf-to-word" className="hover:text-black dark:hover:text-white transition-colors">PDF to Word</Link>
               <Link href="/pdf-to-powerpoint" className="hover:text-black dark:hover:text-white transition-colors">PDF to PowerPoint</Link>
               <Link href="/pdf-to-excel" className="hover:text-black dark:hover:text-white transition-colors">PDF to Excel</Link>
@@ -154,7 +154,7 @@ export function Footer() {
               <Link href="/unlock-pdf" className="hover:text-black dark:hover:text-white transition-colors">Unlock PDF</Link>
               <Link href="/sign-pdf" className="hover:text-black dark:hover:text-white transition-colors">Sign PDF</Link>
               <Link href="/redact-pdf" className="hover:text-black dark:hover:text-white transition-colors">Redact PDF</Link>
-              <Link href="/compare-pdf" className="hover:text-black dark:hover:text-white transition-colors">Compare PDF</Link>
+              <Link href="/compare-pdfs" className="hover:text-black dark:hover:text-white transition-colors">Compare PDF</Link>
               <Link href="/ai-summarizer" className="hover:text-black dark:hover:text-white transition-colors">AI Summarizer</Link>
               <Link href="/translate-pdf" className="hover:text-black dark:hover:text-white transition-colors">Translate PDF</Link>
               <Link href="/pdf-to-markdown" className="hover:text-black dark:hover:text-white transition-colors">PDF to Markdown</Link>

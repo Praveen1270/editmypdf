@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
     return [
       { source: "/edit-pdf-text", destination: "/edit-pdf", permanent: true },
       { source: "/privacy", destination: "/privacy-policy", permanent: true },
+      { source: "/jpg-to-pdf", destination: "/images-to-pdf", permanent: true },
+      { source: "/pdf-to-jpg", destination: "/pdf-to-images", permanent: true },
+      { source: "/compare-pdf", destination: "/compare-pdfs", permanent: true },
+      { source: "/extract-pages", destination: "/extract-pdf-pages", permanent: true },
+      { source: "/extract-pages/", destination: "/extract-pdf-pages", permanent: true },
     ];
   },
   // Ensure strict privacy headers

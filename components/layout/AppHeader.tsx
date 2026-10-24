@@ -48,7 +48,7 @@ interface AppHeaderProps {
 }
 
 const CONVERT_TO_PDF = [
-  { name: "JPG to PDF", href: "/jpg-to-pdf", desc: "Convert images to PDF document", icon: Image },
+  { name: "JPG to PDF", href: "/images-to-pdf", desc: "Convert images to PDF document", icon: Image },
   { name: "Word to PDF", href: "/word-to-pdf", desc: "Convert DOCX to formatted PDF", icon: FileType },
   { name: "PowerPoint to PDF", href: "/powerpoint-to-pdf", desc: "Convert PPTX slides to PDF", icon: Presentation },
   { name: "Excel to PDF", href: "/excel-to-pdf", desc: "Convert spreadsheets to PDF", icon: FileSpreadsheet },
@@ -56,7 +56,7 @@ const CONVERT_TO_PDF = [
 ];
 
 const CONVERT_FROM_PDF = [
-  { name: "PDF to JPG", href: "/pdf-to-jpg", desc: "Extract pages as high-res images", icon: Image },
+  { name: "PDF to JPG", href: "/pdf-to-images", desc: "Extract pages as high-res images", icon: Image },
   { name: "PDF to Word", href: "/pdf-to-word", desc: "Convert PDF to editable DOCX", icon: FileType },
   { name: "PDF to PowerPoint", href: "/pdf-to-powerpoint", desc: "Convert PDF to presentation slides", icon: Presentation },
   { name: "PDF to Excel", href: "/pdf-to-excel", desc: "Extract tables to spreadsheet", icon: FileSpreadsheet },
@@ -101,7 +101,7 @@ const ALL_TOOLS_CATEGORIES = [
       { name: "Unlock PDF", href: "/unlock-pdf", icon: Unlock },
       { name: "Sign PDF", href: "/sign-pdf", icon: PenTool },
       { name: "Redact PDF", href: "/redact-pdf", icon: Eraser },
-      { name: "Compare PDF", href: "/compare-pdf", icon: GitCompare },
+      { name: "Compare PDF", href: "/compare-pdfs", icon: GitCompare },
     ],
   },
   {

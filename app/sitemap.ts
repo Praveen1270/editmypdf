@@ -3,30 +3,30 @@ import { PDF_TOOLS } from "@/lib/tools-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://editmypdf.co.in";
-  const currentDate = new Date().toISOString();
 
   // Core informational pages
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/`, lastModified: currentDate, changeFrequency: "weekly", priority: 1.0 },
-    { url: `${baseUrl}/about`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/privacy-policy`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/terms`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${baseUrl}/contact`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${baseUrl}/disclaimer`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${baseUrl}/cookie-policy`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${baseUrl}/faq`, lastModified: currentDate, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/how-it-works`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/security`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/accessibility`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${baseUrl}/` },
+    { url: `${baseUrl}/about` },
+    { url: `${baseUrl}/privacy-policy` },
+    { url: `${baseUrl}/terms` },
+    { url: `${baseUrl}/contact` },
+    { url: `${baseUrl}/disclaimer` },
+    { url: `${baseUrl}/cookie-policy` },
+    { url: `${baseUrl}/faq` },
+    { url: `${baseUrl}/how-it-works` },
+    { url: `${baseUrl}/security` },
+    { url: `${baseUrl}/accessibility` },
   ];
 
-  // All 20 PDF tools (exclude workflow preset URLs, which are query variants of /workflows)
+  // All PDF tools (exclude workflow preset URLs, which are query variants of /workflows)
   const toolRoutes: MetadataRoute.Sitemap = PDF_TOOLS.filter((tool) => !tool.href.includes("?")).map((tool) => ({
     url: `${baseUrl}${tool.href}`,
-    lastModified: currentDate,
-    changeFrequency: "weekly" as const,
-    priority: 0.9,
   }));
 
-  return [...staticRoutes, ...toolRoutes];
+  const now = new Date();
+  return [...staticRoutes, ...toolRoutes].map((r) => ({
+    ...r,
+    lastModified: now,
+  }));
 }

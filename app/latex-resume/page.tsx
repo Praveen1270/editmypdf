@@ -199,7 +199,7 @@ function resumeHtml(
       <div style="font-family: ${fontFamily}; color: #1f2937; line-height: 1.4; display: flex; min-height: 980px;">
         <!-- Left Sidebar -->
         <div style="width: 32%; background: #f8fafc; border-right: 1px solid #e2e8f0; padding: 24px 18px; box-sizing: border-box;">
-          <h1 style="margin: 0 0 4px; font-size: 15pt; font-weight: 700; color: #0f172a;">${esc(data.name || "Alex Morgan")}</h1>
+          <h2 style="margin: 0 0 4px; font-size: 15pt; font-weight: 700; color: #0f172a;">${esc(data.name || "Alex Morgan")}</h2>
           <div style="font-size: 9.5pt; color: #64748b; font-weight: 500; margin-bottom: 16px;">${esc(data.title)}</div>
           
           <div style="margin-bottom: 20px;">
@@ -277,9 +277,9 @@ function resumeHtml(
     <div style="font-family: ${fontFamily}; color: #111827; line-height: 1.4; padding: 10px 0;">
       <!-- Header -->
       <div style="text-align: ${isCentered ? "center" : "left"}; margin-bottom: 12px; padding-bottom: 4px;">
-        <h1 style="margin: 0 0 3px; font-size: ${template === "Academic CV" ? "20pt" : "18pt"}; font-weight: 700; color: ${accentColor}; letter-spacing: ${template === "Classic" ? "0.8px" : "normal"};">
+        <h2 style="margin: 0 0 3px; font-size: ${template === "Academic CV" ? "20pt" : "18pt"}; font-weight: 700; color: ${accentColor}; letter-spacing: ${template === "Classic" ? "0.8px" : "normal"};">
           ${esc(data.name || "Alex Morgan")}
-        </h1>
+        </h2>
         ${data.title ? `<div style="font-size: 10.5pt; font-style: italic; color: #4b5563; margin-bottom: 4px;">${esc(data.title)}</div>` : ""}
         ${contact ? `<div style="font-size: 9pt; color: #4b5563; margin-top: 2px; line-height: 1.4;">${contact}</div>` : ""}
       </div>
