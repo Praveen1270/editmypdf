@@ -35,6 +35,19 @@ export default function ContactPage() {
             </div>
           </div>
 
+          {/* Direct contact */}
+          <div className="rounded-2xl border border-border bg-surface p-5 shadow-paper flex items-start gap-3.5">
+            <Shield className="h-5 w-5 text-foreground shrink-0 mt-0.5" />
+            <div className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground block mb-0.5">Direct contact</span>
+              For privacy, security, or partnership questions, email{" "}
+              <a href="mailto:founder@editmypdf.co.in" className="font-semibold text-foreground hover:underline">
+                founder@editmypdf.co.in
+              </a>
+              . We respond to every message.
+            </div>
+          </div>
+
           {/* Issue Reporting & Feedback Channels */}
           <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-paper space-y-6">
             <div>

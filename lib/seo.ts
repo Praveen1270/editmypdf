@@ -88,6 +88,8 @@ export function generateToolMetadataById(toolId: string): Metadata {
     "metadata-editor": { query: "PDF Metadata Editor", benefit: "Edit & Strip Tags" },
     "page-counter": { query: "PDF Page Counter", benefit: "Inspect Dimensions" },
     compare: { query: "Compare Two PDF Files", benefit: "Visual & Text Diff" },
+    whiteboard: { query: "Online Whiteboard", benefit: "Draw & Collaborate" },
+    "gst-invoice": { query: "GST Invoice Generator", benefit: "Tax Invoices" },
   };
 
   const titleConfig = queryFirstTitles[tool.id] || {

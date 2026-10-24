@@ -6,7 +6,7 @@ import { PrivacyBadge } from "@/components/layout/PrivacyBadge";
 import { generatePageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = generatePageMetadata({
-  title: "About EditMyPDF — Minimal, Privacy-First PDF Utilities",
+  title: "About EditMyPDF — Privacy-First PDF Tools",
   description:
     "Learn about EditMyPDF, an open, privacy-first PDF utility suite designed with minimal design and zero cloud dependencies.",
   canonical: "/about",
@@ -33,6 +33,11 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-12 space-y-8 text-sm leading-relaxed text-text-secondary">
+          <div>
+            <p className="text-text-secondary leading-relaxed">
+              EditMyPDF exists because most free PDF sites make you upload private documents to a stranger's server and then bury the download behind a signup or watermark. This site was built by one developer in India to do the opposite: tools that run in your browser, with no account, no watermark and no file retention. There's no team of marketers behind it - bugs get reported to and fixed by the person who wrote the code. Contact: founder@editmypdf.co.in
+            </p>
+          </div>
           <div>
             <h2 className="text-lg font-bold text-text-primary">Our Philosophy</h2>
             <p className="mt-2 text-text-secondary">
@@ -76,6 +81,12 @@ export default function AboutPage() {
 
           <div className="mt-8 rounded-xl border border-border bg-surface-base p-6 text-center shadow-sm">
             <p className="font-semibold text-text-primary">Ready to work with your PDFs?</p>
+            <p className="mt-2 text-xs text-text-secondary">
+              Questions or feedback? Email{" "}
+              <a href="mailto:founder@editmypdf.co.in" className="text-text-primary font-semibold hover:underline">
+                founder@editmypdf.co.in
+              </a>
+            </p>
             <div className="mt-4">
               <Link
                 href="/#tools"

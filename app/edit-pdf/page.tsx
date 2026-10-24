@@ -20,7 +20,7 @@ export default function EditPdfPage() {
                 <span>Edit PDF</span>
               </div>
               <h1 className="mt-0.5 text-lg sm:text-xl font-bold tracking-tight text-foreground">
-                Edit PDF Online — Full Visual Editor
+                Edit PDF Online — Free, Private, No Sign-Up
               </h1>
             </div>
             <div className="flex items-center gap-2 text-[11px]">
@@ -30,6 +30,18 @@ export default function EditPdfPage() {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Intro */}
+      <div className="mx-auto max-w-content px-4 pt-6 sm:px-6 lg:px-8">
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+          Add text, images, shapes and signatures to any PDF directly in your browser — your file never leaves your device.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="inline-flex items-center rounded-full border border-border bg-surface-subtle px-3 py-1 text-xs font-medium text-foreground">Free</span>
+          <span className="inline-flex items-center rounded-full border border-border bg-surface-subtle px-3 py-1 text-xs font-medium text-foreground">No sign-up</span>
+          <span className="inline-flex items-center rounded-full border border-border bg-surface-subtle px-3 py-1 text-xs font-medium text-foreground">No upload</span>
         </div>
       </div>
 

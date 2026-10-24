@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Code, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { convertPdfToHtml } from "@/lib/pdf/pdf-to-html";
 import { downloadBytes } from "@/lib/files/download";
@@ -50,7 +52,7 @@ export default function PdfToHtmlPage() {
   const handleReset = () => { setFile(null); setHtml(""); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="pdf-to-html" toolName="PDF to HTML" description="Convert a PDF into a single HTML file with positioned or reflowable text.">
+    <ToolPageLayout toolId="pdf-to-html" toolName="PDF to HTML" description="Convert a PDF into a single HTML file with positioned or reflowable text." content={<ToolContent data={TOOL_CONTENT["pdf-to-html"]} />}>
       {!file ? (
         <DropZone accept=".pdf" multiple={false} title="Drop your PDF here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

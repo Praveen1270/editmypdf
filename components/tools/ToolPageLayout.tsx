@@ -11,6 +11,7 @@ interface ToolPageLayoutProps {
   toolName: string;
   description: string;
   children: ReactNode;
+  content?: ReactNode;
 }
 
 export function ToolPageLayout({
@@ -18,6 +19,7 @@ export function ToolPageLayout({
   toolName,
   description,
   children,
+  content,
 }: ToolPageLayoutProps) {
   const toolMeta = PDF_TOOLS.find((t) => t.id === toolId);
 
@@ -145,9 +147,9 @@ export function ToolPageLayout({
                       key={idx}
                       className="rounded-xl border border-border bg-surface p-5 shadow-paper"
                     >
-                      <h4 className="font-semibold text-foreground text-sm">
+                      <h3 className="font-semibold text-foreground text-sm">
                         {item.q}
-                      </h4>
+                      </h3>
                       <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                         {item.a}
                       </p>
@@ -158,6 +160,9 @@ export function ToolPageLayout({
             )}
           </div>
         )}
+
+        {/* SEO content section */}
+        {content && <div className="mt-14">{content}</div>}
 
         {/* Related PDF tools */}
         <div className="mt-14">

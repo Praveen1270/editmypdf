@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Table, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { pdfToExcel } from "@/lib/pdf/pdf-to-excel";
 import { downloadBytes } from "@/lib/files/download";
@@ -42,7 +44,7 @@ export default function PdfToExcelPage() {
   const handleReset = () => { setFile(null); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="pdf-to-excel" toolName="PDF to Excel" description="Extract tables from a PDF into an Excel workbook.">
+    <ToolPageLayout toolId="pdf-to-excel" toolName="PDF to Excel" description="Extract tables from a PDF into an Excel workbook." content={<ToolContent data={TOOL_CONTENT["pdf-to-excel"]} />}>
       {!file ? (
         <DropZone accept=".pdf" multiple={false} title="Drop your PDF here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

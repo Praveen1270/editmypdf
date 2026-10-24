@@ -29,6 +29,7 @@ import {
   Trash2,
   RotateCw,
   FilePlus2,
+  Search,
 } from "lucide-react";
 import type { EditorToolId } from "@/lib/pdf/edit-pdf/types";
 
@@ -47,6 +48,7 @@ interface EditorToolbarProps {
   busy: boolean;
   busyLabel?: string;
   onDownload: () => void;
+  onFindReplace?: () => void;
   onDeletePage: () => void;
   onRotatePage: () => void;
   onInsertBlank: () => void;
@@ -115,6 +117,11 @@ export function EditorToolbar(props: EditorToolbarProps) {
         <ToolButton active={t === "addText"} title="Add new text — click anywhere on a page" label="Add text tool" onClick={() => props.onTool("addText")}>
           <TextCursorInput className="h-4 w-4" />
         </ToolButton>
+        {props.onFindReplace && (
+          <ToolButton title="Find & replace text (Ctrl+F)" label="Find and replace" onClick={props.onFindReplace}>
+            <Search className="h-4 w-4" />
+          </ToolButton>
+        )}
         <ToolButton active={t === "whiteout"} title="Whiteout — drag a rectangle to cover content" label="Whiteout tool" onClick={() => props.onTool("whiteout")}>
           <Eraser className="h-4 w-4" />
         </ToolButton>

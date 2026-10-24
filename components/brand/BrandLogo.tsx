@@ -18,6 +18,8 @@ export function BrandLogo({
       <img
         src="/logo.png?v=2"
         alt="EditMyPDF Logo"
+        width={32}
+        height={32}
         className="h-7 w-7 sm:h-8 sm:w-8 shrink-0 object-contain"
       />
       {showWordmark && (

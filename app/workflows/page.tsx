@@ -40,6 +40,7 @@ interface WorkflowPreset {
   id: WorkflowPresetId;
   title: string;
   shortDesc: string;
+  description: string;
   step1: string;
   step2: string;
   requiresMultipleFiles: boolean;
@@ -51,6 +52,7 @@ const PRESETS: WorkflowPreset[] = [
     id: "merge-compress",
     title: "Merge & Compress",
     shortDesc: "Combine multiple PDFs in sequence, then optimize file size in RAM.",
+    description: "Combine several PDFs into one document, then shrink the result in the same run. Use it when you need to email or upload a bundle (an application pack, invoices for a month) and the merged file is too large to send.",
     step1: "1. Merge documents into single file",
     step2: "2. Compress stream structures losslessly",
     requiresMultipleFiles: true,
@@ -60,6 +62,7 @@ const PRESETS: WorkflowPreset[] = [
     id: "compress-protect",
     title: "Compress & Protect",
     shortDesc: "Optimize file size and apply AES-256 client-side encryption.",
+    description: "Reduce a PDF's file size and lock it with a password in one step. Use it before sharing sensitive documents such as contracts or ID scans over email or messaging apps.",
     step1: "1. Compress PDF streams",
     step2: "2. Encrypt with AES-256 password",
     requiresMultipleFiles: false,
@@ -69,6 +72,7 @@ const PRESETS: WorkflowPreset[] = [
     id: "rotate-numbers",
     title: "Rotate & Add Numbers",
     shortDesc: "Fix page orientation across pages and stamp clean sequential page numbers.",
+    description: "Fix sideways pages, then stamp page numbers on every page. Ideal for scanned documents that came in with mixed orientation and need clean numbering for printing or filing.",
     step1: "1. Rotate all pages to orientation",
     step2: "2. Stamp sequential page numbers",
     requiresMultipleFiles: false,
@@ -78,6 +82,7 @@ const PRESETS: WorkflowPreset[] = [
     id: "flatten-sanitize",
     title: "Flatten & Sanitize",
     shortDesc: "Flatten interactive forms and wipe personal metadata for safe sharing.",
+    description: "Flatten form fields and annotations into fixed page content, and strip hidden metadata such as author and edit history. Use it when you're sending a final copy that shouldn't be editable or reveal who created it.",
     step1: "1. Flatten form fields & annotations",
     step2: "2. Strip personal metadata and creator tags",
     requiresMultipleFiles: false,
@@ -300,6 +305,10 @@ function WorkflowsContent() {
               })}
             </div>
           </div>
+
+          <p className="mt-4 text-sm text-[#52504e] dark:text-[#d6d3d1] leading-relaxed">
+            {currentPresetDef.description}
+          </p>
 
           {/* Workflow Pipeline Sequence Overview */}
           <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 p-4">

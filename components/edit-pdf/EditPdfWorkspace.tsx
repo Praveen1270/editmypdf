@@ -41,6 +41,8 @@ import { EditorToolbar } from "./EditorToolbar";
 import { PageView, type AnnotSubtype } from "./PageView";
 import type { InlineTextValue } from "./TextBlockOverlay";
 import { SignatureModal, type SavedSignature } from "./SignatureModal";
+import { FindReplaceModal } from "./FindReplaceModal";
+import { applyFindReplace } from "@/lib/pdf/edit-pdf/find-replace";
 import { ResultCard } from "@/components/tools/ResultCard";
 import { downloadBytes } from "@/lib/files/download";
 import { formatFileSize } from "@/lib/utils";
@@ -108,6 +110,7 @@ export function EditPdfWorkspace() {
   const [signModalOpen, setSignModalOpen] = useState(false);
   const [armedSign, setArmedSign] = useState<SavedSignature | null>(null);
   const [linkDraft, setLinkDraft] = useState<{ pageKey: string; rect: PdfRect } | null>(null);
+  const [findReplaceOpen, setFindReplaceOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [linkDest, setLinkDest] = useState("");
 
@@ -1145,6 +1148,11 @@ export function EditPdfWorkspace() {
         handleDownloadRef.current?.();
         return;
       }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        setFindReplaceOpen(true);
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
         if (typing) return;
         e.preventDefault();
@@ -1259,6 +1267,22 @@ export function EditPdfWorkspace() {
     resetAll();
     setStage("upload");
   }, [resetAll]);
+
+  const handleFindReplace = useCallback(
+    (find: string, replace: string, opts: { matchCase: boolean; wholeWord: boolean }) => {
+      const cur = stateRef.current;
+      const res = applyFindReplace(cur, pages, blocksBySrc, find, replace, opts);
+      if (res.count === 0) {
+        pushToast("info", `No matches for "${find}".`);
+        setFindReplaceOpen(false);
+        return;
+      }
+      commit(() => res.snapshot);
+      pushToast("success", `Replaced ${res.count} occurrence${res.count === 1 ? "" : "s"}.`);
+      setFindReplaceOpen(false);
+    },
+    [pages, blocksBySrc, commit, pushToast]
+  );
 
   /* ---------------- render ---------------- */
 
@@ -1433,6 +1457,7 @@ export function EditPdfWorkspace() {
         editCount={overlays.length + fills.length}
         busy={false}
         onDownload={handleDownload}
+        onFindReplace={() => setFindReplaceOpen(true)}
         onDeletePage={deletePage}
         onRotatePage={rotateActivePage}
         onInsertBlank={insertBlankAfterActive}
@@ -1618,6 +1643,11 @@ export function EditPdfWorkspace() {
         }}
       />
 
+      <FindReplaceModal
+        open={findReplaceOpen}
+        onClose={() => setFindReplaceOpen(false)}
+        onApply={handleFindReplace}
+      />
       <SignatureModal
         open={signModalOpen}
         onClose={() => setSignModalOpen(false)}

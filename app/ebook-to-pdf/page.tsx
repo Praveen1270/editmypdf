@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Book, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { ebookToPdf } from "@/lib/pdf/ebook-to-pdf";
 import { downloadBytes } from "@/lib/files/download";
@@ -42,7 +44,7 @@ export default function EbookToPdfPage() {
   const handleReset = () => { setFile(null); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="ebook-to-pdf" toolName="eBook to PDF" description="Convert DRM-free EPUB e-books to a paginated PDF.">
+    <ToolPageLayout toolId="ebook-to-pdf" toolName="eBook to PDF" description="Convert DRM-free EPUB e-books to a paginated PDF." content={<ToolContent data={TOOL_CONTENT["ebook-to-pdf"]} />}>
       {!file ? (
         <DropZone accept=".epub" multiple={false} title="Drop your eBook here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

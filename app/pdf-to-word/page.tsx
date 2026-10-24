@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FileText, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { pdfToWord } from "@/lib/pdf/pdf-to-word";
 import { downloadBytes } from "@/lib/files/download";
@@ -42,7 +44,7 @@ export default function PdfToWordPage() {
   const handleReset = () => { setFile(null); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="pdf-to-word" toolName="PDF to Word" description="Convert a PDF's text into an editable Word document.">
+    <ToolPageLayout toolId="pdf-to-word" toolName="PDF to Word" description="Convert a PDF's text into an editable Word document." content={<ToolContent data={TOOL_CONTENT["pdf-to-word"]} />}>
       {!file ? (
         <DropZone accept=".pdf" multiple={false} title="Drop your PDF here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

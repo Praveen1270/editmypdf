@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { ShoppingCart, Plus, Trash2, Download, RefreshCw, Loader2, Package, BarChart3 } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { Product, CartLine, Sale, cartSubtotal, cartTax, cartTotal, generateReceiptPdf } from "@/lib/business/pos";
 import { dbGetAll, dbPut, dbDelete, uid } from "@/lib/business/storage";
 import { downloadBytes } from "@/lib/files/download";
@@ -124,7 +126,7 @@ export default function PosBillingPage() {
   };
 
   return (
-    <ToolPageLayout toolId="pos-billing" toolName="POS Billing" description="Point-of-sale billing: products, cart, GST receipts and reports, usable offline.">
+    <ToolPageLayout toolId="pos-billing" toolName="POS Billing" description="Point-of-sale billing: products, cart, GST receipts and reports, usable offline." content={<ToolContent data={TOOL_CONTENT["pos-billing"]} />}>
       <div className="space-y-4">
         {errorMessage && <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">{errorMessage}</div>}
 

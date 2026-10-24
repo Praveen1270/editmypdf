@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Table, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { csvFileToPdf } from "@/lib/pdf/csv-to-pdf";
 import { downloadBytes } from "@/lib/files/download";
@@ -43,7 +45,7 @@ export default function CsvToPdfPage() {
   const handleReset = () => { setFile(null); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="csv-to-pdf" toolName="CSV to PDF" description="Convert CSV files into a clean, paginated PDF table.">
+    <ToolPageLayout toolId="csv-to-pdf" toolName="CSV to PDF" description="Convert CSV files into a clean, paginated PDF table." content={<ToolContent data={TOOL_CONTENT["csv-to-pdf"]} />}>
       {!file ? (
         <DropZone accept=".csv" multiple={false} title="Drop your CSV here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

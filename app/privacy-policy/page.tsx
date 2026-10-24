@@ -144,7 +144,12 @@ export default function PrivacyPolicyPage() {
               or review our in-depth architecture disclosures on our{" "}
               <Link href="/security" className="text-text-primary hover:underline font-semibold">
                 Security Architecture Page
-              </Link>.
+              </Link>
+              . You can also reach us directly at{" "}
+              <a href="mailto:founder@editmypdf.co.in" className="text-text-primary hover:underline font-semibold">
+                founder@editmypdf.co.in
+              </a>
+              .
             </p>
           </section>
         </div>

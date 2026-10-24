@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FileSpreadsheet, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { excelToPdf } from "@/lib/pdf/excel-to-pdf";
 import { downloadBytes } from "@/lib/files/download";
@@ -43,7 +45,7 @@ export default function ExcelToPdfPage() {
   const handleReset = () => { setFile(null); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="excel-to-pdf" toolName="Excel to PDF" description="Convert XLSX/XLS spreadsheets to PDF.">
+    <ToolPageLayout toolId="excel-to-pdf" toolName="Excel to PDF" description="Convert XLSX/XLS spreadsheets to PDF." content={<ToolContent data={TOOL_CONTENT["excel-to-pdf"]} />}>
       {!file ? (
         <DropZone accept=".xlsx,.xls" multiple={false} title="Drop your spreadsheet here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

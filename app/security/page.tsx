@@ -109,6 +109,12 @@ export default function SecurityPage() {
                 Verification Guide
               </Link>.
             </p>
+            <p className="mt-2 text-xs text-text-secondary">
+              Security questions or vulnerability reports:{" "}
+              <a href="mailto:founder@editmypdf.co.in" className="text-text-primary hover:underline font-semibold">
+                founder@editmypdf.co.in
+              </a>
+            </p>
           </section>
         </div>
       </div>

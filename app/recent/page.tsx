@@ -180,9 +180,9 @@ export default function RecentFilesPage() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-surface-subtle border border-border text-muted-foreground">
               <Clock className="h-6 w-6" />
             </div>
-            <h3 className="mt-4 text-base font-bold text-foreground">
+            <h2 className="mt-4 text-base font-bold text-foreground">
               No recent documents yet
-            </h3>
+            </h2>
             <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground leading-relaxed">
               When you edit, merge, compress, or convert PDF documents, your history will appear here for immediate access.
             </p>

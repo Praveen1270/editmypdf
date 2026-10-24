@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { BookOpen, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { DropZone } from "@/components/tools/DropZone";
 import { convertPdfToEpub } from "@/lib/pdf/pdf-to-epub";
 import { downloadBytes } from "@/lib/files/download";
@@ -51,7 +53,7 @@ export default function PdfToEpubPage() {
   const handleReset = () => { setFile(null); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="pdf-to-epub" toolName="PDF to EPUB" description="Convert a PDF into an EPUB e-book for Kindle, Kobo and Apple Books.">
+    <ToolPageLayout toolId="pdf-to-epub" toolName="PDF to EPUB" description="Convert a PDF into an EPUB e-book for Kindle, Kobo and Apple Books." content={<ToolContent data={TOOL_CONTENT["pdf-to-epub"]} />}>
       {!file ? (
         <DropZone accept=".pdf" multiple={false} title="Drop your PDF here" subtitle="or browse to convert" onFilesSelected={handleFileSelected} />
       ) : (

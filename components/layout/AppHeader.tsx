@@ -70,7 +70,7 @@ const ALL_TOOLS_CATEGORIES = [
       { name: "Merge PDF", href: "/merge-pdf", icon: Files },
       { name: "Split PDF", href: "/split-pdf", icon: Scissors },
       { name: "Remove Pages", href: "/remove-pdf-pages", icon: Trash2 },
-      { name: "Extract Pages", href: "/extract-pages", icon: FolderOutput },
+      { name: "Extract Pages", href: "/extract-pdf-pages", icon: FolderOutput },
       { name: "Organize PDF", href: "/organize-pdf", icon: Layers },
       { name: "Scan to PDF", href: "/scan-to-pdf", icon: ScanLine },
       { name: "Rotate PDF", href: "/rotate-pdf", icon: RotateCw },

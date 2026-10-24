@@ -5,6 +5,8 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { PenTool, Loader2, Download, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { ToolContent } from "@/components/tools/ToolContent";
+import { TOOL_CONTENT } from "@/lib/tool-content";
 import { htmlToPdf } from "@/lib/pdf/html-to-pdf";
 import { downloadBytes } from "@/lib/files/download";
 
@@ -42,7 +44,7 @@ export default function CreatePdfPage() {
   const handleReset = () => { editor?.commands.setContent("<p></p>"); setResultBytes(null); setErrorMessage(null); };
 
   return (
-    <ToolPageLayout toolId="create-pdf" toolName="Create PDF" description="A writing surface with formatting that exports straight to PDF.">
+    <ToolPageLayout toolId="create-pdf" toolName="Create PDF" description="A writing surface with formatting that exports straight to PDF." content={<ToolContent data={TOOL_CONTENT["create-pdf"]} />}>
       <div className="space-y-4">
         {errorMessage && <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">{errorMessage}</div>}
 

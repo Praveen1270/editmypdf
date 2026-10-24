@@ -126,7 +126,12 @@ export default function TermsPage() {
               For questions concerning these Terms of Service or documentation inquiries, please visit our{" "}
               <Link href="/contact" className="text-text-primary hover:underline font-semibold">
                 Contact & Support Page
-              </Link>.
+              </Link>
+              {" "}or email{" "}
+              <a href="mailto:founder@editmypdf.co.in" className="text-text-primary hover:underline font-semibold">
+                founder@editmypdf.co.in
+              </a>
+              .
             </p>
           </section>
         </div>

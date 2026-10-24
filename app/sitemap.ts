@@ -20,8 +20,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/accessibility`, lastModified: currentDate, changeFrequency: "monthly", priority: 0.6 },
   ];
 
-  // All 20 PDF tools
-  const toolRoutes: MetadataRoute.Sitemap = PDF_TOOLS.map((tool) => ({
+  // All 20 PDF tools (exclude workflow preset URLs, which are query variants of /workflows)
+  const toolRoutes: MetadataRoute.Sitemap = PDF_TOOLS.filter((tool) => !tool.href.includes("?")).map((tool) => ({
     url: `${baseUrl}${tool.href}`,
     lastModified: currentDate,
     changeFrequency: "weekly" as const,

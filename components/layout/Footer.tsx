@@ -22,6 +22,15 @@ export function Footer() {
             <p className="mt-1 text-[11px] text-[#52504e] dark:text-[#d6d3d1]">
               Files never leave your computer. Built with WebAssembly and Web Crypto.
             </p>
+            <p className="mt-2 text-[11px] text-[#52504e] dark:text-[#d6d3d1]">
+              Contact:{" "}
+              <a
+                href="mailto:founder@editmypdf.co.in"
+                className="font-semibold text-black dark:text-white hover:underline"
+              >
+                founder@editmypdf.co.in
+              </a>
+            </p>
 
             {/* Badges */}
             <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -93,7 +102,7 @@ export function Footer() {
               <Link href="/merge-pdf" className="hover:text-black dark:hover:text-white transition-colors">Merge PDF</Link>
               <Link href="/split-pdf" className="hover:text-black dark:hover:text-white transition-colors">Split PDF</Link>
               <Link href="/remove-pdf-pages" className="hover:text-black dark:hover:text-white transition-colors">Remove Pages</Link>
-              <Link href="/extract-pages" className="hover:text-black dark:hover:text-white transition-colors">Extract Pages</Link>
+              <Link href="/extract-pdf-pages" className="hover:text-black dark:hover:text-white transition-colors">Extract Pages</Link>
               <Link href="/organize-pdf" className="hover:text-black dark:hover:text-white transition-colors">Organize PDF</Link>
               <Link href="/rotate-pdf" className="hover:text-black dark:hover:text-white transition-colors">Rotate PDF</Link>
               <Link href="/scan-to-pdf" className="hover:text-black dark:hover:text-white transition-colors">Scan to PDF</Link>
