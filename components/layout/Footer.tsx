@@ -38,6 +38,23 @@ export function Footer() {
               <MakeItLastBadge />
 
               <a
+                href="https://www.scrolllaunch.com/products/editmypdf?ref=badge"
+                target="_blank"
+                rel="noopener"
+                className="inline-block transition-opacity hover:opacity-85"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://www.scrolllaunch.com/api/badge/editmypdf"
+                  alt="Featured on ScrollLaunch"
+                  width={220}
+                  height={48}
+                  loading="lazy"
+                  className="h-[36px] w-auto"
+                />
+              </a>
+
+              <a
                 href="https://findly.tools/editmypdf?utm_source=editmypdf"
                 target="_blank"
                 rel="noopener noreferrer"
