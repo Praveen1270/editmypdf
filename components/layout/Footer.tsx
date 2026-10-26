@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { MakeItLastBadge } from "@/components/badges/MakeItLastBadge";
 
 export function Footer() {
   return (
@@ -34,6 +35,8 @@ export function Footer() {
 
             {/* Badges */}
             <div className="mt-5 flex flex-wrap items-center gap-3">
+              <MakeItLastBadge />
+
               <a
                 href="https://findly.tools/editmypdf?utm_source=editmypdf"
                 target="_blank"
