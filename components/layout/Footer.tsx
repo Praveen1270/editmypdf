@@ -55,6 +55,22 @@ export function Footer() {
               </a>
 
               <a
+                href="https://nicklaunches.com/products/editmypdf/"
+                target="_blank"
+                rel="noopener"
+                className="inline-block transition-opacity hover:opacity-85"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://nicklaunches.com/badges/featured.png"
+                  alt="EditMyPDF on Nick Launches"
+                  width={244}
+                  height={56}
+                  className="h-[36px] w-auto"
+                />
+              </a>
+
+              <a
                 href="https://findly.tools/editmypdf?utm_source=editmypdf"
                 target="_blank"
                 rel="noopener noreferrer"
