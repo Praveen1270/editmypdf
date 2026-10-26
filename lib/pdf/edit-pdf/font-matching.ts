@@ -173,15 +173,59 @@ export function getStandardFontOption(fontId: string): StandardFontOption | null
 
 /** CSS font-family stack for any font id (bundled, standard, or embedded). */
 export function cssFamilyForFontId(fontId: string, bold: boolean): string {
+  const isSerif =
+    fontId === "Tinos" ||
+    fontId === "NotoSerif" ||
+    fontId === "Caladea" ||
+    fontId.toLowerCase().includes("times") ||
+    fontId.toLowerCase().includes("serif") ||
+    fontId.toLowerCase().includes("roman") ||
+    fontId.toLowerCase().includes("georgia") ||
+    fontId.toLowerCase().includes("garamond") ||
+    fontId.toLowerCase().includes("minion") ||
+    fontId.toLowerCase().includes("baskerville");
+
   if (fontId.startsWith("embedded:")) {
     const fam = fontId.slice("embedded:".length);
-    return `"${fam}", sans-serif`;
+    const famLower = fam.toLowerCase();
+    if (isSerif || famLower.includes("serif") || famLower.includes("times") || famLower.includes("roman") || famLower.includes("minion") || famLower.includes("georgia")) {
+      return `"${fam}", "Tinos", "Times New Roman", Times, Georgia, "DejaVu Serif", serif`;
+    }
+    return `"${fam}", "Arimo", Arial, Helvetica, "Segoe UI", sans-serif`;
   }
+
+  if (fontId === "Tinos") {
+    return '"Tinos", "Times New Roman", Times, Georgia, "DejaVu Serif", serif';
+  }
+  if (fontId === "Caladea") {
+    return '"Caladea", Cambria, Georgia, serif';
+  }
+  if (fontId === "NotoSerif") {
+    return '"Noto Serif", "Times New Roman", Times, Georgia, serif';
+  }
+  if (fontId === "Carlito") {
+    return '"Carlito", Calibri, Candara, "Segoe UI", Arial, sans-serif';
+  }
+  if (fontId === "Cousine") {
+    return '"Cousine", "Courier New", Courier, monospace';
+  }
+  if (fontId === "Arimo") {
+    return '"Arimo", Arial, Helvetica, "Segoe UI", "DejaVu Sans", sans-serif';
+  }
+  if (fontId === "NotoSans") {
+    return '"Noto Sans", Arial, Helvetica, sans-serif';
+  }
+
   const bundled = getBundledFont(fontId);
-  if (bundled) return `"${bundled.cssFamily}", sans-serif`;
+  if (bundled) {
+    return isSerif
+      ? `"${bundled.cssFamily}", "Times New Roman", Times, Georgia, serif`
+      : `"${bundled.cssFamily}", Arial, Helvetica, sans-serif`;
+  }
   const std = getStandardFontOption(fontId);
   if (std) return std.cssFamily;
-  return "sans-serif";
+
+  return isSerif ? '"Times New Roman", Times, Georgia, serif' : 'Arial, Helvetica, sans-serif';
 }
 
 /** Strip subset prefix ("ABCDEF+MyFont" -> "MyFont"). */
@@ -240,12 +284,13 @@ export function matchBundledFontId(pdfFontName: string, sampleText = ""): string
   if (hasAny(n, ["courier", "cousine", "mono", "typewriter", "consolas", "letter-gothic", "nimbus-mono", "liberation-mono"])) return "Cousine";
   if (hasAny(n, ["caladea", "cambria"])) return "Caladea";
   if (hasAny(n, ["carlito", "calibri", "candara", "corbel"])) return "Carlito";
-  if (hasAny(n, ["tinos", "times", "liberation-serif", "nimbus-roman", "stix", "garamond", "palatino", "bookman", "baskerville", "georgia", "charter"])) {
-    if (hasAny(n, ["garamond", "palatino", "georgia", "bookman", "baskerville", "charter"])) return "NotoSerif";
+  if (hasAny(n, ["tinos", "times", "liberation-serif", "nimbus-roman", "stix", "garamond", "palatino", "bookman", "baskerville", "georgia", "charter", "roman", "serif", "minion", "caslon", "schoolbook", "didot", "bodoni", "century", "cambria"])) {
+    if (hasAny(n, ["garamond", "palatino", "georgia", "bookman", "baskerville", "charter", "minion", "caslon"])) return "NotoSerif";
+    if (hasAny(n, ["cambria", "caladea"])) return "Caladea";
     return "Tinos";
   }
-  if (hasAny(n, ["arimo", "helvetica", "arial", "liberation-sans", "nimbus-sans", "verdana", "tahoma", "segoe", "open-sans", "roboto", "inter", "dejavu", "freesans", "univers", "frutiger", "myriad", "noto-sans", "notosans"])) return "Arimo";
-  if (hasAny(n, ["serif"])) return "NotoSerif";
+  if (hasAny(n, ["arimo", "helvetica", "arial", "liberation-sans", "nimbus-sans", "verdana", "tahoma", "segoe", "open-sans", "roboto", "inter", "dejavu", "freesans", "univers", "frutiger", "myriad", "noto-sans", "notosans", "sans"])) return "Arimo";
+  if (hasAny(n, ["serif"])) return "Tinos";
   if (hasAny(n, ["sans"])) return "Arimo";
   // Symbol / ZapfDingbats / decorative fonts cannot be matched — use widest coverage.
   return "NotoSans";
@@ -311,7 +356,7 @@ export async function checkGlyphCoverage(
     }
     const seen = new Set<string>();
     for (const ch of text) {
-      if (ch === "\n" || ch === "\r" || ch === "\t" || ch === " ") continue;
+      if (ch === "\n" || ch === "\r" || ch === "\t") continue;
       if (seen.has(ch)) continue;
       seen.add(ch);
       const cp = ch.codePointAt(0) ?? 0;

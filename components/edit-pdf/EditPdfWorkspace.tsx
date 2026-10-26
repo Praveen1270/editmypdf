@@ -35,6 +35,9 @@ import type {
   PdfRect,
   PdfPoint,
   EditTextOverlay,
+  AddTextOverlay,
+  WhiteoutOverlay,
+  PdfExistingImage,
 } from "@/lib/pdf/edit-pdf/types";
 import { newOverlayId } from "@/lib/pdf/edit-pdf/types";
 import { EditorToolbar } from "./EditorToolbar";
@@ -66,8 +69,12 @@ function newPageKey(src: number | "blank"): string {
   return `pg-${src}-${pageKeyCounter}`;
 }
 
-export function EditPdfWorkspace() {
+export function EditPdfWorkspace(props?: { onStageChange?: (stage: Stage) => void }) {
   const [stage, setStage] = useState<Stage>("upload");
+
+  useEffect(() => {
+    props?.onStageChange?.(stage);
+  }, [stage, props]);
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
   const [loadProgress, setLoadProgress] = useState("");
@@ -90,7 +97,10 @@ export function EditPdfWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activePageKey, setActivePageKey] = useState<string | null>(null);
   const [editing, setEditing] = useState<{ pageKey: string; blockId: string } | null>(null);
+  const editingRef = useRef<{ pageKey: string; blockId: string } | null>(null);
   const [inlineValue, setInlineValue] = useState<InlineTextValue | null>(null);
+  const inlineValueRef = useRef<InlineTextValue | null>(null);
+  inlineValueRef.current = inlineValue;
   const [inlineBg, setInlineBg] = useState("#ffffff");
   const inlineBgRef = useRef("#ffffff");
   const [fallbackNotice, setFallbackNotice] = useState(false);
@@ -126,6 +136,8 @@ export function EditPdfWorkspace() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const imagePickerRef = useRef<HTMLInputElement | null>(null);
   const pendingImagePointRef = useRef<{ pageKey: string; x: number; y: number } | null>(null);
+  const pendingReplaceImageRef = useRef<{ pageKey: string; img: PdfExistingImage } | null>(null);
+  const [existingImagesBySrc, setExistingImagesBySrc] = useState<Record<number, PdfExistingImage[]>>({});
 
   stateRef.current = { pages, overlays, fills };
 
@@ -391,6 +403,7 @@ export function EditPdfWorkspace() {
           const res = await extractPageBlocks(pdfjs, doc, srcIndex + 1);
           blocksCacheRef.current.set(srcIndex, res.blocks);
           setBlocksBySrc((m) => ({ ...m, [srcIndex]: res.blocks }));
+          setExistingImagesBySrc((m) => ({ ...m, [srcIndex]: res.existingImages || [] }));
           setScannedSrcPages((m) => ({ ...m, [srcIndex]: res.isScanned }));
           // Preload matched webfonts so overlays measure correctly.
           try {
@@ -502,124 +515,215 @@ export function EditPdfWorkspace() {
 
   /* ---------------- inline in-place editing ---------------- */
 
-  const startEdit = useCallback((pageKey: string, block: TextBlock, bgHex = "#ffffff", textHex?: string) => {
-      const existing = stateRef.current.overlays.find(
-        (o) => o.kind === "edit" && o.blockId === block.id
-      ) as EditTextOverlay | undefined;
-      if (existing) {
-        setInlineValue({
-          text: existing.text,
-          fontId: existing.fontId,
-          fontSize: existing.fontSize,
-          colorHex: existing.colorHex,
-          bold: existing.bold,
-          italic: existing.italic,
-          underline: existing.underline,
-          align: existing.align,
-        });
-        setInlineBg(existing.bgHex);
-        inlineBgRef.current = existing.bgHex;
-        setFallbackNotice(existing.fallbackNotice);
+  const closeInline = useCallback(() => {
+    const curEditing = editingRef.current;
+    const curVal = inlineValueRef.current;
+    if (curEditing && curVal) {
+      commit((s) => {
+        const exIdx = s.overlays.findIndex(
+          (o) => o.kind === "edit" && (o as EditTextOverlay).blockId === curEditing.blockId
+        );
+        if (exIdx >= 0) {
+          const ex = s.overlays[exIdx] as EditTextOverlay;
+          const updated: EditTextOverlay = {
+            ...ex,
+            text: curVal.text,
+            fontId: curVal.fontId,
+            fontSize: curVal.fontSize,
+            colorHex: curVal.colorHex,
+            bold: curVal.bold,
+            italic: curVal.italic,
+            underline: curVal.underline,
+            align: curVal.align,
+          };
+          const nextOverlays = [...s.overlays];
+          nextOverlays[exIdx] = updated;
+          return { ...s, overlays: nextOverlays };
+        }
+        return s;
+      }, false);
+    }
+    endTransient();
+    setEditing(null);
+    editingRef.current = null;
+    setInlineValue(null);
+    setFallbackNotice(false);
+  }, [commit, endTransient]);
+
+  const startEdit = useCallback(
+    (pageKey: string, block: TextBlock, bgHex = "#ffffff", textHex?: string) => {
+      // 1. Commit and finalize any existing transient editing state immediately
+      if (editingRef.current && editingRef.current.blockId !== block.id) {
+        closeInline();
       } else {
-        const color = textHex || block.colorHex || "#000000";
-        setInlineValue({
-          text: block.text,
-          fontId: block.hasEmbeddedFont && block.embeddedFamily ? `embedded:${block.embeddedFamily}` : block.matchedFontId,
-          fontSize: Math.round(block.fontSize * 10) / 10,
-          colorHex: color,
-          bold: block.bold,
-          italic: block.italic,
-          underline: false,
-          align: "left",
-        });
-        // Page background sampled by PageView — covers the original invisibly.
-        setInlineBg(bgHex);
-        inlineBgRef.current = bgHex;
-        setFallbackNotice(false);
+        endTransient();
       }
+
+      // 2. Load existing or initialize new text value
+      const existing = stateRef.current.overlays.find(
+        (o) => o.kind === "edit" && (o as EditTextOverlay).blockId === block.id
+      ) as EditTextOverlay | undefined;
+
+      const textColor =
+        textHex && textHex.toLowerCase() !== "#ffffff"
+          ? textHex
+          : block.colorHex && block.colorHex.toLowerCase() !== "#ffffff"
+            ? block.colorHex
+            : "#000000";
+
+      const initialVal: InlineTextValue = existing
+        ? {
+            text: existing.text,
+            fontId: existing.fontId,
+            fontSize: existing.fontSize,
+            colorHex: existing.colorHex,
+            bold: existing.bold,
+            italic: existing.italic,
+            underline: existing.underline,
+            align: existing.align,
+          }
+        : {
+            text: block.text,
+            fontId:
+              block.hasEmbeddedFont && block.embeddedFamily
+                ? `embedded:${block.embeddedFamily}`
+                : block.matchedFontId,
+            fontSize: Math.round(block.fontSize * 10) / 10,
+            colorHex: textColor,
+            bold: block.bold,
+            italic: block.italic,
+            underline: false,
+            align: "left",
+          };
+
+      const bg = existing ? existing.bgHex : bgHex;
+      setInlineValue(initialVal);
+      inlineValueRef.current = initialVal;
+      setInlineBg(bg);
+      inlineBgRef.current = bg;
+      setFallbackNotice(existing ? existing.fallbackNotice : false);
+
       setEditing({ pageKey, blockId: block.id });
+      editingRef.current = { pageKey, blockId: block.id };
+
+      // Immediately register the edit overlay so it is never missing from the document or preview
+      commit((s) => {
+        const exIdx = s.overlays.findIndex(
+          (o) => o.kind === "edit" && (o as EditTextOverlay).blockId === block.id
+        );
+        if (exIdx >= 0) return s;
+        const newOv: EditTextOverlay = {
+          id: newOverlayId("edit"),
+          kind: "edit",
+          pageKey,
+          blockId: block.id,
+          text: initialVal.text,
+          fontId: initialVal.fontId,
+          fontSize: initialVal.fontSize,
+          colorHex: initialVal.colorHex,
+          bold: initialVal.bold,
+          italic: initialVal.italic,
+          underline: initialVal.underline,
+          align: initialVal.align,
+          x: block.x,
+          y: block.y,
+          wrapW: Math.max(20, block.boxW),
+          rotation: block.rotation,
+          lineHeight: block.lineHeight,
+          bgHex: bg,
+          saveFontId: block.matchedFontId,
+          fallbackNotice: false,
+        };
+        return { ...s, overlays: [...s.overlays, newOv] };
+      }, false);
+
       setSelectedId(null);
       setTool("text");
     },
-    []
+    [closeInline, commit, endTransient]
   );
 
   const patchInline = useCallback(
     (patch: Partial<InlineTextValue>) => {
-      setInlineValue((prev) => (prev ? { ...prev, ...patch } : prev));
+      const curEditing = editingRef.current;
+      if (!curEditing) return;
+
+      const prev = inlineValueRef.current;
+      const nextVal: InlineTextValue = prev
+        ? { ...prev, ...patch }
+        : {
+            text: patch.text ?? "",
+            fontId: patch.fontId ?? "Arimo",
+            fontSize: patch.fontSize ?? 12,
+            colorHex: patch.colorHex ?? "#000000",
+            bold: patch.bold ?? false,
+            italic: patch.italic ?? false,
+            underline: patch.underline ?? false,
+            align: patch.align ?? "left",
+          };
+
+      inlineValueRef.current = nextVal;
+      setInlineValue(nextVal);
+
+      ensureTransient();
+      const block = findBlock(curEditing.blockId);
+
+      commit((s) => {
+        const exIdx = s.overlays.findIndex(
+          (o) => o.kind === "edit" && (o as EditTextOverlay).blockId === curEditing.blockId
+        );
+        if (exIdx >= 0) {
+          const ex = s.overlays[exIdx] as EditTextOverlay;
+          const updated: EditTextOverlay = {
+            ...ex,
+            text: nextVal.text,
+            fontId: nextVal.fontId,
+            fontSize: nextVal.fontSize,
+            colorHex: nextVal.colorHex,
+            bold: nextVal.bold,
+            italic: nextVal.italic,
+            underline: nextVal.underline,
+            align: nextVal.align,
+          };
+          const nextOverlays = [...s.overlays];
+          nextOverlays[exIdx] = updated;
+          return { ...s, overlays: nextOverlays };
+        } else if (block) {
+          const newOv: EditTextOverlay = {
+            id: newOverlayId("edit"),
+            kind: "edit",
+            pageKey: curEditing.pageKey,
+            blockId: block.id,
+            text: nextVal.text,
+            fontId: nextVal.fontId,
+            fontSize: nextVal.fontSize,
+            colorHex: nextVal.colorHex,
+            bold: nextVal.bold,
+            italic: nextVal.italic,
+            underline: nextVal.underline,
+            align: nextVal.align,
+            x: block.x,
+            y: block.y,
+            wrapW: Math.max(20, block.boxW),
+            rotation: block.rotation,
+            lineHeight: block.lineHeight,
+            bgHex: inlineBgRef.current,
+            saveFontId: block.matchedFontId,
+            fallbackNotice: false,
+          };
+          return { ...s, overlays: [...s.overlays, newOv] };
+        }
+        return s;
+      }, false);
     },
-    []
+    [commit, ensureTransient, findBlock]
   );
 
-  // Sync the inline editor value into the EditTextOverlay (transient history).
+  // Glyphs coverage check for embedded fonts
   useEffect(() => {
     if (!editing || !inlineValue) return;
     const block = findBlock(editing.blockId);
     if (!block) return;
-    ensureTransient();
-    const existing = stateRef.current.overlays.find(
-      (o) => o.kind === "edit" && (o as EditTextOverlay).blockId === block.id
-    ) as EditTextOverlay | undefined;
-    if (!existing) {
-      const ov: EditTextOverlay = {
-        id: newOverlayId("edit"),
-        kind: "edit",
-        pageKey: editing.pageKey,
-        blockId: block.id,
-        text: inlineValue.text,
-        fontId: inlineValue.fontId,
-        fontSize: inlineValue.fontSize,
-        colorHex: inlineValue.colorHex,
-        bold: inlineValue.bold,
-        italic: inlineValue.italic,
-        underline: inlineValue.underline,
-        align: inlineValue.align,
-        x: block.x,
-        y: block.y,
-        wrapW: Math.max(20, block.boxW),
-        rotation: block.rotation,
-        lineHeight: block.lineHeight,
-        bgHex: inlineBgRef.current,
-        saveFontId: block.matchedFontId,
-        fallbackNotice: false,
-      };
-      commit((s) => ({ ...s, overlays: [...s.overlays, ov] }), false);
-    } else {
-      const ex = existing;
-      if (
-        ex.text !== inlineValue.text ||
-        ex.fontId !== inlineValue.fontId ||
-        ex.fontSize !== inlineValue.fontSize ||
-        ex.colorHex !== inlineValue.colorHex ||
-        ex.bold !== inlineValue.bold ||
-        ex.italic !== inlineValue.italic ||
-        ex.underline !== inlineValue.underline ||
-        ex.align !== inlineValue.align
-      ) {
-        commit(
-          (s) => ({
-            ...s,
-            overlays: s.overlays.map((o) =>
-              o.id === ex.id
-                ? {
-                    ...ex,
-                    text: inlineValue.text,
-                    fontId: inlineValue.fontId,
-                    fontSize: inlineValue.fontSize,
-                    colorHex: inlineValue.colorHex,
-                    bold: inlineValue.bold,
-                    italic: inlineValue.italic,
-                    underline: inlineValue.underline,
-                    align: inlineValue.align,
-                  }
-                : o
-            ),
-          }),
-          false
-        );
-      }
-    }
-    // Glyph-coverage check for embedded subsets (whole-run fallback + notice).
     if (inlineValue.fontId.startsWith("embedded:") && block.embeddedBytes) {
       const bytes = block.embeddedBytes;
       const txt = inlineValue.text;
@@ -642,26 +746,68 @@ export function EditPdfWorkspace() {
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inlineValue, editing]);
+  }, [editing, inlineValue, commit, findBlock]);
 
   const moveInline = useCallback(
     (dxPdf: number, dyPdf: number) => {
       if (!editing) return;
       ensureTransient();
       commit(
-        (s) => ({
-          ...s,
-          overlays: s.overlays.map((o) =>
-            o.kind === "edit" && (o as EditTextOverlay).blockId === editing.blockId
-              ? { ...(o as EditTextOverlay), x: (o as EditTextOverlay).x + dxPdf, y: (o as EditTextOverlay).y + dyPdf }
-              : o
-          ),
-        }),
+        (s) => {
+          const exIdx = s.overlays.findIndex(
+            (o) => o.kind === "edit" && (o as EditTextOverlay).blockId === editing.blockId
+          );
+          if (exIdx >= 0) {
+            const ex = s.overlays[exIdx] as EditTextOverlay;
+            const updated: EditTextOverlay = {
+              ...ex,
+              x: ex.x + dxPdf,
+              y: ex.y + dyPdf,
+            };
+            const nextOverlays = [...s.overlays];
+            nextOverlays[exIdx] = updated;
+            return { ...s, overlays: nextOverlays };
+          }
+          const block = findBlock(editing.blockId);
+          if (!block) return s;
+          const initial = inlineValue || {
+            text: block.text,
+            fontId: block.matchedFontId,
+            fontSize: block.fontSize,
+            colorHex: block.colorHex,
+            bold: block.bold,
+            italic: block.italic,
+            underline: false,
+            align: "left" as const,
+          };
+          const newOv: EditTextOverlay = {
+            id: newOverlayId("edit"),
+            kind: "edit",
+            pageKey: editing.pageKey,
+            blockId: block.id,
+            text: initial.text,
+            fontId: initial.fontId,
+            fontSize: initial.fontSize,
+            colorHex: initial.colorHex,
+            bold: initial.bold,
+            italic: initial.italic,
+            underline: initial.underline,
+            align: initial.align,
+            x: block.x + dxPdf,
+            y: block.y + dyPdf,
+            wrapW: Math.max(20, block.boxW),
+            rotation: block.rotation,
+            lineHeight: block.lineHeight,
+            bgHex: inlineBgRef.current,
+            saveFontId: block.matchedFontId,
+            fallbackNotice: false,
+          };
+          return { ...s, overlays: [...s.overlays, newOv] };
+        },
         false
       );
     },
-    [commit, editing, ensureTransient]
+    [commit, editing, ensureTransient, findBlock, inlineValue]
   );
 
   const resizeInlineWidth = useCallback(
@@ -686,7 +832,6 @@ export function EditPdfWorkspace() {
   const deleteInline = useCallback(() => {
     if (!editing) return;
     ensureTransient();
-    // Empty text = deletion; the save step skips drawing and only covers.
     setInlineValue((v) => (v ? { ...v, text: "" } : v));
     commit(
       (s) => {
@@ -727,13 +872,6 @@ export function EditPdfWorkspace() {
     );
   }, [commit, editing, ensureTransient, findBlock]);
 
-  const closeInline = useCallback(() => {
-    endTransient();
-    setEditing(null);
-    setInlineValue(null);
-    setFallbackNotice(false);
-  }, [endTransient]);
-
   /* ---------------- overlay ops ---------------- */
 
   const patchOverlay = useCallback(
@@ -753,6 +891,92 @@ export function EditPdfWorkspace() {
     },
     [commit]
   );
+
+  const duplicateOverlay = useCallback(
+    (id: string) => {
+      const ov = stateRef.current.overlays.find((o) => o.id === id);
+      if (!ov) return;
+      const newId = newOverlayId(ov.kind);
+      const offset = 15;
+      let copy: Overlay;
+      const anyO = ov as any;
+      if (anyO.rect) {
+        copy = {
+          ...ov,
+          id: newId,
+          rect: { ...anyO.rect, x: anyO.rect.x + offset, y: anyO.rect.y - offset },
+        } as any;
+      } else if (anyO.x !== undefined && anyO.y !== undefined) {
+        copy = {
+          ...ov,
+          id: newId,
+          x: anyO.x + offset,
+          y: anyO.y - offset,
+        } as any;
+      } else {
+        copy = { ...ov, id: newId };
+      }
+      commit((s) => ({ ...s, overlays: [...s.overlays, copy] }));
+      setSelectedId(newId);
+      pushToast("info", "Object duplicated.");
+    },
+    [commit, pushToast]
+  );
+
+  const removeExistingImage = useCallback(
+    (pageKey: string, img: PdfExistingImage) => {
+      const wo: WhiteoutOverlay = {
+        id: newOverlayId("wo"),
+        kind: "whiteout",
+        pageKey,
+        rect: {
+          x: img.rect.x - 1,
+          y: img.rect.y - 1,
+          w: img.rect.w + 2,
+          h: img.rect.h + 2,
+        },
+        colorHex: "#ffffff",
+      };
+      commit((s) => ({ ...s, overlays: [...s.overlays, wo] }));
+      setSelectedId(null);
+      pushToast("success", "Image removed from PDF.");
+    },
+    [commit, pushToast]
+  );
+
+  const replaceExistingImage = useCallback(
+    (pageKey: string, img: PdfExistingImage) => {
+      pendingReplaceImageRef.current = { pageKey, img };
+      imagePickerRef.current?.click();
+    },
+    []
+  );
+
+  const duplicateEditingLine = useCallback(() => {
+    if (!editing || !inlineValue) return;
+    const block = findBlock(editing.blockId);
+    if (!block) return;
+    const ov: AddTextOverlay = {
+      id: newOverlayId("txt"),
+      kind: "text",
+      pageKey: editing.pageKey,
+      text: inlineValue.text,
+      fontId: inlineValue.fontId,
+      fontSize: inlineValue.fontSize,
+      colorHex: inlineValue.colorHex,
+      bold: inlineValue.bold,
+      italic: inlineValue.italic,
+      underline: inlineValue.underline,
+      align: inlineValue.align,
+      x: block.x,
+      y: block.y - Math.max(14, block.lineHeight || block.fontSize * 1.2),
+      wrapW: Math.max(20, block.boxW),
+      rotation: block.rotation,
+    };
+    commit((s) => ({ ...s, overlays: [...s.overlays, ov] }));
+    setSelectedId(ov.id);
+    pushToast("info", "Line duplicated.");
+  }, [editing, inlineValue, commit, findBlock, pushToast]);
 
   const selectedOverlay: Overlay | null = useMemo(
     () => overlays.find((o) => o.id === selectedId) ?? null,
@@ -965,6 +1189,10 @@ export function EditPdfWorkspace() {
   const pageClick = useCallback(
     (pageKey: string, pt: PdfPoint) => {
       setActivePageKey(pageKey);
+      if (editingRef.current) {
+        closeInline();
+        return;
+      }
       if (tool === "addText") {
         commit((s) => ({
           ...s,
@@ -1032,9 +1260,12 @@ export function EditPdfWorkspace() {
     async (file: File | undefined) => {
       const at = pendingImagePointRef.current;
       pendingImagePointRef.current = null;
-      if (!file || !at) return;
-      if (!/^image\/(png|jpe?g)$/i.test(file.type)) {
-        pushToast("error", "Only PNG or JPG images are supported.");
+      const replace = pendingReplaceImageRef.current;
+      pendingReplaceImageRef.current = null;
+
+      if (!file) return;
+      if (!/^image\/(png|jpe?g|webp|svg\+xml)$/i.test(file.type)) {
+        pushToast("error", "Supported formats: PNG, JPG, WebP, SVG.");
         return;
       }
       const buf = await file.arrayBuffer();
@@ -1044,9 +1275,41 @@ export function EditPdfWorkspace() {
         fr.onload = () => resolve(String(fr.result));
         fr.readAsDataURL(blob);
       });
-      placeImageOverlay(at.pageKey, { x: at.x, y: at.y }, dataUrl, file.type, "image");
+
+      if (replace) {
+        const { pageKey, img } = replace;
+        const wo: WhiteoutOverlay = {
+          id: newOverlayId("wo"),
+          kind: "whiteout",
+          pageKey,
+          rect: { x: img.rect.x - 1, y: img.rect.y - 1, w: img.rect.w + 2, h: img.rect.h + 2 },
+          colorHex: "#ffffff",
+        };
+        const newOv = {
+          id: newOverlayId("image"),
+          kind: "image" as const,
+          pageKey,
+          dataUrl,
+          mime: file.type,
+          rect: { x: img.rect.x, y: img.rect.y, w: img.rect.w, h: img.rect.h },
+        };
+        commit((s) => ({ ...s, overlays: [...s.overlays, wo, newOv] }));
+        setSelectedId(newOv.id);
+        pushToast("success", "Image replaced.");
+        return;
+      }
+
+      const targetKey = at?.pageKey || activePageKey || stateRef.current.pages[0]?.key;
+      const targetPage = stateRef.current.pages.find((p) => p.key === targetKey);
+      const targetPt = at
+        ? { x: at.x, y: at.y }
+        : { x: (targetPage?.width || 612) / 2, y: (targetPage?.height || 792) / 2 };
+
+      if (targetKey) {
+        placeImageOverlay(targetKey, targetPt, dataUrl, file.type, "image");
+      }
     },
-    [placeImageOverlay, pushToast]
+    [activePageKey, commit, placeImageOverlay, pushToast]
   );
 
   const commitLinkDraft = useCallback(() => {
@@ -1226,8 +1489,7 @@ export function EditPdfWorkspace() {
   const handleDownload = useCallback(async () => {
     const bytes = pdfBytesRef.current;
     if (!bytes || pages.length === 0) return;
-    endTransient();
-    setEditing(null);
+    closeInline();
     setStage("processing");
     setProcessingLabel("Preparing pages…");
     try {
@@ -1252,14 +1514,22 @@ export function EditPdfWorkspace() {
         (s) => setProcessingLabel(s)
       );
       const base = fileName.replace(/\.pdf$/i, "") || "document";
-      setDoneName(`${base}-edited.pdf`);
+      const finalName = `${base}-edited.pdf`;
+      downloadBytes(out, finalName, "application/pdf");
+      pushToast("success", "PDF changes applied and downloaded successfully.");
+      setDoneName(finalName);
       setDoneBytes(out);
+      try {
+        window.history.pushState({ stage: "done" }, "", window.location.href);
+      } catch {
+        /* ignore */
+      }
       setStage("done");
     } catch (err: any) {
       pushToast("error", `Export failed: ${String(err?.message ?? err).slice(0, 180)}`);
       setStage("editor");
     }
-  }, [blocksBySrc, endTransient, fileName, pages.length, pushToast]);
+  }, [blocksBySrc, closeInline, fileName, pages.length, pushToast]);
   handleDownloadRef.current = handleDownload;
 
   const editAnother = useCallback(() => {
@@ -1283,6 +1553,24 @@ export function EditPdfWorkspace() {
     },
     [pages, blocksBySrc, commit, pushToast]
   );
+
+  const returnToEditor = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.state?.stage === "done") {
+      window.history.back();
+    } else {
+      setStage("editor");
+    }
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => {
+      if (stage === "done") {
+        setStage("editor");
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [stage]);
 
   /* ---------------- render ---------------- */
 
@@ -1412,7 +1700,17 @@ export function EditPdfWorkspace() {
 
   if (stage === "done" && doneBytes) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={returnToEditor}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-surface-subtle shadow-xs transition"
+          >
+            <span>← Back to Editor</span>
+          </button>
+          <span className="text-xs text-muted-foreground font-medium">All edits and PDF document preserved</span>
+        </div>
         <ResultCard
           filename={doneName}
           pdfBytes={doneBytes}
@@ -1422,7 +1720,7 @@ export function EditPdfWorkspace() {
           onDownload={(customName) => {
             downloadBytes(doneBytes, customName || doneName, "application/pdf");
           }}
-          onReset={() => setStage("editor")}
+          onReset={returnToEditor}
         />
         <div className="mt-4 text-center">
           <button type="button" onClick={editAnother} className="text-xs font-medium text-muted-foreground underline hover:text-foreground">
@@ -1442,10 +1740,13 @@ export function EditPdfWorkspace() {
         tool={tool}
         onTool={(t) => {
           setTool(t);
-          if (t === "sign" && !armedSign) {
-            // Opening handled on page click; hint instead.
-          }
         }}
+        onNewImage={() => {
+          pendingImagePointRef.current = null;
+          pendingReplaceImageRef.current = null;
+          imagePickerRef.current?.click();
+        }}
+        onNewSignature={() => setSignModalOpen(true)}
         canUndo={past.length > 0}
         canRedo={future.length > 0}
         onUndo={undo}
@@ -1471,66 +1772,11 @@ export function EditPdfWorkspace() {
         </div>
       )}
 
-      <div className="mx-auto grid max-w-content grid-cols-1 gap-4 px-3 py-4 sm:px-4 lg:grid-cols-[210px_minmax(0,1fr)_260px]">
-        {/* Thumbnails sidebar */}
-        <aside className="lg:sticky lg:top-32 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto" aria-label="Page thumbnails">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Pages · {pages.length}
-            </span>
-            <button
-              type="button"
-              onClick={insertBlankAfterActive}
-              title="Insert blank page"
-              className="rounded-md border border-border p-1 text-muted-foreground hover:text-foreground"
-            >
-              <FilePlus2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
-            {pages.map((p, idx) => (
-              <Thumb
-                key={p.key}
-                page={p}
-                index={idx}
-                active={p.key === activePageKey}
-                pdfDocRef={pdfDocRef}
-                onActivate={() => {
-                  setActivePageKey(p.key);
-                  document.getElementById(`editpdf-page-${p.key}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-                onRotate={() => {
-                  setActivePageKey(p.key);
-                  commit((s) => ({
-                    ...s,
-                    pages: s.pages.map((x) => (x.key === p.key ? { ...x, rotateDelta: (x.rotateDelta + 90) % 360 } : x)),
-                  }));
-                }}
-                onDelete={() => {
-                  if (pages.length <= 1) {
-                    pushToast("error", "A document needs at least one page.");
-                    return;
-                  }
-                  setActivePageKey(p.key);
-                  commit((s) => ({
-                    ...s,
-                    pages: s.pages.filter((x) => x.key !== p.key),
-                    overlays: s.overlays.filter((o) => o.pageKey !== p.key),
-                  }));
-                }}
-                onMove={(from, to) => movePage(from, to)}
-              />
-            ))}
-          </div>
-          <p className="mt-2 hidden text-[10px] leading-relaxed text-muted-foreground lg:block">
-            Drag thumbnails to reorder. Hover for rotate / delete.
-          </p>
-        </aside>
-
-        {/* Pages scroll area */}
+      <div className="mx-auto flex flex-col items-center justify-center w-full px-2 sm:px-4 py-4">
+        {/* Pages scroll area centered in the middle */}
         <div
           ref={scrollRef}
-          className="min-w-0 w-full overflow-x-auto overflow-y-auto rounded-2xl border border-border bg-surface-subtle/40 p-2 sm:p-5 max-h-[calc(100vh-160px)]"
+          className="min-w-0 w-full max-w-5xl overflow-x-auto overflow-y-auto rounded-2xl border border-border bg-surface-subtle p-3 sm:p-8 max-h-[calc(100vh-140px)] shadow-inner flex flex-col items-center"
           style={{ touchAction: "pan-x pan-y" }}
         >
           {scannedNotice(pages, scannedSrcPages) && (
@@ -1542,9 +1788,9 @@ export function EditPdfWorkspace() {
               </div>
             </div>
           )}
-          <div className="space-y-6">
+          <div className="space-y-10 w-full flex flex-col items-center">
             {pages.map((p, idx) => (
-              <div key={p.key}>
+              <div key={p.key} className="flex flex-col items-center">
                 <PageView
                   page={p}
                   pageNumber={idx + 1}
@@ -1552,6 +1798,7 @@ export function EditPdfWorkspace() {
                   pdfDocRef={pdfDocRef}
                   blocks={p.src.kind === "orig" ? blocksBySrc[p.src.index] : []}
                   blocksLoading={p.src.kind === "orig" ? !!blocksLoadingSrc[p.src.index] : false}
+                  existingImages={p.src.kind === "orig" ? existingImagesBySrc[p.src.index] : []}
                   overlays={overlays.filter((o) => o.pageKey === p.key)}
                   tool={tool}
                   selectedId={selectedId}
@@ -1582,10 +1829,46 @@ export function EditPdfWorkspace() {
                   onMoveInline={moveInline}
                   onResizeInlineWidth={resizeInlineWidth}
                   onDeleteInline={deleteInline}
+                  onDuplicateInline={duplicateEditingLine}
+                  onLinkInline={() => {
+                    setLinkDraft({
+                      pageKey: p.key,
+                      rect: { x: 50, y: 50, w: 120, h: 25 },
+                    });
+                  }}
                   onCloseInline={closeInline}
+                  onRemoveExistingImage={(img) => removeExistingImage(p.key, img)}
+                  onReplaceExistingImage={(img) => replaceExistingImage(p.key, img)}
+                  onDuplicateOverlay={duplicateOverlay}
+                  onDeleteOverlay={deleteOverlay}
+                  onDeletePage={() => {
+                    if (pages.length <= 1) {
+                      pushToast("error", "A document needs at least one page.");
+                      return;
+                    }
+                    setActivePageKey(p.key);
+                    commit((s) => ({
+                      ...s,
+                      pages: s.pages.filter((x) => x.key !== p.key),
+                      overlays: s.overlays.filter((o) => o.pageKey !== p.key),
+                    }));
+                  }}
+                  onZoomIn={zoomIn}
+                  onZoomOut={zoomOut}
+                  onRotatePage={() => {
+                    setActivePageKey(p.key);
+                    commit((s) => ({
+                      ...s,
+                      pages: s.pages.map((x) => (x.key === p.key ? { ...x, rotateDelta: (x.rotateDelta + 90) % 360 } : x)),
+                    }));
+                  }}
+                  onInsertBlank={() => {
+                    setActivePageKey(p.key);
+                    insertBlankAfterActive();
+                  }}
                   annotColor={tool === "highlight" ? "#ffeb00" : annotHex}
                 />
-                <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+                <p className="mt-2 text-center text-[11px] text-muted-foreground">
                   Page {idx + 1}
                   {p.src.kind === "blank" ? " · blank" : ""}
                   {(p.srcRotation + p.rotateDelta) % 360 !== 0 ? ` · ${(p.srcRotation + p.rotateDelta) % 360}°` : ""}
@@ -1594,48 +1877,24 @@ export function EditPdfWorkspace() {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Properties panel */}
-        <PropsPanel
-          selected={selectedOverlay}
-          tool={tool}
-          strokeHex={strokeHex}
-          setStrokeHex={setStrokeHex}
-          fillHex={fillHex}
-          setFillHex={setFillHex}
-          strokeW={strokeW}
-          setStrokeW={setStrokeW}
-          annotHex={annotHex}
-          setAnnotHex={setAnnotHex}
-          whiteoutHex={whiteoutHex}
-          setWhiteoutHex={setWhiteoutHex}
-          existingFields={existingFields}
-          fills={fills}
-          setFillValue={setFillValue}
-          onPatchSelected={(patch) => {
-            if (!selectedId) return;
-            ensureTransient();
-            patchOverlay(selectedId, patch);
-          }}
-          onCommitSelected={() => endTransient()}
-          onDeleteSelected={() => selectedId && deleteOverlay(selectedId)}
-          onEditTextOverlay={(ovId) => {
-            const ov = overlays.find((o) => o.id === ovId);
-            if (ov?.kind !== "edit") return;
-            const block = findBlock(ov.blockId);
-            if (!block) {
-              pushToast("error", "Original text info is no longer available.");
-              return;
-            }
-            startEdit(ov.pageKey, block, ov.bgHex);
-          }}
-        />
+      {/* Centered black "Apply changes >" button matching EditMyPDF style */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
+        <button
+          type="button"
+          onClick={handleDownload}
+          className="inline-flex items-center gap-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 px-6 py-2.5 text-sm font-semibold shadow-xl transition-all transform hover:scale-105 active:scale-95"
+        >
+          <span>Apply changes</span>
+          <span className="font-bold text-base">›</span>
+        </button>
       </div>
 
       <input
         ref={imagePickerRef}
         type="file"
-        accept="image/png,image/jpeg"
+        accept="image/png,image/jpeg,image/webp,image/svg+xml"
         className="hidden"
         onChange={(e) => {
           void handleImageFile(e.target.files?.[0]);

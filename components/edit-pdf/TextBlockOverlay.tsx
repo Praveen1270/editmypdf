@@ -1,21 +1,21 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Bold,
   Italic,
   Underline as UnderlineIcon,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
   Trash2,
-  GripVertical,
+  Copy,
+  Move,
+  Link as LinkIcon,
+  ChevronDown,
   X,
   Check,
   TriangleAlert,
 } from "lucide-react";
 import type { TextBlock } from "@/lib/pdf/edit-pdf/types";
-import { BUNDLED_FONTS, STANDARD_FONT_OPTIONS } from "@/lib/pdf/edit-pdf/font-matching";
+import { BUNDLED_FONTS, STANDARD_FONT_OPTIONS, stripSubsetPrefix } from "@/lib/pdf/edit-pdf/font-matching";
 
 export interface InlineTextValue {
   text: string;
@@ -33,6 +33,8 @@ interface InlineEditorProps {
   value: InlineTextValue;
   onPatch: (patch: Partial<InlineTextValue>) => void;
   onDelete: () => void;
+  onDuplicate?: () => void;
+  onLink?: () => void;
   onClose: () => void;
   /** CSS px geometry inside the page container. */
   geometry: { left: number; top: number; width: number; minHeight: number };
@@ -51,6 +53,8 @@ export function InlineTextEditor(props: InlineEditorProps) {
   const areaRef = useRef<HTMLTextAreaElement | null>(null);
   const dragRef = useRef<{ x: number; y: number } | null>(null);
   const resizeRef = useRef<{ x: number; startW: number } | null>(null);
+  const [colorOpen, setColorOpen] = useState(false);
+  const [sizeOpen, setSizeOpen] = useState(false);
 
   useEffect(() => {
     const el = areaRef.current;
@@ -83,99 +87,121 @@ export function InlineTextEditor(props: InlineEditorProps) {
       className="absolute z-30"
       style={{ left: geometry.left, top: geometry.top, width: Math.max(40, geometry.width) }}
       onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
       onDoubleClick={(e) => e.stopPropagation()}
     >
-      {/* Floating format bar (matches Sejda & Stirling-PDF style with clean spacing and button groups) */}
+      {/* Floating contextual toolbar matching EditMyPDF style */}
       <div
         className={`absolute ${
-          geometry.top < 65 ? "top-[calc(100%+14px)]" : "-top-14"
-        } left-0 z-40 flex items-center divide-x divide-border rounded-lg border border-border bg-surface shadow-paper-elevated`}
+          geometry.top < 65 ? "top-[calc(100%+14px)]" : "-top-12"
+        } left-0 z-40 flex items-center divide-x divide-border rounded-lg border border-border bg-surface shadow-lg text-foreground`}
         role="toolbar"
         aria-label="Text formatting"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        {/* Drag handle */}
-        <div className="flex items-center px-1">
-          <span
-            className="flex h-7 w-6 shrink-0 cursor-grab touch-none items-center justify-center rounded text-muted-foreground hover:bg-surface-subtle hover:text-foreground active:cursor-grabbing"
-            title="Drag to move text"
-            onPointerDown={(e) => {
-              (e.target as HTMLElement).setPointerCapture(e.pointerId);
-              dragRef.current = { x: e.clientX, y: e.clientY };
-            }}
-            onPointerMove={(e) => {
-              const s = dragRef.current;
-              if (!s) return;
-              const d = props.toPdfDelta(e.clientX - s.x, e.clientY - s.y);
-              dragRef.current = { x: e.clientX, y: e.clientY };
-              props.onMove(d.dx, d.dy);
-            }}
-            onPointerUp={() => { dragRef.current = null; }}
+        {/* Bold */}
+        <button
+          type="button"
+          title="Bold"
+          aria-label="Bold"
+          aria-pressed={value.bold}
+          onClick={() => props.onPatch({ bold: !value.bold })}
+          className={`flex h-8 w-8 items-center justify-center font-bold font-serif text-sm transition ${
+            value.bold ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-surface-subtle"
+          }`}
+        >
+          B
+        </button>
+
+        {/* Italic */}
+        <button
+          type="button"
+          title="Italic"
+          aria-label="Italic"
+          aria-pressed={value.italic}
+          onClick={() => props.onPatch({ italic: !value.italic })}
+          className={`flex h-8 w-8 items-center justify-center italic font-serif text-sm transition ${
+            value.italic ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-surface-subtle"
+          }`}
+        >
+          I
+        </button>
+
+        {/* Font size stepper / dropdown [T↕ ▼] */}
+        <div className="relative flex items-center px-1">
+          <button
+            type="button"
+            onClick={() => setSizeOpen((v) => !v)}
+            className="flex h-8 items-center gap-0.5 px-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
+            title="Font size"
           >
-            <GripVertical className="h-3.5 w-3.5" />
-          </span>
+            <span className="font-semibold text-xs flex items-center">T<span className="text-[10px]">↕</span></span>
+            <span className="text-[11px] font-mono ml-0.5">{Math.round(value.fontSize)}</span>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </button>
+          {sizeOpen && (
+            <div className="absolute left-0 top-9 z-50 flex flex-col gap-1 rounded-xl border border-border bg-surface p-2 shadow-xl min-w-28 text-foreground">
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <button
+                  type="button"
+                  onClick={() => props.onPatch({ fontSize: Math.max(6, value.fontSize - 1) })}
+                  className="flex h-6 w-6 items-center justify-center rounded border border-border bg-surface-subtle text-xs font-bold text-foreground hover:bg-surface"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  min={6}
+                  max={144}
+                  value={value.fontSize}
+                  onChange={(e) => props.onPatch({ fontSize: Math.max(6, Math.min(144, Number(e.target.value) || 12)) })}
+                  className="h-6 w-12 rounded border border-border bg-surface text-center text-xs font-mono font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => props.onPatch({ fontSize: Math.min(144, value.fontSize + 1) })}
+                  className="flex h-6 w-6 items-center justify-center rounded border border-border bg-surface-subtle text-xs font-bold text-foreground hover:bg-surface"
+                >
+                  +
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-1 border-t border-border pt-1">
+                {[8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48].map((sz) => (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => { props.onPatch({ fontSize: sz }); setSizeOpen(false); }}
+                    className={`rounded px-1 py-0.5 text-center text-[11px] font-mono ${
+                      Math.round(value.fontSize) === sz ? "bg-primary text-primary-foreground font-semibold" : "hover:bg-surface-subtle text-foreground"
+                    }`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Font Style: Bold & Italic */}
-        <div className="flex items-center px-1 gap-0.5">
-          <FormatToggle active={value.bold} title="Bold" label="Bold" onClick={() => props.onPatch({ bold: !value.bold })}>
-            <span className="font-bold text-xs font-serif">B</span>
-          </FormatToggle>
-          <FormatToggle active={value.italic} title="Italic" label="Italic" onClick={() => props.onPatch({ italic: !value.italic })}>
-            <span className="italic text-xs font-serif">I</span>
-          </FormatToggle>
-          <FormatToggle active={value.underline} title="Underline" label="Underline" onClick={() => props.onPatch({ underline: !value.underline })}>
-            <UnderlineIcon className="h-3.5 w-3.5" />
-          </FormatToggle>
-        </div>
-
-        {/* Font Size with Stepper & Font Family */}
-        <div className="flex items-center px-1.5 gap-1.5">
-          <div className="flex items-center gap-0.5">
-            <button
-              type="button"
-              onClick={() => props.onPatch({ fontSize: Math.max(6, value.fontSize - 1) })}
-              className="flex h-6 w-5 items-center justify-center rounded border border-border bg-surface text-[10px] font-bold text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
-              title="Decrease font size (-1pt)"
-            >
-              -
-            </button>
-            <input
-              type="number"
-              min={6}
-              max={144}
-              value={value.fontSize}
-              onChange={(e) => props.onPatch({ fontSize: Math.max(6, Math.min(144, Number(e.target.value) || 12)) })}
-              className="h-6 w-11 rounded border border-border bg-surface text-center text-[11px] font-mono font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-              title="Font size (pt)"
-              aria-label="Font size in points"
-            />
-            <button
-              type="button"
-              onClick={() => props.onPatch({ fontSize: Math.min(144, value.fontSize + 1) })}
-              className="flex h-6 w-5 items-center justify-center rounded border border-border bg-surface text-[10px] font-bold text-muted-foreground hover:bg-surface-subtle hover:text-foreground"
-              title="Increase font size (+1pt)"
-            >
-              +
-            </button>
-          </div>
-
+        {/* Font family dropdown [Aa ▼] */}
+        <div className="relative flex items-center px-1">
           <select
             value={value.fontId}
             onChange={(e) => props.onPatch({ fontId: e.target.value })}
-            className="h-7 max-w-32 truncate rounded border border-border bg-surface px-1 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            className="h-7 max-w-28 appearance-none bg-transparent pr-4 pl-1 text-xs font-medium text-foreground hover:bg-surface-subtle focus:outline-none cursor-pointer"
             title="Font family"
             aria-label="Font family"
           >
             {block.hasEmbeddedFont && block.embeddedFamily && (
               <option value={`embedded:${block.embeddedFamily}`}>
-                {block.embeddedFamily.slice(0, 16)}
+                {block.embeddedFamily.slice(0, 14)} (PDF)
               </option>
             )}
             <optgroup label="Matched fonts">
               {BUNDLED_FONTS.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.id === block.matchedFontId ? `★ ${f.label}` : f.label}
+                  {f.id === block.matchedFontId ? `★ ${f.label.split(" ")[0]}` : f.label.split(" ")[0]}
                 </option>
               ))}
             </optgroup>
@@ -185,130 +211,191 @@ export function InlineTextEditor(props: InlineEditorProps) {
               ))}
             </optgroup>
           </select>
+          <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground text-[10px]">
+            ▼
+          </span>
         </div>
 
-        {/* Text Color Swatches & Picker */}
-        <div className="flex items-center px-1.5 gap-1">
-          {[
-            { hex: "#000000", title: "Black" },
-            { hex: "#1f2937", title: "Charcoal" },
-            { hex: "#1e3a8a", title: "Navy" },
-            { hex: "#dc2626", title: "Red" },
-            { hex: "#16a34a", title: "Green" },
-          ].map((c) => (
-            <button
-              key={c.hex}
-              type="button"
-              title={c.title}
-              onClick={() => props.onPatch({ colorHex: c.hex })}
-              className={`h-4 w-4 rounded-full border border-black/20 transition ${
-                value.colorHex.toLowerCase() === c.hex.toLowerCase()
-                  ? "ring-2 ring-primary ring-offset-1 scale-110"
-                  : "hover:scale-105"
-              }`}
-              style={{ backgroundColor: c.hex }}
-            />
-          ))}
-          <label className="relative ml-0.5 flex items-center justify-center cursor-pointer" title="Custom color">
-            <input
-              type="color"
-              value={value.colorHex}
-              onChange={(e) => props.onPatch({ colorHex: e.target.value })}
-              className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-              title="Custom text color"
-              aria-label="Custom text color"
-            />
+        {/* Color picker [🎨 ▼] */}
+        <div className="relative flex items-center px-1">
+          <button
+            type="button"
+            onClick={() => setColorOpen((v) => !v)}
+            className="flex h-8 items-center gap-1 px-1.5 text-foreground hover:bg-surface-subtle transition"
+            title="Text color"
+          >
             <span
-              className="h-5 w-5 rounded-full border border-black/20 shadow-sm"
+              className="h-4 w-4 rounded-full border border-border shadow-xs"
               style={{ backgroundColor: value.colorHex }}
             />
-          </label>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </button>
+          {colorOpen && (
+            <div className="absolute left-0 top-9 z-50 flex flex-col gap-1.5 rounded-xl border border-border bg-surface p-2 shadow-xl min-w-36 text-foreground">
+              <span className="text-[10px] font-semibold uppercase text-muted-foreground">Colors</span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { hex: "#000000", title: "Black" },
+                  { hex: "#1e3a8a", title: "Navy" },
+                  { hex: "#0369a1", title: "Sky" },
+                  { hex: "#16a34a", title: "Green" },
+                  { hex: "#dc2626", title: "Red" },
+                  { hex: "#d97706", title: "Amber" },
+                  { hex: "#4b5563", title: "Gray" },
+                  { hex: "#ffffff", title: "White" },
+                ].map((c) => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    title={c.title}
+                    onClick={() => { props.onPatch({ colorHex: c.hex }); setColorOpen(false); }}
+                    className={`h-5 w-5 rounded-full border border-border transition ${
+                      value.colorHex.toLowerCase() === c.hex.toLowerCase()
+                        ? "ring-2 ring-primary ring-offset-1 scale-110"
+                        : "hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: c.hex }}
+                  />
+                ))}
+              </div>
+              <label className="mt-1 flex items-center justify-between text-[11px] text-foreground cursor-pointer pt-1 border-t border-border">
+                <span>Custom:</span>
+                <input
+                  type="color"
+                  value={value.colorHex}
+                  onChange={(e) => props.onPatch({ colorHex: e.target.value })}
+                  className="h-6 w-8 cursor-pointer rounded border border-border bg-surface"
+                />
+              </label>
+            </div>
+          )}
         </div>
 
-        {/* Text Alignment */}
-        <div className="flex items-center px-1 gap-0.5">
-          <FormatToggle active={value.align === "left"} title="Align left" label="Align left" onClick={() => props.onPatch({ align: "left" })}>
-            <AlignLeft className="h-3.5 w-3.5" />
-          </FormatToggle>
-          <FormatToggle active={value.align === "center"} title="Align center" label="Align center" onClick={() => props.onPatch({ align: "center" })}>
-            <AlignCenter className="h-3.5 w-3.5" />
-          </FormatToggle>
-          <FormatToggle active={value.align === "right"} title="Align right" label="Align right" onClick={() => props.onPatch({ align: "right" })}>
-            <AlignRight className="h-3.5 w-3.5" />
-          </FormatToggle>
-        </div>
+        {/* Link icon [🔗] */}
+        {props.onLink && (
+          <button
+            type="button"
+            title="Add link"
+            aria-label="Add link"
+            onClick={props.onLink}
+            className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-surface-subtle transition"
+          >
+            <LinkIcon className="h-3.5 w-3.5" />
+          </button>
+        )}
 
-        {/* Actions: Delete & Done */}
-        <div className="flex items-center px-1.5 gap-1">
+        {/* Move handle [✢] */}
+        <span
+          className="flex h-8 w-8 shrink-0 cursor-grab touch-none items-center justify-center text-foreground hover:bg-surface-subtle active:cursor-grabbing"
+          title="Drag to move text"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            try {
+              (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            } catch {
+              /* ignore */
+            }
+            dragRef.current = { x: e.clientX, y: e.clientY };
+          }}
+          onPointerMove={(e) => {
+            const s = dragRef.current;
+            if (!s) return;
+            e.stopPropagation();
+            const d = props.toPdfDelta(e.clientX - s.x, e.clientY - s.y);
+            dragRef.current = { x: e.clientX, y: e.clientY };
+            props.onMove(d.dx, d.dy);
+          }}
+          onPointerUp={(e) => {
+            dragRef.current = null;
+            try {
+              if ((e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) {
+                (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+              }
+            } catch {
+              /* ignore */
+            }
+          }}
+          onPointerCancel={() => { dragRef.current = null; }}
+        >
+          <Move className="h-3.5 w-3.5 pointer-events-none" />
+        </span>
+
+        {/* Duplicate icon [❐] */}
+        {props.onDuplicate && (
           <button
             type="button"
-            title="Delete text"
-            aria-label="Delete text"
-            onClick={props.onDelete}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition"
+            title="Duplicate line"
+            aria-label="Duplicate line"
+            onClick={props.onDuplicate}
+            className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-surface-subtle transition"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Copy className="h-3.5 w-3.5" />
           </button>
-          <button
-            type="button"
-            title="Done editing"
-            aria-label="Done editing"
-            onClick={props.onClose}
-            className="flex h-7 px-2.5 shrink-0 items-center justify-center gap-1 rounded bg-emerald-600 text-white hover:bg-emerald-700 text-[11px] font-semibold shadow-sm transition"
-          >
-            <Check className="h-3.5 w-3.5" />
-            <span>Done</span>
-          </button>
-        </div>
+        )}
+
+        {/* Delete icon [🗑] */}
+        <button
+          type="button"
+          title="Delete line"
+          aria-label="Delete line"
+          onClick={props.onDelete}
+          className="flex h-8 w-8 items-center justify-center text-foreground hover:bg-destructive/10 hover:text-destructive transition"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
 
       {props.fallbackNotice && (
-        <div className="absolute -top-11 left-0 z-30 hidden -translate-y-full items-center gap-1 whitespace-nowrap rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-900 group-hover:flex dark:bg-amber-950 dark:text-amber-200">
+        <div className="pointer-events-none absolute -bottom-7 left-0 z-40 flex items-center gap-1 rounded bg-amber-500/90 px-1.5 py-0.5 text-[10px] font-medium text-white shadow">
           <TriangleAlert className="h-3 w-3" />
-          <span>Original font lacks some characters — similar font used.</span>
-        </div>
-      )}
-      {props.fallbackNotice && (
-        <div className="absolute -bottom-7 left-0 z-40 flex items-center gap-1 whitespace-nowrap rounded-lg border border-amber-300 bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
-          <TriangleAlert className="h-3 w-3" />
-          <span>Original font doesn&apos;t contain some characters, similar font used</span>
+          <span>Missing glyphs rendered with matched fallback font</span>
         </div>
       )}
 
+      {/* Inline editable textarea preserving exact font style */}
       <textarea
         ref={areaRef}
         value={value.text}
         onChange={(e) => props.onPatch({ text: e.target.value })}
-        rows={Math.max(1, value.text.split("\n").length)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            props.onClose();
+          }
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        rows={1}
         spellCheck={false}
         aria-label={`Edit text: ${block.text.slice(0, 60)}`}
         style={{
           fontFamily,
           fontSize: `${value.fontSize * scale}px`,
-          lineHeight: `${(block.lineHeight / Math.max(1, block.fontSize)) * value.fontSize * scale}px`,
+          lineHeight: `${Math.max(geometry.minHeight, value.fontSize * scale * 1.15)}px`,
           color: value.colorHex,
           fontWeight: value.bold ? 700 : 400,
           fontStyle: value.italic ? "italic" : "normal",
           textDecoration: value.underline ? "underline" : "none",
           textAlign: value.align,
-          background: props.bgHex,
+          background: props.bgHex || "#ffffff",
           width: "100%",
           minHeight: geometry.minHeight,
           resize: "none",
           overflow: "hidden",
-          padding: "0 1px",
+          padding: "0 2px",
           margin: 0,
-          border: "1.5px solid #2563eb",
+          border: "1.5px solid var(--foreground, #000000)",
           borderRadius: 2,
           outline: "none",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
+          whiteSpace: "pre",
+          wordBreak: "keep-all",
         }}
       />
-      {/* Width resize handle (width only → re-wraps) */}
+      {/* Width resize handle */}
       <span
-        className="absolute -right-2 top-1/2 z-40 h-10 w-3 -translate-y-1/2 cursor-ew-resize touch-none rounded-full border border-border bg-surface shadow-paper"
-        title="Drag to change wrap width"
+        className="absolute -right-2 top-1/2 z-40 h-8 w-2.5 -translate-y-1/2 cursor-ew-resize touch-none rounded-full border border-border bg-surface shadow-xs"
+        title="Drag to change width"
         onPointerDown={(e) => {
           e.stopPropagation();
           (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -326,48 +413,57 @@ export function InlineTextEditor(props: InlineEditorProps) {
   );
 }
 
-function FormatToggle({
-  active,
-  title,
-  label,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  title: string;
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      title={title}
-      aria-label={label}
-      aria-pressed={active}
-      onClick={onClick}
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition ${active ? "bg-foreground text-background" : "text-muted-foreground hover:bg-surface-subtle hover:text-foreground"}`}
-    >
-      {children}
-    </button>
-  );
-}
+export function fontFamilyForValue(
+  block: TextBlock,
+  value: { fontId: string; bold?: boolean; italic?: boolean }
+): string {
+  const cleanName = stripSubsetPrefix(block.fontName || "");
+  const cleanFamily = stripSubsetPrefix(block.fontFamily || block.embeddedFamily || "");
+  const combined = `${value.fontId} ${block.fontName} ${block.fontFamily || ""} ${block.embeddedFamily || ""}`.toLowerCase();
 
-function fontFamilyForValue(block: TextBlock, value: InlineTextValue): string {
   const isSerif =
-    value.fontId === "Tinos" ||
-    value.fontId === "NotoSerif" ||
-    value.fontId === "Caladea" ||
-    value.fontId.toLowerCase().includes("times") ||
-    value.fontId.toLowerCase().includes("serif");
-  const fallbackGeneric = isSerif ? "serif" : "sans-serif";
+    combined.includes("times") ||
+    combined.includes("serif") ||
+    combined.includes("roman") ||
+    combined.includes("georgia") ||
+    combined.includes("garamond") ||
+    combined.includes("palatino") ||
+    combined.includes("baskerville") ||
+    combined.includes("cambria") ||
+    combined.includes("caladea") ||
+    combined.includes("tinos") ||
+    combined.includes("minion") ||
+    combined.includes("century") ||
+    combined.includes("schoolbook");
 
+  const isMono =
+    combined.includes("courier") ||
+    combined.includes("cousine") ||
+    combined.includes("mono") ||
+    combined.includes("consolas");
+
+  const isCalibri = combined.includes("calibri") || combined.includes("carlito");
+
+  const familyParts: string[] = [];
   if (value.fontId.startsWith("embedded:") && block.embeddedFamily) {
-    return `"${block.embeddedFamily}", ${fallbackGeneric}`;
+    familyParts.push(`"${block.embeddedFamily}"`);
   }
-  const bundled = BUNDLED_FONTS.find((f) => f.id === value.fontId);
-  if (bundled) return `"${bundled.cssFamily}", ${fallbackGeneric}`;
-  const std = STANDARD_FONT_OPTIONS.find((f) => f.id === value.fontId);
-  if (std) return std.cssFamily;
-  return fallbackGeneric;
+  if (cleanName && !cleanName.startsWith("g_d")) {
+    familyParts.push(`"${cleanName}"`);
+  }
+  if (cleanFamily && !cleanFamily.startsWith("g_d") && cleanFamily !== cleanName) {
+    familyParts.push(`"${cleanFamily}"`);
+  }
+
+  if (isSerif) {
+    familyParts.push('"Tinos"', '"Times New Roman"', 'Times', 'Georgia', '"DejaVu Serif"', 'serif');
+  } else if (isMono) {
+    familyParts.push('"Cousine"', '"Courier New"', 'Courier', 'monospace');
+  } else if (isCalibri) {
+    familyParts.push('"Carlito"', 'Calibri', 'Candara', '"Segoe UI"', 'Arial', 'sans-serif');
+  } else {
+    familyParts.push('"Arimo"', 'Arial', 'Helvetica', '"Segoe UI"', '"DejaVu Sans"', 'sans-serif');
+  }
+
+  return familyParts.join(", ");
 }

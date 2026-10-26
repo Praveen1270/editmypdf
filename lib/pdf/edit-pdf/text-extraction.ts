@@ -12,6 +12,7 @@
  */
 import {
   TextBlock,
+  PdfExistingImage,
   newOverlayId,
 } from "./types";
 import {
@@ -97,6 +98,106 @@ export function colorsForTextRuns(pdfjs: any, opList: any): RunColor[] {
   return out;
 }
 
+/* ---------------- existing image extraction ---------------- */
+
+export function extractImagesFromOpList(
+  pdfjs: any,
+  opList: any,
+  pageIndex: number,
+  pageWidth: number,
+  pageHeight: number
+): PdfExistingImage[] {
+  const images: PdfExistingImage[] = [];
+  if (!opList || !pdfjs?.OPS) return images;
+
+  const OPS = pdfjs.OPS;
+  const fnArray: number[] = opList.fnArray ?? [];
+  const argsArray: any[][] = opList.argsArray ?? [];
+
+  let matrix = [1, 0, 0, 1, 0, 0];
+  const stack: number[][] = [];
+
+  const mult = (m1: number[], m2: number[]): number[] => {
+    return [
+      m1[0] * m2[0] + m1[1] * m2[2],
+      m1[0] * m2[1] + m1[1] * m2[3],
+      m1[2] * m2[0] + m1[3] * m2[2],
+      m1[2] * m2[1] + m1[3] * m2[3],
+      m1[4] * m2[0] + m1[5] * m2[2] + m2[4],
+      m1[4] * m2[1] + m1[5] * m2[3] + m2[5],
+    ];
+  };
+
+  let imgCount = 0;
+
+  for (let i = 0; i < fnArray.length; i++) {
+    const fn = fnArray[i];
+    const args = argsArray[i] ?? [];
+
+    if (fn === OPS.save) {
+      stack.push([...matrix]);
+    } else if (fn === OPS.restore) {
+      matrix = stack.pop() || [1, 0, 0, 1, 0, 0];
+    } else if (fn === OPS.transform && args.length >= 6) {
+      matrix = mult(matrix, [
+        Number(args[0]) || 0,
+        Number(args[1]) || 0,
+        Number(args[2]) || 0,
+        Number(args[3]) || 0,
+        Number(args[4]) || 0,
+        Number(args[5]) || 0,
+      ]);
+    } else if (
+      fn === OPS.paintImageXObject ||
+      fn === OPS.paintInlineImageXObject ||
+      fn === OPS.paintImageMaskXObject
+    ) {
+      const a = matrix[0];
+      const b = matrix[1];
+      const c = matrix[2];
+      const d = matrix[3];
+      const e = matrix[4];
+      const f = matrix[5];
+
+      // Corners of unit square (0,0) to (1,1) in PDF user space:
+      const p0x = e;
+      const p0y = f;
+      const p1x = a + e;
+      const p1y = b + f;
+      const p2x = a + c + e;
+      const p2y = b + d + f;
+      const p3x = c + e;
+      const p3y = d + f;
+
+      const minX = Math.min(p0x, p1x, p2x, p3x);
+      const maxX = Math.max(p0x, p1x, p2x, p3x);
+      const minY = Math.min(p0y, p1y, p2y, p3y);
+      const maxY = Math.max(p0y, p1y, p2y, p3y);
+
+      const w = Math.round((maxX - minX) * 10) / 10;
+      const h = Math.round((maxY - minY) * 10) / 10;
+
+      // Filter out tiny artifacts, pattern tiles, or page-sized full background rects
+      if (w >= 14 && h >= 14 && !(w >= pageWidth - 4 && h >= pageHeight - 4)) {
+        imgCount++;
+        images.push({
+          id: `orig-img-p${pageIndex}-${imgCount}`,
+          pageIndex,
+          rect: {
+            x: Math.round(minX * 10) / 10,
+            y: Math.round(minY * 10) / 10,
+            w,
+            h,
+          },
+          name: typeof args[0] === "string" ? args[0] : undefined,
+        });
+      }
+    }
+  }
+
+  return images;
+}
+
 /* ---------------- embedded font harvesting ---------------- */
 
 export interface HarvestedFont {
@@ -160,6 +261,7 @@ export async function harvestEmbeddedFont(
 
 export interface PageBlocksResult {
   blocks: TextBlock[];
+  existingImages: PdfExistingImage[];
   /** Unrotated user-space size (PDF points). */
   width: number;
   height: number;
@@ -220,11 +322,14 @@ export async function extractPageBlocks(
 
     const textContent = await page.getTextContent({ includeMarkedContent: false });
     let opColors: RunColor[] = [];
+    let existingImages: PdfExistingImage[] = [];
     try {
       const opList = await page.getOperatorList();
       opColors = colorsForTextRuns(pdfjs, opList);
+      existingImages = extractImagesFromOpList(pdfjs, opList, pageNumber - 1, width, height);
     } catch {
       opColors = [];
+      existingImages = [];
     }
 
     const styles: Record<string, any> = (textContent as any).styles ?? {};
@@ -234,7 +339,21 @@ export async function extractPageBlocks(
     const items: any[] = (textContent as any).items ?? [];
     for (const item of items) {
       const str: string = item.str ?? "";
-      if (!str || str.trim().length === 0) continue;
+      if (!str || str.length === 0) continue;
+
+      // Handle pure whitespace items (spaces emitted between words by pdf.js)
+      if (str.trim().length === 0) {
+        if (rawRuns.length > 0) {
+          const lastRun = rawRuns[rawRuns.length - 1];
+          if (!lastRun.str.endsWith(" ")) {
+            lastRun.str += " ";
+            const w = typeof item.width === "number" && item.width > 0 ? item.width : lastRun.fontSize * 0.25;
+            lastRun.width += w;
+          }
+        }
+        continue;
+      }
+
       rawCharCount += str.length;
       const t: number[] = item.transform ?? [1, 0, 0, 1, 0, 0];
       const [a, b, c, d, e, f] = t;
@@ -307,6 +426,10 @@ export async function extractPageBlocks(
             if (typeof fobj.bold === "boolean") bold = bold || fobj.bold;
             if (typeof fobj.italic === "boolean") italic = italic || fobj.italic;
             if (typeof fobj.black === "boolean" && fobj.black) bold = true;
+            if (fobj.name && typeof fobj.name === "string") {
+              run.fontName = fobj.name;
+              run.fontFamily = fobj.name;
+            }
           }
         } catch {
           /* font not resolved yet — retry after render */
@@ -325,7 +448,7 @@ export async function extractPageBlocks(
 
     const blocks = groupRunsIntoBlocks(rawRuns, pageNumber - 1);
     const isScanned = rawCharCount < 10 || blocks.length === 0;
-    return { blocks, width, height, srcRotation, isScanned, rawItemCount: items.length, rawCharCount };
+    return { blocks, existingImages, width, height, srcRotation, isScanned, rawItemCount: items.length, rawCharCount };
   } finally {
     try {
       await (page as any).cleanup?.();
@@ -385,57 +508,49 @@ function groupRunsIntoBlocks(runs: RawRun[], srcPageIndex: number): TextBlock[] 
     return p.y - q.y;
   });
 
-  // 1. Group into lines.
+  // 1. Group into lines (line by line).
   const lines: GroupedLine[] = [];
   for (const r of sorted) {
     const key = fontKeyOf(r);
     const last = lines[lines.length - 1];
-    const sameLine =
+    const sameRotation = Boolean(last && last.runs[0].rotation === r.rotation);
+    const sameBaseline = Boolean(last && Math.abs(r.y - last.y) <= 1.2);
+    const sameFontSize = Boolean(last && Math.abs(r.fontSize - last.fontSize) <= 1.0);
+    const gap = last ? r.x - last.endX : 0;
+    // Word spacing in PDF typography is typically 0.2 to 0.3 em.
+    // If gap is negative (out of order / separate box) or greater than 0.45 em (max 5pt),
+    // it belongs to a separate box, column, or table cell!
+    const isAdjacentWord = Boolean(
       last &&
-      last.key === key &&
-      Math.abs(r.y - last.y) <= Math.max(1.5, 0.35 * r.fontSize) &&
-      // x-gap heuristic: adjacent on the same line (allow small overlap).
-      r.x - last.endX <= Math.max(r.fontSize * 1.2, 8);
+      gap >= -0.5 &&
+      gap <= Math.max(1.5, Math.min(r.fontSize * 0.45, 5))
+    );
+
+    const sameLine = sameRotation && sameBaseline && sameFontSize && isAdjacentWord;
     if (sameLine) {
       const gap = r.x - last.endX;
-      const spaceW = r.fontSize * 0.28;
-      const sep = gap > spaceW ? " " : "";
+      // In typography and PDF extraction, word spaces range from 0.12 to 0.35 * fontSize.
+      // If neither token already has whitespace and there is a noticeable gap between words,
+      // preserve the word space so words like "New Power Converter" are never concatenated.
+      const hasSpace = last.text.endsWith(" ") || r.str.startsWith(" ");
+      const isWordSpace =
+        !hasSpace &&
+        (gap >= Math.min(1.5, r.fontSize * 0.12) ||
+          (gap > 0.8 && r.str.length > 1 && last.text.length > 1));
+      const sep = isWordSpace ? " " : "";
       last.runs.push(r);
       last.text += sep + r.str;
       last.endX = Math.max(last.endX, r.x + r.width);
+      if (r.fontSize > last.fontSize || (r.bold && !last.runs[0].bold)) {
+        last.fontSize = Math.max(last.fontSize, r.fontSize);
+      }
     } else {
       lines.push({ runs: [r], text: r.str, x: r.x, y: r.y, endX: r.x + r.width, fontSize: r.fontSize, key });
     }
   }
 
-  // 2. Merge lines into blocks (paragraph split by line spacing).
-  const blocks: TextBlock[] = [];
-  let current: GroupedLine[] = [];
-  const flush = () => {
-    if (current.length === 0) return;
-    blocks.push(buildBlock(current, srcPageIndex, blocks.length));
-    current = [];
-  };
-  for (const line of lines) {
-    const prev = current[current.length - 1];
-    if (!prev) {
-      current.push(line);
-      continue;
-    }
-    const dy = Math.abs(line.y - prev.y);
-    const size = Math.max(line.fontSize, prev.fontSize);
-    const sameStyle = line.key === prev.key;
-    const lineStep = dy > size * 0.5 && dy < size * 2.4;
-    const aligned = Math.abs(line.x - prev.x) < size * 2;
-    if (sameStyle && lineStep && aligned) {
-      current.push(line);
-    } else {
-      flush();
-      current.push(line);
-    }
-  }
-  flush();
-  return blocks;
+  // 2. Line by line selection: each line is an independent selectable and editable block!
+  return lines.map((line, idx) => buildBlock([line], srcPageIndex, idx));
 }
 
 function buildBlock(lines: GroupedLine[], srcPageIndex: number, index: number): TextBlock {
@@ -477,6 +592,7 @@ function buildBlock(lines: GroupedLine[], srcPageIndex: number, index: number): 
     boxW: Math.max(1, maxX - minX),
     boxH: Math.max(1, maxY - minY),
     fontName: first.fontName,
+    fontFamily: first.fontFamily,
     fontKey: first.fontKey,
     fontSize: first.fontSize,
     colorHex: first.colorHex,

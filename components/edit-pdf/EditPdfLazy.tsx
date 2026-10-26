@@ -18,6 +18,6 @@ const EditPdfWorkspace = dynamic(
   }
 );
 
-export function EditPdfLazy() {
-  return <EditPdfWorkspace />;
+export function EditPdfLazy(props?: { onStageChange?: (stage: string) => void }) {
+  return <EditPdfWorkspace onStageChange={props?.onStageChange as any} />;
 }

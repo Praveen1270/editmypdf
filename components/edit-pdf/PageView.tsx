@@ -8,7 +8,18 @@
  * drag/resize handles, and hosts the inline text editor.
  */
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  RotateCw,
+  PlusCircle,
+  Copy,
+  Move,
+  Image as ImageIcon,
+} from "lucide-react";
 import type {
   EditorPage,
   EditorToolId,
@@ -16,6 +27,7 @@ import type {
   TextBlock,
   PdfRect,
   PdfPoint,
+  PdfExistingImage,
 } from "@/lib/pdf/edit-pdf/types";
 import {
   pdfPointToScreen,
@@ -24,7 +36,7 @@ import {
 } from "@/lib/pdf/edit-pdf/viewport";
 import { cssFamilyForFontId } from "@/lib/pdf/edit-pdf/font-matching";
 import { sampleBackgroundHex, sampleTextColorHex } from "@/lib/pdf/edit-pdf/text-extraction";
-import { InlineTextEditor, type InlineTextValue } from "./TextBlockOverlay";
+import { InlineTextEditor, type InlineTextValue, fontFamilyForValue } from "./TextBlockOverlay";
 
 export type AnnotSubtype = "highlight" | "underline" | "strike";
 
@@ -35,6 +47,7 @@ interface PageViewProps {
   pdfDocRef: React.MutableRefObject<any>;
   blocks: TextBlock[] | undefined;
   blocksLoading: boolean;
+  existingImages?: PdfExistingImage[];
   overlays: Overlay[];
   tool: EditorToolId;
   selectedId: string | null;
@@ -58,11 +71,25 @@ interface PageViewProps {
   onMoveInline: (dxPdf: number, dyPdf: number) => void;
   onResizeInlineWidth: (dWrapPdf: number) => void;
   onDeleteInline: () => void;
+  onDuplicateInline?: () => void;
+  onLinkInline?: () => void;
   onCloseInline: () => void;
+  onRemoveExistingImage?: (img: PdfExistingImage) => void;
+  onReplaceExistingImage?: (img: PdfExistingImage) => void;
+  onDuplicateOverlay?: (id: string) => void;
+  onDeleteOverlay?: (id: string) => void;
+  onDeletePage?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onRotatePage?: () => void;
+  onInsertBlank?: () => void;
   annotColor: string;
 }
 
-const CREATION_TOOLS: EditorToolId[] = [
+const INTERACTION_TOOLS: EditorToolId[] = [
+  "addText",
+  "image",
+  "sign",
   "whiteout",
   "rect",
   "ellipse",
@@ -83,6 +110,7 @@ export function PageView(props: PageViewProps) {
   const [viewport, setViewport] = useState<ViewportLike | null>(null);
   const [rendering, setRendering] = useState(false);
   const [hoverBlockId, setHoverBlockId] = useState<string | null>(null);
+  const [hoverImgId, setHoverImgId] = useState<string | null>(null);
   const [draftCss, setDraftCss] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   const [draftPts, setDraftPts] = useState<{ x: number; y: number }[] | null>(null);
   const dragRef = useRef<{ x0: number; y0: number; moved: boolean } | null>(null);
@@ -257,12 +285,15 @@ export function PageView(props: PageViewProps) {
   const onLayerPointerDown = (e: React.PointerEvent) => {
     props.onActivatePage(page.key);
     if (e.button !== 0) return;
-    if (CREATION_TOOLS.includes(props.tool)) {
+    if (INTERACTION_TOOLS.includes(props.tool)) {
       const p = layerPos(e);
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       dragRef.current = { x0: p.x, y0: p.y, moved: false };
-      if (props.tool === "draw") setDraftPts([{ x: p.x, y: p.y }]);
-      else setDraftCss({ x0: p.x, y0: p.y, x1: p.x, y1: p.y });
+      if (props.tool === "draw") {
+        setDraftPts([{ x: p.x, y: p.y }]);
+      } else if (props.tool !== "addText" && props.tool !== "image" && props.tool !== "sign") {
+        setDraftCss({ x0: p.x, y0: p.y, x1: p.x, y1: p.y });
+      }
     } else if (props.tool === "select") {
       props.onSelectOverlay(null);
     }
@@ -270,12 +301,12 @@ export function PageView(props: PageViewProps) {
 
   const onLayerPointerMove = (e: React.PointerEvent) => {
     const d = dragRef.current;
-    if (!d || !CREATION_TOOLS.includes(props.tool)) return;
+    if (!d || !INTERACTION_TOOLS.includes(props.tool)) return;
     const p = layerPos(e);
     if (Math.hypot(p.x - d.x0, p.y - d.y0) > 4) d.moved = true;
     if (props.tool === "draw") {
       setDraftPts((pts) => (pts ? [...pts, p] : [p]));
-    } else {
+    } else if (props.tool !== "addText" && props.tool !== "image" && props.tool !== "sign") {
       setDraftCss((prev) => (prev ? { ...prev, x1: p.x, y1: p.y } : prev));
     }
   };
@@ -283,7 +314,7 @@ export function PageView(props: PageViewProps) {
   const onLayerPointerUp = (e: React.PointerEvent) => {
     const d = dragRef.current;
     dragRef.current = null;
-    if (!d || !CREATION_TOOLS.includes(props.tool) || !viewport) {
+    if (!d || !INTERACTION_TOOLS.includes(props.tool) || !viewport) {
       setDraftCss(null);
       setDraftPts(null);
       return;
@@ -303,8 +334,8 @@ export function PageView(props: PageViewProps) {
     }
     const dc = draftCss;
     setDraftCss(null);
-    if (!d.moved) {
-      // Click (no drag): placement tools.
+    if (!d.moved || props.tool === "addText" || props.tool === "image" || props.tool === "sign") {
+      // Click (or click-placement tool):
       const pt = screenToPdfPoint(viewport, p.x, p.y);
       if (pt) props.onPageClick(page.key, pt);
       return;
@@ -345,119 +376,300 @@ export function PageView(props: PageViewProps) {
   const showBlockHover = (props.tool === "text" || props.tool === "select") && !props.editingBlockId;
 
   return (
-    <div
-      ref={rootRef}
-      id={`editpdf-page-${page.key}`}
-      data-page-key={page.key}
-      className="relative mx-auto bg-white shadow-paper-elevated ring-1 ring-border"
-      style={{ width: cssW, height: cssH }}
-      onClick={() => props.onActivatePage(page.key)}
-      onDoubleClick={() => {
-        if (hoverBlockId && props.blocks) {
-          const b = props.blocks.find((x) => x.id === hoverBlockId);
-          if (b) {
-            const sc = sampleColors(b);
-            props.onBlockClick(page.key, b, sc.bgHex, sc.textHex);
+    <div className="flex flex-col items-center">
+      {/* Centered page controls bar */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 select-none">
+        <span className="text-2xl sm:text-3xl font-semibold text-foreground font-sans mr-1">{props.pageNumber}</span>
+        <div className="flex items-center rounded-lg border border-border bg-surface shadow-xs divide-x divide-border text-foreground">
+          {props.onDeletePage && (
+            <button
+              type="button"
+              title={`Delete page ${props.pageNumber}`}
+              onClick={props.onDeletePage}
+              className="p-1.5 text-foreground hover:bg-surface-subtle transition"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+          {props.onZoomOut && (
+            <button
+              type="button"
+              title="Zoom out"
+              onClick={props.onZoomOut}
+              className="p-1.5 text-foreground hover:bg-surface-subtle transition"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+          )}
+          {props.onZoomIn && (
+            <button
+              type="button"
+              title="Zoom in"
+              onClick={props.onZoomIn}
+              className="p-1.5 text-foreground hover:bg-surface-subtle transition"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button>
+          )}
+          {props.onRotatePage && (
+            <button
+              type="button"
+              title="Rotate page counter-clockwise"
+              onClick={props.onRotatePage}
+              className="p-1.5 text-foreground hover:bg-surface-subtle transition"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+          )}
+          {props.onRotatePage && (
+            <button
+              type="button"
+              title="Rotate page clockwise"
+              onClick={props.onRotatePage}
+              className="p-1.5 text-foreground hover:bg-surface-subtle transition"
+            >
+              <RotateCw className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {props.onInsertBlank && (
+          <button
+            type="button"
+            title="Insert page here"
+            onClick={props.onInsertBlank}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground hover:bg-surface-subtle shadow-xs transition"
+          >
+            <PlusCircle className="h-4 w-4 text-foreground" />
+            <span>Insert page here</span>
+          </button>
+        )}
+      </div>
+
+      <div
+        ref={rootRef}
+        id={`editpdf-page-${page.key}`}
+        data-page-key={page.key}
+        className="relative mx-auto bg-white shadow-xl ring-1 ring-border rounded-xs"
+        style={{ width: cssW, height: cssH }}
+        onClick={(e) => {
+          props.onActivatePage(page.key);
+          // Only close inline editor when clicking directly on the canvas or page background
+          if (props.editingBlockId && (e.target === e.currentTarget || e.target === canvasRef.current)) {
+            props.onCloseInline();
           }
-        }
-      }}
-    >
-      <canvas ref={canvasRef} className="absolute inset-0 block" />
-      {rendering && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-subtle/50">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      )}
+        }}
+        onDoubleClick={() => {
+          if (hoverBlockId && props.blocks) {
+            const b = props.blocks.find((x) => x.id === hoverBlockId);
+            if (b) {
+              const sc = sampleColors(b);
+              props.onBlockClick(page.key, b, sc.bgHex, sc.textHex);
+            }
+          }
+        }}
+      >
+        <canvas ref={canvasRef} className="absolute inset-0 block" />
+        {rendering && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-subtle/50">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
 
-      {/* Interactive & Selectable Text Layer */}
-      {viewport && props.blocks && props.blocks.length > 0 && (
-        <div
-          data-textlayer
-          className="absolute inset-0 z-[15] select-text"
-          onMouseUp={handleMouseUp}
-        >
-          {props.blocks.map((b) => (
-            <InteractiveTextBlock
-              key={b.id}
-              block={b}
-              viewport={viewport}
-              hovered={hoverBlockId === b.id}
-              edited={props.overlays.some((o) => o.kind === "edit" && o.blockId === b.id)}
-              editing={props.editingBlockId === b.id}
-              onEnter={() => setHoverBlockId(b.id)}
-              onLeave={() => setHoverBlockId((h) => (h === b.id ? null : h))}
-              onClick={() => {
-                const sc = sampleColors(b);
-                props.onBlockClick(page.key, b, sc.bgHex, sc.textHex);
+        {/* Existing PDF Images (selectable, removable, replaceable) */}
+        {viewport && props.existingImages && props.existingImages.map((img) => {
+          const isCovered = props.overlays.some(
+            (o) => o.kind === "whiteout" &&
+              Math.abs(o.rect.x - img.rect.x) < 5 &&
+              Math.abs(o.rect.y - img.rect.y) < 5 &&
+              Math.abs(o.rect.w - img.rect.w) < 10
+          );
+          if (isCovered) return null;
+
+          const g = rectToCss(img.rect, viewport);
+          const isSelected = props.selectedId === img.id;
+          const isHovered = hoverImgId === img.id;
+
+          return (
+            <div
+              key={img.id}
+              data-existing-img={img.id}
+              className={`absolute z-20 cursor-pointer pointer-events-auto transition-all ${
+                isSelected
+                  ? "ring-2 ring-primary bg-primary/10 shadow-xs"
+                  : isHovered
+                    ? "ring-2 ring-foreground/60 bg-primary/5 shadow-xs"
+                    : "hover:ring-1 hover:ring-foreground/40"
+              }`}
+              style={{
+                left: g.left,
+                top: g.top,
+                width: Math.max(8, g.width),
+                height: Math.max(8, g.height),
               }}
-            />
-          ))}
-        </div>
-      )}
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onActivatePage(page.key);
+                props.onSelectOverlay(img.id);
+              }}
+              onMouseEnter={() => setHoverImgId(img.id)}
+              onMouseLeave={() => setHoverImgId((h) => (h === img.id ? null : h))}
+              title="Click to select image (remove or replace)"
+            >
+              {isSelected && (
+                <div
+                  className="absolute -top-11 left-0 z-50 flex items-center divide-x divide-border rounded-lg border border-border bg-surface shadow-md text-foreground pointer-events-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    title="Remove image from PDF"
+                    onClick={() => props.onRemoveExistingImage?.(img)}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10 transition"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Remove Image</span>
+                  </button>
+                  <button
+                    type="button"
+                    title="Replace with new image"
+                    onClick={() => props.onReplaceExistingImage?.(img)}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-foreground hover:bg-surface-subtle transition"
+                  >
+                    <ImageIcon className="h-3.5 w-3.5" />
+                    <span>Replace</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
 
-      {/* Whiteout covers behind edited text blocks to hide original canvas text */}
-      {viewport && props.blocks && (
-        <div className="absolute inset-0 z-[16] pointer-events-none">
-          {props.overlays
-            .filter((ov) => ov.kind === "edit" && ov.id !== props.editingBlockId)
-            .map((ov) => {
-              if (ov.kind !== "edit") return null;
-              const block = props.blocks?.find((b) => b.id === ov.blockId);
-              if (!block) return null;
-              const g = blockGeometry(block, viewport);
-              const bg = ov.bgHex || "#ffffff";
+        {/* Interactive & Selectable Text Layer */}
+        {viewport && props.blocks && props.blocks.length > 0 && (
+          <div
+            data-textlayer
+            className="absolute inset-0 z-[15] select-text"
+            onMouseUp={handleMouseUp}
+          >
+            {props.blocks.map((b) => (
+              <InteractiveTextBlock
+                key={b.id}
+                block={b}
+                viewport={viewport}
+                hovered={hoverBlockId === b.id}
+                edited={props.overlays.some((o) => o.kind === "edit" && o.blockId === b.id)}
+                editing={props.editingBlockId === b.id}
+                onEnter={() => setHoverBlockId(b.id)}
+                onLeave={() => setHoverBlockId((h) => (h === b.id ? null : h))}
+                onClick={() => {
+                  const sc = sampleColors(b);
+                  props.onBlockClick(page.key, b, sc.bgHex, sc.textHex);
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Whiteout covers behind edited text blocks to hide original canvas text */}
+        {viewport && (
+          <div className="absolute inset-0 z-[16] pointer-events-none">
+            {/* Always cover original canvas text for the block currently being edited */}
+            {editingBlock && (() => {
+              const g = blockGeometry(editingBlock, viewport);
               return (
                 <div
-                  key={`cover-${ov.id}`}
+                  key={`cover-active-${editingBlock.id}`}
                   className="absolute pointer-events-none"
                   style={{
                     left: Math.max(0, g.x - 2),
                     top: Math.max(0, g.y - 1),
-                    width: Math.max(g.w + 4, (ov.wrapW * cssScaleOf(viewport)) + 4),
+                    width: Math.min(viewport.width - g.x, g.w + 4),
                     height: g.h + 2,
-                    background: bg,
+                    backgroundColor: props.inlineBg || "#ffffff",
                   }}
                 />
               );
-            })}
-        </div>
-      )}
+            })()}
+            {props.blocks &&
+              props.overlays
+                .filter((ov) => ov.kind === "edit" && ov.blockId !== props.editingBlockId)
+                .map((ov) => {
+                  if (ov.kind !== "edit") return null;
+                  const block = props.blocks?.find((b) => b.id === ov.blockId);
+                  if (!block) return null;
+                  const g = blockGeometry(block, viewport);
+                  const bg = ov.bgHex || "#ffffff";
+                  return (
+                    <div
+                      key={`cover-${ov.id}`}
+                      className="absolute pointer-events-none"
+                      style={{
+                        left: Math.max(0, g.x - 2),
+                        top: Math.max(0, g.y - 1),
+                        width: Math.min(viewport.width - g.x, g.w + 4),
+                        height: g.h + 2,
+                        backgroundColor: bg,
+                      }}
+                    />
+                  );
+                })}
+          </div>
+        )}
 
-      {/* Overlay items */}
-      {viewport && (
-        <div className="absolute inset-0 z-20 pointer-events-none">
-          {props.overlays.map((ov) => (
-            <OverlayItem
-              key={ov.id}
-              overlay={ov}
-              viewport={viewport}
-              blocks={props.blocks}
-              onEditBlock={(block, bgHex, textHex) => props.onBlockClick(page.key, block, bgHex, textHex)}
-              selected={props.selectedId === ov.id}
-              selecting={props.tool === "select"}
-              onSelect={() => {
-                props.onActivatePage(page.key);
-                props.onSelectOverlay(ov.id);
-              }}
-              onTransientStart={props.onTransientStart}
-              onPatch={(patch) => props.onOverlayPatch(ov.id, patch)}
-              onTransientEnd={props.onTransientEnd}
-              toPdfDelta={toPdfDelta}
-            />
-          ))}
-        </div>
-      )}
+        {/* Overlay items (exclude the block actively being edited in InlineTextEditor to avoid duplicate text) */}
+        {viewport && (
+          <div className="absolute inset-0 z-20 pointer-events-none">
+            {props.overlays
+              .filter((ov) => ov.kind !== "edit" || ov.blockId !== props.editingBlockId)
+              .map((ov) => (
+                <OverlayItem
+                  key={ov.id}
+                  overlay={ov}
+                  viewport={viewport}
+                  blocks={props.blocks}
+                  onEditBlock={(block, bgHex, textHex) => props.onBlockClick(page.key, block, bgHex, textHex)}
+                  selected={props.selectedId === ov.id}
+                  selecting={props.tool === "select"}
+                  onSelect={() => {
+                    props.onActivatePage(page.key);
+                    props.onSelectOverlay(ov.id);
+                  }}
+                  onTransientStart={props.onTransientStart}
+                  onPatch={(patch) => props.onOverlayPatch(ov.id, patch)}
+                  onTransientEnd={props.onTransientEnd}
+                  onDuplicate={() => props.onDuplicateOverlay?.(ov.id)}
+                  onDelete={() => props.onDeleteOverlay?.(ov.id)}
+                  toPdfDelta={toPdfDelta}
+                />
+              ))}
+          </div>
+        )}
 
-      {/* Inline editor for in-place text editing */}
-      {viewport && editingBlock && props.inlineValue && (
-        <InlineTextEditor
-          block={editingBlock}
-          value={props.inlineValue}
-          onPatch={props.onPatchInline}
-          onDelete={props.onDeleteInline}
-          onClose={props.onCloseInline}
+        {/* Inline editor for in-place text editing */}
+        {viewport && editingBlock && props.inlineValue && (
+          <InlineTextEditor
+            block={editingBlock}
+            value={props.inlineValue}
+            onPatch={props.onPatchInline}
+            onDelete={props.onDeleteInline}
+            onDuplicate={props.onDuplicateInline}
+            onLink={props.onLinkInline}
+            onClose={props.onCloseInline}
           geometry={(() => {
             const g = blockGeometry(editingBlock, viewport);
+            const ov = props.overlays.find(
+              (o) => o.kind === "edit" && (o as any).blockId === editingBlock.id
+            ) as any;
+            if (ov && (ov.x !== editingBlock.x || ov.y !== editingBlock.y)) {
+              const origPt = pdfPointToScreen(viewport, editingBlock.x, editingBlock.y);
+              const currPt = pdfPointToScreen(viewport, ov.x, ov.y);
+              return {
+                left: g.x + (currPt.sx - origPt.sx),
+                top: g.y + (currPt.sy - origPt.sy),
+                width: ov.wrapW ? ov.wrapW * cssScaleOf(viewport) : g.w,
+                minHeight: g.h,
+              };
+            }
             return { left: g.x, top: g.y, width: g.w, minHeight: g.h };
           })()}
           scale={inlineScale}
@@ -493,19 +705,23 @@ export function PageView(props: PageViewProps) {
         </svg>
       )}
 
-      {/* Invisible interaction layer (captures creation drags) */}
+      {/* Invisible interaction layer (captures creation drags and click placements) */}
       {viewport && (
         <div
           className={`absolute inset-0 ${
-            CREATION_TOOLS.includes(props.tool) ? "z-[25] touch-none" : "z-[5] pointer-events-none"
+            INTERACTION_TOOLS.includes(props.tool) ? "z-[25] touch-none" : "z-[5] pointer-events-none"
           }`}
           style={{
             cursor:
               props.tool === "text"
                 ? "text"
-                : CREATION_TOOLS.includes(props.tool)
-                  ? "crosshair"
-                  : "default",
+                : props.tool === "addText"
+                  ? "text"
+                  : props.tool === "image" || props.tool === "sign"
+                    ? "pointer"
+                    : INTERACTION_TOOLS.includes(props.tool)
+                      ? "crosshair"
+                      : "default",
           }}
           onPointerDown={onLayerPointerDown}
           onPointerMove={onLayerPointerMove}
@@ -523,6 +739,7 @@ export function PageView(props: PageViewProps) {
           Reading text…
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -576,8 +793,8 @@ function InteractiveTextBlock({
         editing || edited
           ? "opacity-0 pointer-events-none"
           : hovered
-            ? "bg-blue-500/15 ring-2 ring-blue-500/80 shadow-sm"
-            : "hover:bg-blue-500/10 hover:ring-1 hover:ring-blue-400"
+            ? "bg-primary/10 ring-2 ring-primary/70 shadow-xs"
+            : "hover:bg-primary/5 hover:ring-1 hover:ring-primary/30"
       }`}
       style={{
         left: g.x,
@@ -585,9 +802,9 @@ function InteractiveTextBlock({
         width: Math.max(20, g.w + 2),
         minHeight: g.h,
         fontSize: `${block.fontSize * cssScaleOf(viewport)}px`,
-        lineHeight: 1.2,
+        lineHeight: 1.15,
       }}
-      title={`Click to edit: "${block.text.slice(0, 80)}"`}
+      title={`Click to edit line: "${block.text.slice(0, 80)}"`}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
       onClick={(e) => {
@@ -595,13 +812,13 @@ function InteractiveTextBlock({
         onClick();
       }}
     >
-      <span className="select-text text-transparent break-words whitespace-pre-wrap block w-full h-full pointer-events-auto">
+      <span className="select-text text-transparent break-words whitespace-pre block w-full h-full pointer-events-auto">
         {block.text}
       </span>
       {hovered && !editing && (
-        <span className="pointer-events-none absolute -top-6 left-0 z-40 rounded bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white shadow-md whitespace-nowrap flex items-center gap-1">
+        <span className="pointer-events-none absolute -top-6 left-0 z-40 rounded bg-foreground px-2 py-0.5 text-[10px] font-semibold text-background shadow-md whitespace-nowrap flex items-center gap-1">
           <span>✏️</span>
-          <span>Click to edit text</span>
+          <span>Click to edit line</span>
         </span>
       )}
     </div>
@@ -649,6 +866,8 @@ function OverlayItem({
   onTransientStart,
   onPatch,
   onTransientEnd,
+  onDuplicate,
+  onDelete,
   toPdfDelta,
 }: {
   overlay: Overlay;
@@ -661,6 +880,8 @@ function OverlayItem({
   onTransientStart: () => void;
   onPatch: (patch: Partial<Overlay>) => void;
   onTransientEnd: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
   toPdfDelta: (dxPx: number, dyPx: number) => { dx: number; dy: number };
 }) {
   const dragRef = useRef<{ x: number; y: number } | null>(null);
@@ -670,19 +891,33 @@ function OverlayItem({
     e.stopPropagation();
     onSelect();
     onTransientStart();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
     dragRef.current = { x: e.clientX, y: e.clientY };
   };
   const moveBy = (e: React.PointerEvent, apply: (dxPdf: number, dyPdf: number) => void) => {
     const s = dragRef.current;
     if (!s) return;
+    e.stopPropagation();
     const d = toPdfDelta(e.clientX - s.x, e.clientY - s.y);
     dragRef.current = { x: e.clientX, y: e.clientY };
     apply(d.dx, d.dy);
   };
-  const endMove = () => {
-    dragRef.current = null;
-    onTransientEnd();
+  const endMove = (e?: React.PointerEvent) => {
+    if (dragRef.current) {
+      dragRef.current = null;
+      try {
+        if (e && (e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) {
+          (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        /* ignore */
+      }
+      onTransientEnd();
+    }
   };
 
   const movePatch = (dx: number, dy: number): Partial<Overlay> => {
@@ -712,7 +947,46 @@ function OverlayItem({
     onPointerCancel: endMove,
   };
 
-  const ring = selected ? "outline outline-2 outline-foreground" : "";
+  const ring = selected ? "outline outline-2 outline-primary shadow-md" : "";
+
+  const floatingBar = selected ? (
+    <div
+      className="absolute -top-10 left-0 z-50 flex items-center divide-x divide-border rounded-lg border border-border bg-surface shadow-md text-foreground pointer-events-auto select-none"
+      onPointerDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <span
+        className="flex h-7 w-7 items-center justify-center cursor-grab text-foreground hover:bg-surface-subtle active:cursor-grabbing touch-none"
+        title="Drag to move"
+        onPointerDown={beginMove}
+        onPointerMove={(e) => moveBy(e, (dx, dy) => onPatch(movePatch(dx, dy)))}
+        onPointerUp={endMove}
+        onPointerCancel={endMove}
+      >
+        <Move className="h-3.5 w-3.5 pointer-events-none" />
+      </span>
+      {onDuplicate && (
+        <button
+          type="button"
+          title="Duplicate"
+          onClick={onDuplicate}
+          className="flex h-7 w-7 items-center justify-center text-foreground hover:bg-surface-subtle transition"
+        >
+          <Copy className="h-3.5 w-3.5" />
+        </button>
+      )}
+      {onDelete && (
+        <button
+          type="button"
+          title="Delete"
+          onClick={onDelete}
+          className="flex h-7 w-7 items-center justify-center text-destructive hover:bg-destructive/10 transition"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  ) : null;
 
   if (overlay.kind === "whiteout") {
     const g = rectToCss(overlay.rect, viewport);
@@ -723,6 +997,7 @@ function OverlayItem({
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
       >
+        {floatingBar}
         {selected && <ResizeHandle onResize={(dx, dy) => onPatch(resizeRectPatch(overlay.rect, dx, dy, false) as any)} onTransientStart={onTransientStart} onTransientEnd={onTransientEnd} toPdfDelta={toPdfDelta} />}
       </div>
     );
@@ -738,6 +1013,7 @@ function OverlayItem({
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
       >
+        {floatingBar}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={overlay.dataUrl} alt={overlay.kind === "sign" ? "Signature" : "Placed image"} className="h-full w-full select-none" draggable={false} />
         {selected && (
@@ -764,6 +1040,7 @@ function OverlayItem({
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
       >
+        {floatingBar}
         <svg width={w} height={h} className="block overflow-visible">
           {overlay.shape === "rect" && (
             <rect x={1} y={1} width={Math.max(1, w - 2)} height={Math.max(1, h - 2)} fill={overlay.fillHex ?? "none"} stroke={overlay.strokeHex} strokeWidth={overlay.strokeW} />
@@ -848,6 +1125,7 @@ function OverlayItem({
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
       >
+        {floatingBar}
         {overlay.kind === "form" && (
           <span className="pointer-events-none absolute inset-0 flex items-center overflow-hidden px-1 text-[10px] text-blue-900">
             {overlay.fieldType === "text" ? overlay.value || overlay.name : `${overlay.fieldType}: ${overlay.name}`}
@@ -874,49 +1152,68 @@ function OverlayItem({
   if (overlay.kind === "edit") {
     const block = blocks?.find((b) => b.id === overlay.blockId);
     const scale = cssScaleOf(viewport);
-    const fontFamily = cssFamilyForFontId(overlay.fontId, overlay.bold);
+    const fontFamily = block
+      ? fontFamilyForValue(block, overlay)
+      : cssFamilyForFontId(overlay.fontId, overlay.bold);
     const lineH = block
       ? (block.lineHeight / Math.max(1, block.fontSize)) * overlay.fontSize * scale
       : overlay.fontSize * scale * 1.25;
 
-    // Use exact block geometry if available to perfectly align over original text
+    // Use exact block geometry aligned over original text, plus any user drag displacement
     const g = block ? blockGeometry(block, viewport) : null;
     const s = pdfPointToScreen(viewport, overlay.x, overlay.y);
-    const left = g ? g.x : s.sx;
-    const top = g ? g.y : s.sy - overlay.fontSize * scale * 1.25;
-    const width = Math.max(g ? g.w : 30, overlay.wrapW * scale);
+    let left = s.sx;
+    let top = s.sy - overlay.fontSize * scale * 1.25;
+    if (g && block) {
+      const orig = pdfPointToScreen(viewport, block.x, block.y);
+      const dxPx = s.sx - orig.sx;
+      const dyPx = s.sy - orig.sy;
+      left = g.x + dxPx;
+      top = g.y + dyPx;
+    }
+    const minW = g ? g.w : 30;
     const minHeight = g ? g.h : overlay.fontSize * scale * 1.25;
     const bg = overlay.bgHex || "#ffffff";
+    const textColor =
+      overlay.colorHex && overlay.colorHex.toLowerCase() !== "#ffffff"
+        ? overlay.colorHex
+        : block?.colorHex && block.colorHex.toLowerCase() !== "#ffffff"
+          ? block.colorHex
+          : "#000000";
 
     return (
       <div
-        className={`absolute pointer-events-auto whitespace-pre-wrap break-words cursor-text ${ring}`}
+        className={`absolute pointer-events-auto whitespace-pre cursor-text ${ring}`}
         style={{
           left,
           top,
-          width,
+          minWidth: minW,
+          width: "max-content",
           minHeight,
           background: bg,
-          padding: "0 1px",
+          padding: "0 2px",
           fontFamily,
           fontSize: `${overlay.fontSize * scale}px`,
-          lineHeight: `${lineH}px`,
-          color: overlay.colorHex,
+          lineHeight: `${Math.max(minHeight, overlay.fontSize * scale * 1.15)}px`,
+          color: textColor,
           fontWeight: overlay.bold ? 700 : 400,
           fontStyle: overlay.italic ? "italic" : "normal",
           textDecoration: overlay.underline ? "underline" : "none",
           textAlign: overlay.align,
+          whiteSpace: "pre",
+          userSelect: "none",
+          zIndex: 25,
         }}
-        title="Click to edit text"
+        title="Click to edit line"
         onClick={(e) => {
           e.stopPropagation();
           onSelect();
           if (block && onEditBlock) {
-            onEditBlock(block, bg, overlay.colorHex);
+            onEditBlock(block, bg, textColor);
           }
         }}
-        {...commonHandlers}
       >
+        {floatingBar}
         {overlay.text}
       </div>
     );
@@ -947,6 +1244,7 @@ function OverlayItem({
         onClick={(e) => { e.stopPropagation(); onSelect(); }}
         {...commonHandlers}
       >
+        {floatingBar}
         {overlay.text}
       </div>
     );

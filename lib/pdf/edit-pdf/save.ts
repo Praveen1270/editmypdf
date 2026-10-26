@@ -66,6 +66,14 @@ async function defaultFontBytesProvider(path: string): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer());
 }
 
+export function safeMeasureTextWidth(font: PDFFont, text: string, size: number): number {
+  try {
+    return font.widthOfTextAtSize(text, size);
+  } catch {
+    return text.length * size * 0.55;
+  }
+}
+
 /** Wrap paragraphs to a max width using real font metrics. */
 export function wrapTextToWidth(
   text: string,
@@ -84,16 +92,16 @@ export function wrapTextToWidth(
     let line = "";
     for (const word of words) {
       const trial = line + word;
-      const w = font.widthOfTextAtSize(trial, size);
+      const w = safeMeasureTextWidth(font, trial, size);
       if (w <= maxW || line.length === 0) {
         line = trial;
       } else {
         out.push(line.trimEnd());
         line = word.trimStart();
         // Single very long word: hard-break it.
-        while (font.widthOfTextAtSize(line, size) > maxW && line.length > 1) {
+        while (safeMeasureTextWidth(font, line, size) > maxW && line.length > 1) {
           let k = line.length - 1;
-          while (k > 1 && font.widthOfTextAtSize(line.slice(0, k), size) > maxW) k -= 1;
+          while (k > 1 && safeMeasureTextWidth(font, line.slice(0, k), size) > maxW) k -= 1;
           out.push(line.slice(0, k));
           line = line.slice(k);
         }
@@ -174,9 +182,22 @@ async function createFontResolver(
           const hit = cache.get(key);
           if (hit) return hit;
           try {
-            const f = await outDoc.embedFont(embeddedBytes, { subset: true });
-            cache.set(key, f);
-            return f;
+            // Verify that the harvested subset font has a glyph for space (0x20).
+            // Subset fonts in PDFs often omit glyph 32, which causes pdf-lib/fontkit
+            // to draw space as a missing-glyph question mark '?'.
+            const { default: fontkit } = await import("@pdf-lib/fontkit");
+            const parsed = fontkit.create(embeddedBytes);
+            const hasSpace =
+              typeof parsed.hasGlyphForCodePoint === "function"
+                ? parsed.hasGlyphForCodePoint(32)
+                : typeof parsed.glyphForCodePoint === "function"
+                  ? !!parsed.glyphForCodePoint(32)?.id
+                  : false;
+            if (hasSpace) {
+              const f = await outDoc.embedFont(embeddedBytes, { subset: true });
+              cache.set(key, f);
+              return f;
+            }
           } catch {
             /* fall through to bundled */
           }
@@ -203,30 +224,66 @@ function drawWrappedText(
     lineHeight: number;
     align: "left" | "center" | "right";
     underline: boolean;
+    fallbackFont?: PDFFont;
   }
 ) {
   const { r, g, b } = hexToRgb01(opts.colorHex);
   const color = rgb(r, g, b);
-  const lines = wrapTextToWidth(opts.text, font, opts.size, Math.max(10, opts.wrapW));
+  // Normalize any exotic unicode whitespace/non-breaking spaces to standard ASCII space (0x20)
+  const normalizedText = opts.text.replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ");
+  const lines = wrapTextToWidth(normalizedText, font, opts.size, Math.max(10, opts.wrapW));
   const rad = (opts.rotation * Math.PI) / 180;
   const dir = { x: Math.cos(rad), y: Math.sin(rad) };
   const normal = { x: Math.sin(rad), y: -Math.cos(rad) }; // "down" in text space
   lines.forEach((line, i) => {
     const ox = opts.x + normal.x * opts.lineHeight * i;
     const oy = opts.y + normal.y * opts.lineHeight * i;
-    const lineW = line.length > 0 ? font.widthOfTextAtSize(line, opts.size) : 0;
+    const lineW = line.length > 0 ? safeMeasureTextWidth(font, line, opts.size) : 0;
     const alignOff = opts.align === "center" ? lineW / 2 : opts.align === "right" ? lineW : 0;
     const lx = ox - dir.x * alignOff;
     const ly = oy - dir.y * alignOff;
     if (line.length > 0) {
-      page.drawText(line, {
-        x: lx,
-        y: ly,
-        size: opts.size,
-        font,
-        color,
-        rotate: degrees(opts.rotation),
-      });
+      try {
+        page.drawText(line, {
+          x: lx,
+          y: ly,
+          size: opts.size,
+          font,
+          color,
+          rotate: degrees(opts.rotation),
+        });
+      } catch {
+        // Fallback to standard/bundled font if subset font lacked a glyph or threw encoding error
+        try {
+          if (opts.fallbackFont) {
+            page.drawText(line, {
+              x: lx,
+              y: ly,
+              size: opts.size,
+              font: opts.fallbackFont,
+              color,
+              rotate: degrees(opts.rotation),
+            });
+          }
+        } catch {
+          // Last resort: sanitize non-ASCII characters to guarantee text is drawn and never blank
+          try {
+            if (opts.fallbackFont) {
+              const clean = line.replace(/[^\x20-\x7E]/g, "?");
+              page.drawText(clean, {
+                x: lx,
+                y: ly,
+                size: opts.size,
+                font: opts.fallbackFont,
+                color,
+                rotate: degrees(opts.rotation),
+              });
+            }
+          } catch {
+            /* best effort */
+          }
+        }
+      }
     }
     if (opts.underline) {
       const uy = opts.size * 0.14;
@@ -365,14 +422,54 @@ export async function exportEditedPdf(
           });
         } else if (ov.kind === "edit") {
           const edit = ov as EditTextOverlay;
+          const embeddedBytes = input.embeddedBytesByBlock.get(edit.blockId);
+          // Only attempt embedded font if it actually covers ALL characters in edit.text!
+          let font: PDFFont | null = null;
+          if (edit.fontId.startsWith("embedded:") && embeddedBytes && embeddedBytes.length > 100) {
+            try {
+              const { default: fontkit } = await import("@pdf-lib/fontkit");
+              const parsed = fontkit.create(embeddedBytes);
+              const textToCheck = edit.text || "";
+              let allGlyphsPresent = true;
+              for (let i = 0; i < textToCheck.length; i++) {
+                const cp = textToCheck.codePointAt(i) || 32;
+                const has =
+                  typeof parsed.hasGlyphForCodePoint === "function"
+                    ? parsed.hasGlyphForCodePoint(cp)
+                    : typeof parsed.glyphForCodePoint === "function"
+                      ? Boolean(parsed.glyphForCodePoint(cp)?.id)
+                      : false;
+                if (!has) {
+                  allGlyphsPresent = false;
+                  break;
+                }
+              }
+              if (allGlyphsPresent) {
+                font = await resolver.getFont(edit.fontId, edit.bold, edit.italic, embeddedBytes);
+              }
+            } catch {
+              font = null;
+            }
+          }
+          if (!font) {
+            font = await resolver.getFont(
+              edit.saveFontId || "Arimo",
+              edit.bold,
+              edit.italic
+            );
+          }
+          const fallbackStandardFont = await resolver.getFont("std-Helvetica", false, false);
+
           // 1. Cover original block so old + new text never both show.
           const box = input.blockBoxById.get(edit.blockId);
           if (box) {
             const { r, g, b } = hexToRgb01(edit.bgHex || "#ffffff");
+            const textW = edit.text && edit.text.length > 0 ? safeMeasureTextWidth(font, edit.text, edit.fontSize) : 0;
+            const coverW = Math.max(box.w + 2, textW + 4);
             libPage.drawRectangle({
               x: Math.max(0, box.x - 1),
               y: Math.max(0, box.y - 1),
-              width: Math.min(pw, box.w + 2),
+              width: Math.min(pw, coverW),
               height: Math.min(ph, box.h + 2),
               color: rgb(r, g, b),
               borderWidth: 0,
@@ -380,30 +477,28 @@ export async function exportEditedPdf(
             });
           }
           if (!edit.text || edit.text.trim().length === 0) continue; // deletion
-          const embeddedBytes = input.embeddedBytesByBlock.get(edit.blockId);
-          const useEmbedded = edit.fontId.startsWith("embedded:") && !!embeddedBytes;
-          const font = await resolver.getFont(
-            useEmbedded ? edit.fontId : edit.saveFontId || "Arimo",
-            edit.bold,
-            edit.italic,
-            useEmbedded ? embeddedBytes : undefined
-          );
+          const drawColorHex =
+            edit.colorHex && edit.colorHex.toLowerCase() !== "#ffffff"
+              ? edit.colorHex
+              : "#000000";
           drawWrappedText(libPage, font, {
             text: edit.text,
             x: edit.x,
             y: edit.y,
             size: edit.fontSize,
-            colorHex: edit.colorHex,
+            colorHex: drawColorHex,
             rotation: edit.rotation,
-            wrapW: Math.max(10, edit.wrapW),
+            wrapW: edit.text.includes("\n") ? Math.max(10, edit.wrapW) : 100000,
             lineHeight: edit.lineHeight,
             align: edit.align,
             underline: edit.underline,
+            fallbackFont: fallbackStandardFont,
           });
         } else if (ov.kind === "text") {
           const t = ov as AddTextOverlay;
           if (!t.text || t.text.trim().length === 0) continue;
           const font = await resolver.getFont(t.fontId, t.bold, t.italic);
+          const fallbackStandardFont = await resolver.getFont("std-Helvetica", false, false);
           drawWrappedText(libPage, font, {
             text: t.text,
             x: t.x,
@@ -415,6 +510,7 @@ export async function exportEditedPdf(
             lineHeight: t.fontSize * 1.25,
             align: t.align,
             underline: t.underline,
+            fallbackFont: fallbackStandardFont,
           });
         } else if (ov.kind === "shape") {
           const { r, g, b } = hexToRgb01(ov.strokeHex);

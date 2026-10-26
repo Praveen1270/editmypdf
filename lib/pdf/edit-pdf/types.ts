@@ -50,6 +50,7 @@ export interface TextBlock {
   boxH: number;
   /** Raw pdf.js fontName (may carry a subset prefix like "ABCDEF+"). */
   fontName: string;
+  fontFamily?: string;
   /** pdf.js loadedName key (e.g. "g_d0_f2") for page.commonObjs lookup. */
   fontKey: string;
   fontSize: number;
@@ -103,6 +104,15 @@ export interface PdfRect {
   w: number;
   h: number;
 }
+
+/** Existing image detected on a page from the PDF content stream. */
+export interface PdfExistingImage {
+  id: string;
+  pageIndex: number;
+  rect: PdfRect;
+  name?: string;
+}
+
 
 interface OverlayBase {
   id: string;
