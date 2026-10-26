@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -17,7 +18,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://editmypdf.co.in"),
+  metadataBase: new URL(SITE_CONFIG.url),
   title: {
     default: "EditMyPDF — Free Online PDF Tools",
     template: "%s | EditMyPDF",
@@ -30,11 +31,17 @@ export const metadata: Metadata = {
   publisher: "EditMyPDF",
   alternates: {
     canonical: "/",
+    types: {
+      "text/markdown": `${SITE_CONFIG.url}/index.md`,
+    },
+  },
+  other: {
+    "ai-summary": SITE_CONFIG.aiSummary,
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://editmypdf.co.in",
+    url: SITE_CONFIG.url,
     siteName: "EditMyPDF",
     title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:

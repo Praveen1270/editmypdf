@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "npx tsx tests/verify-tools.mjs",
     "test:edit-pdf": "node scripts/make-edit-pdf-test-pdfs.mjs && npx tsx tests/verify-edit-pdf.mjs",
+    "test:markdown": "npx tsx tests/verify-markdown-coverage.mjs",
     "lint": "next lint"
   },
   "dependencies": {

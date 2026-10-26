@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HomeClient } from "@/components/home/HomeClient";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Free PDF Tools Online – Edit, Convert & Compress PDFs | EditMyPDF",
@@ -22,10 +23,16 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
+    types: {
+      "text/markdown": `${SITE_CONFIG.url}/index.md`,
+    },
+  },
+  other: {
+    "ai-summary": SITE_CONFIG.aiSummary,
   },
   openGraph: {
     title: "EditMyPDF — Privacy-First PDF Utilities",
-    description: "39 functional PDF tools that run locally in your browser. Files never leave your device.",
+    description: "57 functional PDF tools that run locally in your browser. Files never leave your device.",
     type: "website",
     images: [
       {
@@ -42,17 +49,17 @@ export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "EditMyPDF",
-    "url": "https://editmypdf.co.in",
-      "description": "Privacy-first suite of 22 browser-powered PDF utilities operating with zero server uploads.",
-    "applicationCategory": "UtilitiesApplication",
-    "operatingSystem": "All modern web browsers",
-    "offers": {
+    name: "EditMyPDF",
+    url: SITE_CONFIG.url,
+    description: "Privacy-first suite of 57 browser-powered PDF utilities operating with zero server uploads.",
+    applicationCategory: "UtilitiesApplication",
+    operatingSystem: "All modern web browsers",
+    offers: {
       "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
+      price: "0",
+      priceCurrency: "USD",
     },
-    "featureList": [
+    featureList: [
       "Edit PDF",
       "Edit PDF Text",
       "Merge PDF",
@@ -82,7 +89,7 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Praveen",
-    url: "https://editmypdf.co.in",
+    url: SITE_CONFIG.url,
     jobTitle: "Independent developer",
     description: "EditMyPDF is a free, browser-based PDF toolkit built and maintained by Praveen, an independent developer in Hyderabad, India.",
     address: {

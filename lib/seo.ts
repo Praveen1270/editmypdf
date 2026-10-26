@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PDF_TOOLS } from "./tools-data";
+import { SITE_CONFIG } from "./site-config";
 
 export interface PageSeoConfig {
   title: string;
@@ -7,20 +8,34 @@ export interface PageSeoConfig {
   canonical: string;
   keywords?: string[];
   noindex?: boolean;
+  aiSummary?: string;
 }
 
 export function generatePageMetadata(config: PageSeoConfig): Metadata {
+  const mdUrl =
+    config.canonical === "/"
+      ? `${SITE_CONFIG.url}/index.md`
+      : `${SITE_CONFIG.url}${config.canonical.startsWith("/") ? config.canonical : `/${config.canonical}`}.md`;
+
+  const summary = config.aiSummary || config.description;
+
   return {
     title: config.title,
     description: config.description,
     alternates: {
       canonical: config.canonical,
+      types: {
+        "text/markdown": mdUrl,
+      },
+    },
+    other: {
+      "ai-summary": summary,
     },
     openGraph: {
-      title: `${config.title} | EditMyPDF`,
+      title: `${config.title} | ${SITE_CONFIG.name}`,
       description: config.description,
       url: config.canonical,
-      siteName: "EditMyPDF",
+      siteName: SITE_CONFIG.name,
       locale: "en_US",
       type: "website",
       images: [
@@ -28,13 +43,13 @@ export function generatePageMetadata(config: PageSeoConfig): Metadata {
           url: "/icon-512.png",
           width: 512,
           height: 512,
-          alt: `${config.title} — EditMyPDF`,
+          alt: `${config.title} — ${SITE_CONFIG.name}`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${config.title} | EditMyPDF`,
+      title: `${config.title} | ${SITE_CONFIG.name}`,
       description: config.description,
       images: ["/icon-512.png"],
     },
@@ -59,7 +74,7 @@ export function generateToolMetadataById(toolId: string): Metadata {
   const tool = PDF_TOOLS.find((t) => t.id === toolId);
   if (!tool) {
     return generatePageMetadata({
-      title: "PDF Tool — EditMyPDF",
+      title: `PDF Tool — ${SITE_CONFIG.name}`,
       description: "Privacy-first PDF utility in your browser.",
       canonical: "/",
     });
@@ -103,6 +118,7 @@ export function generateToolMetadataById(toolId: string): Metadata {
     title: fullTitle,
     description: tool.description,
     canonical: tool.href,
+    aiSummary: `${tool.name} processes documents 100% locally in your browser. ${tool.description}`,
     keywords: [
       ...tool.keywords,
       "online pdf tool",

@@ -1,5 +1,6 @@
 import React from "react";
 import { PDF_TOOLS } from "@/lib/tools-data";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 interface ToolJsonLdProps {
   toolId: string;
@@ -9,7 +10,7 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
   const tool = PDF_TOOLS.find((t) => t.id === toolId);
   if (!tool) return null;
 
-  const baseUrl = "https://editmypdf.co.in";
+  const baseUrl = SITE_CONFIG.url;
   const toolUrl = `${baseUrl}${tool.href}`;
 
   const schemas: any[] = [
@@ -17,7 +18,7 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": `${tool.name} — EditMyPDF`,
+      "name": `${tool.name} — ${SITE_CONFIG.name}`,
       "url": toolUrl,
       "description": tool.description,
       "applicationCategory": "UtilitiesApplication",
@@ -87,13 +88,13 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
 }
 
 export function WebsiteJsonLd() {
-  const baseUrl = "https://editmypdf.co.in";
+  const baseUrl = SITE_CONFIG.url;
   const siteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "EditMyPDF",
+    "name": SITE_CONFIG.name,
     "url": baseUrl,
-    "description": "Privacy-first PDF utility suite running 100% locally in your browser with 57 functional tools.",
+    "description": SITE_CONFIG.description,
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
@@ -107,10 +108,15 @@ export function WebsiteJsonLd() {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "EditMyPDF",
+    "name": SITE_CONFIG.name,
     "url": baseUrl,
-    "logo": `${baseUrl}/logo.svg`,
-    "sameAs": ["https://github.com/Praveen1270/editmypdf"],
+    "logo": SITE_CONFIG.logoSvgUrl,
+    "sameAs": [SITE_CONFIG.githubUrl],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": SITE_CONFIG.contactEmail,
+      "contactType": "Customer Support",
+    },
   };
 
   return (
