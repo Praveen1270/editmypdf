@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: "EditMyPDF",
     title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:
-      "57 free, private PDF utilities running 100% locally in your browser. Edit text, merge, split, compress, protect, convert and annotate without file uploads.",
+      "61 free, private PDF utilities running 100% locally in your browser. Edit text, merge, split, compress, protect, convert and annotate without file uploads.",
     images: [
       {
         url: "/icon-512.png",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:
-      "57 free, private PDF utilities running 100% locally in your browser. Zero uploads, offline ready.",
+      "61 free, private PDF utilities running 100% locally in your browser. Zero uploads, offline ready.",
     images: ["/icon-512.png"],
   },
   robots: {

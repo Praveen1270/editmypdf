@@ -18,7 +18,15 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function RelatedTools({ currentToolId }: RelatedToolsProps) {
-  const related = PDF_TOOLS.filter((t) => t.id !== currentToolId).slice(0, 4);
+  const current = PDF_TOOLS.find((t) => t.id === currentToolId);
+  // Previously this linked the same first 4 entries on every tool page, which
+  // were workflow presets (query URLs, excluded from the sitemap). Link
+  // same-category tools first, then fill with other real tool pages, so each
+  // tool page passes relevance to genuinely related tools.
+  const realTools = PDF_TOOLS.filter((t) => t.id !== currentToolId && !t.href.includes("?"));
+  const sameCategory = current ? realTools.filter((t) => t.category === current.category) : [];
+  const others = realTools.filter((t) => !sameCategory.includes(t));
+  const related = [...sameCategory, ...others].slice(0, 4);
 
   return (
     <section className="mt-14 border-t border-zinc-200 dark:border-zinc-800 pt-10">
