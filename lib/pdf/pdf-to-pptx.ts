@@ -1,7 +1,10 @@
 import { getPdfJs } from "./pdf-loader";
 
 async function loadPptxGenJS() {
-  const mod = await import(/* webpackIgnore: true */ "pptxgenjs");
+  // Let webpack bundle pptxgenjs. webpackIgnore made the browser try to
+  // resolve the bare "pptxgenjs" specifier at runtime, which fails with
+  // "Failed to resolve module specifier 'pptxgenjs'" and produces no file.
+  const mod = await import("pptxgenjs");
   return mod.default || mod;
 }
 
@@ -72,5 +75,12 @@ export async function pdfToPptx(pdfBytes: Uint8Array, options: PdfToPptxOptions 
 
   const out = await pptx.write({ outputType: "uint8array" });
   await doc.destroy();
-  return out as Uint8Array;
+  // Normalise the result so the download always gets raw PPTX bytes,
+  // even if a future pptxgenjs version returns a Blob/ArrayBuffer here.
+  if (out instanceof Uint8Array) return out;
+  if (out instanceof ArrayBuffer) return new Uint8Array(out);
+  if (typeof Blob !== "undefined" && out instanceof Blob) {
+    return new Uint8Array(await out.arrayBuffer());
+  }
+  return out as unknown as Uint8Array;
 }
