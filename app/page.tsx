@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "EditMyPDF — Privacy-First PDF Utilities",
-    description: "57 functional PDF tools that run locally in your browser. Files never leave your device.",
+    description: "61 functional PDF tools that run locally in your browser. Files never leave your device.",
     type: "website",
     images: [
       {
@@ -51,7 +51,7 @@ export default function HomePage() {
     "@type": "WebApplication",
     name: "EditMyPDF",
     url: SITE_CONFIG.url,
-    description: "Privacy-first suite of 57 browser-powered PDF utilities operating with zero server uploads.",
+    description: "Privacy-first suite of 61 browser-powered PDF utilities operating with zero server uploads.",
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "All modern web browsers",
     offers: {

@@ -116,7 +116,7 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
 
       {/* Primary Headline — Balanced Proportions */}
       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-extrabold tracking-tight text-black dark:text-white leading-[1.2]">
-        Every tool you need to work with PDFs in one place
+        Free PDF Tools Online for Every PDF Task
       </h1>
 
       {/* Subtitle — Exact Requested Styles */}

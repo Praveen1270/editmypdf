@@ -49,7 +49,7 @@ EditMyPDF is a private, client-side PDF utility platform designed to solve commo
 ## Key Principles
 - **100% Client-Side Processing**: Document rendering, merging, splitting, OCR, and compression execute inside your browser thread or Web Worker.
 - **Zero Data Retention**: No files, text, metadata, or telemetry are ever uploaded or retained on remote servers.
-- **No Account or Subscription Required**: All 57 tools are completely free to use without signing up.
+- **No Account or Subscription Required**: All 61 tools are completely free to use without signing up.
 - **Offline Capable**: Works offline after initial loading as a Progressive Web App (PWA).
 
 ## PDF Utility Catalog by Category
@@ -189,7 +189,7 @@ function renderFaqPage(): RenderedPage {
     },
     {
       q: "Is EditMyPDF really free?",
-      a: "Yes. All 57 tools are 100% free with no hidden fees, subscriptions, or watermarks added to your documents.",
+      a: "Yes. All 61 tools are 100% free with no hidden fees, subscriptions, or watermarks added to your documents.",
     },
     {
       q: "What is the maximum file size limit?",
@@ -505,7 +505,7 @@ export function listMarkdownRoutes(): MarkdownRouteMeta[] {
       url: toAbsoluteUrl("/"),
       mdUrl: toAbsoluteUrl("/index.md"),
       title: "Home",
-      description: "Overview of EditMyPDF and complete directory of 57 browser-based PDF utilities.",
+      description: "Overview of EditMyPDF and complete directory of 61 browser-based PDF utilities.",
       category: "core",
       inLlmsFull: true,
     },
