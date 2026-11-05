@@ -1,12 +1,7 @@
-import { PDFDocument, rgb } from "pdf-lib";
-import JSZip from "jszip";
+import { rgb } from "pdf-lib";
+import { loadPdf, savePdf, openPdfJs, zipFiles } from "./core";
 
-export interface FingerprintRecipient {
-  name: string;
-  id: string;
-}
-
-export function generateId(): string {
+function generateId(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let id = "";
   for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
@@ -33,9 +28,9 @@ export async function fingerprintPdf(
 ): Promise<FingerprintResult> {
   const { recipients, pagesToMark } = options;
   const table: { name: string; id: string }[] = [];
-  const zip = new JSZip();
+  const files: { name: string; data: Uint8Array }[] = [];
 
-  const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const srcDoc = await loadPdf(pdfBytes);
   const totalPages = srcDoc.getPageCount();
   const markPages = pagesToMark && pagesToMark.length ? pagesToMark : [0, Math.floor(totalPages / 2), totalPages - 1].filter((v, i, a) => a.indexOf(v) === i && v >= 0 && v < totalPages);
 
@@ -43,14 +38,12 @@ export async function fingerprintPdf(
     const id = generateId();
     table.push({ name: r.name, id });
 
-    const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-    // Layer 1: metadata
+    const doc = await loadPdf(pdfBytes);
     doc.setTitle(`FP:${id}`);
     doc.setSubject(`fingerprint:${id}`);
     doc.setKeywords([`fp-${id}`]);
     doc.setCreator(`fp-${id}`);
 
-    // Layer 2: near-invisible text on selected pages
     for (const pi of markPages) {
       const page = doc.getPage(pi);
       const { width, height } = page.getSize();
@@ -62,7 +55,6 @@ export async function fingerprintPdf(
         color: rgb(0.92, 0.92, 0.92),
         opacity: 0.15,
       });
-      // also place at a couple of positions
       page.drawText(id, {
         x: width - 40,
         y: height - 10,
@@ -72,12 +64,12 @@ export async function fingerprintPdf(
       });
     }
 
-    const bytes = await doc.save({ useObjectStreams: true });
+    const bytes = await savePdf(doc);
     const safeName = r.name.replace(/[^a-z0-9]/gi, "_").slice(0, 40) || "recipient";
-    zip.file(`${safeName}-${id}.pdf`, bytes);
+    files.push({ name: `${safeName}-${id}.pdf`, data: bytes });
   }
 
-  const zipBytes = await zip.generateAsync({ type: "uint8array" });
+  const zipBytes = await zipFiles(files);
   return { zip: zipBytes, table };
 }
 
@@ -93,10 +85,9 @@ export async function verifyFingerprint(
   pdfBytes: Uint8Array,
   table: { name: string; id: string }[]
 ): Promise<VerifyResult> {
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const found = new Set<string>();
 
-  // metadata layer
   const title = doc.getTitle() || "";
   const subject = doc.getSubject() || "";
   const keywords = doc.getKeywords();
@@ -106,12 +97,8 @@ export async function verifyFingerprint(
     if (m) found.add(m[1].toUpperCase());
   }
 
-  // text layer: extract with pdf.js
   try {
-    const { getPdfJs } = await import("./pdf-loader");
-    const pdfjs = await getPdfJs();
-    const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-    const srcDoc = await task.promise;
+    const srcDoc = await openPdfJs(pdfBytes);
     for (let p = 1; p <= srcDoc.numPages; p++) {
       const page = await srcDoc.getPage(p);
       const tc = await page.getTextContent();
@@ -121,8 +108,8 @@ export async function verifyFingerprint(
       }
     }
     await srcDoc.destroy();
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("verifyFingerprint: pdf.js text-layer check failed, matching metadata only", err);
   }
 
   const matched = table.filter((e) => found.has(e.id));

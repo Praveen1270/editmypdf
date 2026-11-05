@@ -1,5 +1,5 @@
 import { PDFDocument } from "pdf-lib";
-import JSZip from "jszip";
+import { loadPdf, savePdf, zipFiles, ProgressFn, PDF_ERRORS } from "./core";
 
 export type ExtractMode = "single-pdf" | "zip-separate";
 
@@ -18,15 +18,14 @@ export async function extractPdfPages(
   originalFilename: string,
   selectedPageIndices: number[],
   mode: ExtractMode = "single-pdf",
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<ExtractResult> {
   if (selectedPageIndices.length === 0) {
-    throw new Error("Please select at least one page to extract.");
+    throw new Error(PDF_ERRORS.noPagesSelected);
   }
 
-  // Sort and deduplicate indices
   const sortedIndices = Array.from(new Set(selectedPageIndices)).sort((a, b) => a - b);
-  const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const srcDoc = await loadPdf(pdfBytes);
   const baseName = originalFilename.replace(/\.pdf$/i, "");
 
   if (mode === "single-pdf") {
@@ -40,7 +39,7 @@ export async function extractPdfPages(
       }
     }
 
-    const bytes = await outDoc.save({ useObjectStreams: true });
+    const bytes = await savePdf(outDoc);
     return {
       bytes,
       filename: `${baseName}-extracted.pdf`,
@@ -48,8 +47,7 @@ export async function extractPdfPages(
       count: sortedIndices.length,
     };
   } else {
-    // Mode: zip-separate
-    const zip = new JSZip();
+    const files: { name: string; data: Uint8Array }[] = [];
 
     for (let i = 0; i < sortedIndices.length; i++) {
       const pageIdx = sortedIndices[i];
@@ -57,20 +55,16 @@ export async function extractPdfPages(
       const [copiedPage] = await pageDoc.copyPages(srcDoc, [pageIdx]);
       pageDoc.addPage(copiedPage);
 
-      const singlePdfBytes = await pageDoc.save({ useObjectStreams: true });
+      const singlePdfBytes = await savePdf(pageDoc);
       const paddedNum = String(pageIdx + 1).padStart(3, "0");
-      zip.file(`${baseName}-page-${paddedNum}.pdf`, singlePdfBytes);
+      files.push({ name: `${baseName}-page-${paddedNum}.pdf`, data: singlePdfBytes });
 
       if (onProgress) {
         onProgress(i + 1, sortedIndices.length);
       }
     }
 
-    const zipBlob = await zip.generateAsync({
-      type: "uint8array",
-      compression: "DEFLATE",
-      compressionOptions: { level: 6 },
-    });
+    const zipBlob = await zipFiles(files);
 
     return {
       bytes: zipBlob,

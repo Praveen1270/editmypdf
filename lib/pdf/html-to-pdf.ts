@@ -1,12 +1,11 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { savePdf, PAGE_SIZES } from "./core";
 
 export interface HtmlToPdfOptions {
   pageSize?: "a4" | "letter";
   fontSize?: number;
   margin?: number;
 }
-
-const PAGE = { a4: { w: 595.28, h: 841.89 }, letter: { w: 612, h: 792 } };
 
 function safeFontText(text: string, font: any): string {
   if (!text) return "";
@@ -25,6 +24,7 @@ function safeFontText(text: string, font: any): string {
     .replace(/[\u2717\u2718]/g, "[ ]");
 
   let result = "";
+  let replaced = 0;
   for (let i = 0; i < normalized.length; i++) {
     const char = normalized[i];
     try {
@@ -32,7 +32,11 @@ function safeFontText(text: string, font: any): string {
       result += char;
     } catch {
       result += " ";
+      replaced++;
     }
+  }
+  if (replaced > 0) {
+    console.warn(`htmlToPdf: replaced ${replaced} character(s) the font cannot encode with spaces`);
   }
   return result;
 }
@@ -42,8 +46,8 @@ function safeFontText(text: string, font: any): string {
  */
 export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): Promise<Uint8Array> {
   const { pageSize = "a4", fontSize = 11, margin = 50 } = options;
-  const base = PAGE[pageSize];
-  const pw = base.w, ph = base.h;
+  const base = PAGE_SIZES[pageSize];
+  const pw = base.width, ph = base.height;
   const usableW = pw - 2 * margin;
 
   const doc = await PDFDocument.create();
@@ -80,7 +84,8 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
       let width = 0;
       try {
         width = f.widthOfTextAtSize(test, size);
-      } catch {
+      } catch (err) {
+        console.warn("htmlToPdf: could not measure text width, re-measuring sanitized text", err);
         const safeTest = safeFontText(test, f);
         width = f.widthOfTextAtSize(safeTest, size);
       }
@@ -170,7 +175,6 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
         const colCount = rows.reduce((m, r) => Math.max(m, r.length), 0);
         const colW = usableW / colCount;
         const rh = ctx.size + 4;
-        // header
         let x = margin + ctx.indent;
         page.drawRectangle({ x: margin + ctx.indent, y: y - rh + 2, width: usableW - ctx.indent, height: rh, color: rgb(0.88, 0.88, 0.88) });
         for (let c = 0; c < colCount; c++) {
@@ -197,7 +201,6 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
       // skip images (would need fetch; keep private)
       return;
     }
-    // default: recurse
     for (const child of Array.from(el.childNodes)) {
       walk(child, ctx);
     }
@@ -208,5 +211,5 @@ export async function htmlToPdf(html: string, options: HtmlToPdfOptions = {}): P
     walk(child, { size: fontSize, font, color: rgb(0, 0, 0), indent: 0 });
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

@@ -1,8 +1,7 @@
-import { getPdfJs } from "./pdf-loader";
+import { openPdfJs, extractTextLines } from "./core";
 
 export interface PdfToHtmlOptions {
   mode?: "positioned" | "reflowable";
-  includeImages?: boolean;
   title?: string;
 }
 
@@ -16,14 +15,13 @@ export async function convertPdfToHtml(
   options: PdfToHtmlOptions = {}
 ): Promise<string> {
   const { mode = "positioned", title = "Converted Document" } = options;
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const doc = await task.promise;
-  const totalPages = doc.numPages;
 
   let body = "";
 
   if (mode === "positioned") {
+    const doc = await openPdfJs(pdfBytes);
+    const totalPages = doc.numPages;
+
     for (let p = 1; p <= totalPages; p++) {
       const page = await doc.getPage(p);
       const viewport = page.getViewport({ scale: 1 });
@@ -39,40 +37,17 @@ export async function convertPdfToHtml(
       }
       body += `</section>\n`;
     }
+    await doc.destroy();
   } else {
-    // reflowable: group into lines/paragraphs
-    for (let p = 1; p <= totalPages; p++) {
-      const page = await doc.getPage(p);
-      const textContent = await page.getTextContent();
-      const items = textContent.items as any[];
-      // sort by y desc then x
-      const sorted = [...items].sort((a, b) => {
-        const ay = a.transform[5], by = b.transform[5];
-        if (Math.abs(ay - by) > 3) return by - ay;
-        return a.transform[4] - b.transform[4];
-      });
-      let lines: string[] = [];
-      let currentLine = "";
-      let lastY: number | null = null;
-      for (const item of sorted) {
-        const y = item.transform[5];
-        if (lastY !== null && Math.abs(y - lastY) > 3) {
-          if (currentLine.trim()) lines.push(currentLine.trim());
-          currentLine = "";
-        }
-        currentLine += (item.str || "") + " ";
-        lastY = y;
-      }
-      if (currentLine.trim()) lines.push(currentLine.trim());
+    const pages = await extractTextLines(pdfBytes);
+    for (let p = 1; p <= pages.length; p++) {
       body += `<section class="page" data-page="${p}">\n`;
-      for (const line of lines) {
+      for (const line of pages[p - 1]) {
         body += `  <p>${escapeHtml(line)}</p>\n`;
       }
       body += `</section>\n`;
     }
   }
-
-  await doc.destroy();
 
   return `<!DOCTYPE html>
 <html lang="en">

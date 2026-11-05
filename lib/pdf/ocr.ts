@@ -1,12 +1,12 @@
 import { PDFDocument, rgb } from "pdf-lib";
-import { getPdfJs } from "./pdf-loader";
 import Tesseract from "tesseract.js";
+import { savePdf, openPdfJs, ProgressFn, PDF_ERRORS } from "./core";
 
 export interface OcrOptions {
   language?: string;
   dpi?: number;
   mode?: "searchable-pdf" | "text";
-  onProgress?: (current: number, total: number, status?: string) => void;
+  onProgress?: ProgressFn;
 }
 
 export interface OcrResult {
@@ -25,20 +25,18 @@ export async function ocrPdf(
 ): Promise<OcrResult> {
   const { language = "eng", dpi = 250, mode = "searchable-pdf", onProgress } = options;
 
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const srcDoc = await task.promise;
+  const srcDoc = await openPdfJs(pdfBytes);
   const totalPages = srcDoc.numPages;
 
   const worker = await Tesseract.createWorker(language, 1, {
     logger: (m: any) => {
-      // progress logging
     },
   });
 
   let fullText = "";
   let totalConf = 0;
   let wordCount = 0;
+  let skippedWords = 0;
 
   const outDoc = mode === "searchable-pdf" ? await PDFDocument.create() : null;
 
@@ -54,14 +52,12 @@ export async function ocrPdf(
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) throw new Error("Canvas unavailable");
+    if (!ctx) throw new Error(PDF_ERRORS.canvasUnavailable);
 
-    // white bg
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     await page.render({ canvasContext: ctx as any, viewport }).promise;
 
-    // Preprocess: grayscale + simple threshold (binarize)
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imgData.data;
     for (let i = 0; i < data.length; i += 4) {
@@ -100,7 +96,6 @@ export async function ocrPdf(
       const outPage = outDoc.addPage([unscaled.width, unscaled.height]);
       outPage.drawImage(img, { x: 0, y: 0, width: unscaled.width, height: unscaled.height });
 
-      // Draw invisible text layer positioned by word boxes
       // Scale factor from canvas (dpi) to page points
       const sx = unscaled.width / canvas.width;
       const sy = unscaled.height / canvas.height;
@@ -120,11 +115,15 @@ export async function ocrPdf(
             opacity: 0,
           });
         } catch {
-          /* skip unencodable glyphs */
+          skippedWords++;
         }
         void wPt;
       }
     }
+  }
+
+  if (skippedWords > 0) {
+    console.warn(`ocrPdf: skipped ${skippedWords} unencodable word(s) in the invisible text layer`);
   }
 
   await worker.terminate();
@@ -136,14 +135,13 @@ export async function ocrPdf(
   };
 
   if (mode === "searchable-pdf" && outDoc) {
-    // Strip metadata
     try {
       outDoc.setTitle("");
       outDoc.setAuthor("");
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("ocrPdf: could not strip metadata from searchable PDF", err);
     }
-    result.bytes = await outDoc.save({ useObjectStreams: true });
+    result.bytes = await savePdf(outDoc);
   }
 
   return result;

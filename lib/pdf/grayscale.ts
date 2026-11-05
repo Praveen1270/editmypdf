@@ -1,5 +1,5 @@
 import { PDFDocument } from "pdf-lib";
-import { getPdfJs } from "./pdf-loader";
+import { savePdf, openPdfJs, ProgressFn, PDF_ERRORS } from "./core";
 
 /**
  * Converts a PDF to grayscale by rendering each page through a calibrated luminance filter (0.299R + 0.587G + 0.114B).
@@ -7,11 +7,9 @@ import { getPdfJs } from "./pdf-loader";
  */
 export async function convertPdfToGrayscale(
   pdfBytes: Uint8Array,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<Uint8Array> {
-  const pdfjs = await getPdfJs();
-  const loadingTask = pdfjs.getDocument({ data: pdfBytes });
-  const srcDoc = await loadingTask.promise;
+  const srcDoc = await openPdfJs(pdfBytes);
   const totalPages = srcDoc.numPages;
 
   const outDoc = await PDFDocument.create();
@@ -29,7 +27,7 @@ export async function convertPdfToGrayscale(
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
       if (!ctx) {
-        throw new Error("Unable to create canvas 2D context.");
+        throw new Error(PDF_ERRORS.canvasUnavailable);
       }
 
       await page.render({
@@ -37,7 +35,6 @@ export async function convertPdfToGrayscale(
         viewport,
       }).promise;
 
-      // Apply grayscale luminance transformation to pixel buffer
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
       const len = data.length;
@@ -50,7 +47,6 @@ export async function convertPdfToGrayscale(
       }
       ctx.putImageData(imgData, 0, 0);
 
-      // Convert canvas to JPEG blob
       const jpegBlob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
           (b) => {
@@ -65,7 +61,6 @@ export async function convertPdfToGrayscale(
       const buffer = await jpegBlob.arrayBuffer();
       const embeddedImg = await outDoc.embedJpg(new Uint8Array(buffer));
 
-      // Create page matching original dimensions
       const outPage = outDoc.addPage([unscaledViewport.width, unscaledViewport.height]);
       outPage.drawImage(embeddedImg, {
         x: 0,
@@ -79,7 +74,7 @@ export async function convertPdfToGrayscale(
       }
     }
 
-    return await outDoc.save({ useObjectStreams: true });
+    return await savePdf(outDoc);
   } finally {
     await srcDoc.destroy();
   }

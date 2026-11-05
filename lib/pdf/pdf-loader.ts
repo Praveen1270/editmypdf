@@ -50,7 +50,7 @@ export async function getPdfInfo(bytes: Uint8Array, password?: string): Promise<
   }
 }
 
-export async function renderPageToCanvas(
+async function renderPageToCanvas(
   bytes: Uint8Array,
   pageNumber: number, // 1-indexed
   canvas: HTMLCanvasElement,
@@ -74,7 +74,6 @@ export async function renderPageToCanvas(
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not acquire 2D canvas context.");
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const renderContext = {

@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import { loadPdf, savePdf, openPdfJs, PDF_ERRORS } from "./core";
 
 export interface FlattenOptions {
   /** Flatten AcroForm fields (default true) */
@@ -33,7 +34,7 @@ export async function flattenPdf(
     rasterize = false,
   } = options;
 
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
 
   const report: FlattenReport = {
     fieldsFlattened: 0,
@@ -42,7 +43,6 @@ export async function flattenPdf(
     xfaRemoved: false,
   };
 
-  // Count form fields
   try {
     const form = doc.getForm();
     const fields = form.getFields();
@@ -51,16 +51,15 @@ export async function flattenPdf(
       // Update appearances before flattening so values are drawn
       try {
         form.updateFieldAppearances();
-      } catch {
-        /* ignore */
+      } catch (err) {
+        console.warn("flattenPdf: could not update field appearances before flattening", err);
       }
       form.flatten();
     }
-  } catch {
-    /* no form */
+  } catch (err) {
+    console.warn("flattenPdf: could not read form fields (document may have no form)", err);
   }
 
-  // Remove annotations and scripts from page dictionaries
   if (removeAnnotations) {
     for (const page of doc.getPages()) {
       try {
@@ -70,13 +69,12 @@ export async function flattenPdf(
           report.annotationsRemoved += arr;
         }
         (page.node as any).delete?.("Annots");
-      } catch {
-        /* ignore */
+      } catch (err) {
+        console.warn("flattenPdf: could not remove annotations from a page", err);
       }
     }
   }
 
-  // Remove JavaScript actions, XFA, embedded actions
   if (removeScripts) {
     try {
       const catalog: any = doc.catalog;
@@ -88,7 +86,6 @@ export async function flattenPdf(
         catalog.delete("AA");
         report.scriptsRemoved = true;
       }
-      // Names tree JavaScript
       if (catalog.has("Names")) {
         const names = catalog.get("Names");
         if (names && (names as any).has && (names as any).has("JavaScript")) {
@@ -96,41 +93,34 @@ export async function flattenPdf(
           report.scriptsRemoved = true;
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("flattenPdf: could not remove JavaScript actions", err);
     }
-    // Remove XFA
     try {
       const form = (doc as any).getForm?.();
       if (form && (form as any).hasXFA?.()) {
         (form as any).removeXFA?.();
         report.xfaRemoved = true;
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("flattenPdf: could not remove XFA", err);
     }
-    // Remove AcroForm if empty
     try {
       const catalog: any = doc.catalog;
       if (catalog.has("AcroForm")) {
-        // keep but strip XFA entry
         const af = catalog.get("AcroForm");
         if (af && typeof (af as any).delete === "function") {
           (af as any).delete("XFA");
           (af as any).delete("JavaScript");
         }
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("flattenPdf: could not strip AcroForm entries", err);
     }
   }
 
-  // Optional rasterize mode: render each page to image (uses pdf.js)
   if (rasterize) {
-    const { getPdfJs } = await import("./pdf-loader");
-    const pdfjs = await getPdfJs();
-    const loadingTask = pdfjs.getDocument({ data: pdfBytes.slice() });
-    const srcDoc = await loadingTask.promise;
+    const srcDoc = await openPdfJs(pdfBytes);
     const totalPages = srcDoc.numPages;
     const newDoc = await PDFDocument.create();
     try {
@@ -141,7 +131,7 @@ export async function flattenPdf(
         canvas.width = Math.floor(viewport.width);
         canvas.height = Math.floor(viewport.height);
         const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Canvas context unavailable");
+        if (!ctx) throw new Error(PDF_ERRORS.canvasUnavailable);
         await page.render({ canvasContext: ctx as any, viewport }).promise;
         const blob = await new Promise<Blob>((res, rej) =>
           canvas.toBlob((b) => (b ? res(b) : rej(new Error("blob fail"))), "image/jpeg", 0.9)
@@ -152,7 +142,7 @@ export async function flattenPdf(
         const outPage = newDoc.addPage([unscaled.width, unscaled.height]);
         outPage.drawImage(img, { x: 0, y: 0, width: unscaled.width, height: unscaled.height });
       }
-      const bytes = await newDoc.save({ useObjectStreams: true });
+      const bytes = await savePdf(newDoc);
       await srcDoc.destroy();
       return { bytes, report };
     } finally {
@@ -160,6 +150,6 @@ export async function flattenPdf(
     }
   }
 
-  const bytes = await doc.save({ useObjectStreams: true });
+  const bytes = await savePdf(doc);
   return { bytes, report };
 }

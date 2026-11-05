@@ -1,4 +1,5 @@
-import { PDFDocument, PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown } from "pdf-lib";
+import { PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown } from "pdf-lib";
+import { loadPdf, savePdf } from "./core";
 
 export interface FormFieldInfo {
   name: string;
@@ -7,7 +8,7 @@ export interface FormFieldInfo {
 }
 
 export async function listFormFields(pdfBytes: Uint8Array): Promise<FormFieldInfo[]> {
-  const doc = await PDFDocument.load(pdfBytes);
+  const doc = await loadPdf(pdfBytes);
   const form = doc.getForm();
   const fields = form.getFields();
   return fields.map((f) => {
@@ -18,7 +19,9 @@ export async function listFormFields(pdfBytes: Uint8Array): Promise<FormFieldInf
       else if (f instanceof PDFCheckBox) value = f.isChecked() ? "true" : "false";
       else if (f instanceof PDFRadioGroup) value = f.getSelected() || "";
       else if (f instanceof PDFDropdown) value = f.getSelected()?.join(", ") || "";
-    } catch {}
+    } catch (err) {
+      console.warn(`listFormFields: could not read value of field "${f.getName()}"`, err);
+    }
     return { name: f.getName(), type, value };
   });
 }
@@ -27,7 +30,7 @@ export async function fillForm(
   pdfBytes: Uint8Array,
   values: Record<string, string>
 ): Promise<Uint8Array> {
-  const doc = await PDFDocument.load(pdfBytes);
+  const doc = await loadPdf(pdfBytes);
   const form = doc.getForm();
   for (const [name, val] of Object.entries(values)) {
     try {
@@ -39,7 +42,9 @@ export async function fillForm(
         else field.uncheck();
       } else if (field instanceof PDFRadioGroup) field.select(val);
       else if (field instanceof PDFDropdown) field.select(val);
-    } catch {}
+    } catch (err) {
+      console.warn(`fillForm: could not set field "${name}"`, err);
+    }
   }
-  return doc.save();
+  return savePdf(doc);
 }

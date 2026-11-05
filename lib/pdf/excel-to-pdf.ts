@@ -17,7 +17,6 @@ export async function excelToPdf(
   const wb = XLSX.read(buf, { type: "array" });
   const sheetNames = options.sheets && options.sheets.length ? options.sheets : wb.SheetNames;
 
-  // Build a combined rows array with sheet title separators
   const allRows: string[][] = [];
   for (const name of sheetNames) {
     const ws = wb.Sheets[name];

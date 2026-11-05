@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import { savePdf, ProgressFn, PAGE_SIZES, PDF_ERRORS } from "./core";
 
 export interface ImageSourceItem {
   id: string;
@@ -27,11 +28,6 @@ const MARGIN_VALUES: Record<MarginOption, number> = {
   normal: 40,
 };
 
-const STANDARD_PAGE_SIZES = {
-  a4: { width: 595.28, height: 841.89 },
-  letter: { width: 612, height: 792 },
-};
-
 /**
  * Converts any browser image (like WebP) into PNG Uint8Array via HTML Canvas.
  */
@@ -46,7 +42,7 @@ async function convertFileToPngBytes(file: File): Promise<Uint8Array> {
       canvas.height = img.naturalHeight;
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        reject(new Error("Unable to create canvas context"));
+        reject(new Error(PDF_ERRORS.canvasUnavailable));
         return;
       }
       ctx.drawImage(img, 0, 0);
@@ -69,7 +65,7 @@ async function convertFileToPngBytes(file: File): Promise<Uint8Array> {
 export async function convertImagesToPdf(
   images: ImageSourceItem[],
   options: ImagesToPdfOptions,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<Uint8Array> {
   if (images.length === 0) {
     throw new Error("Please add at least one image to create a PDF.");
@@ -91,7 +87,6 @@ export async function convertImagesToPdf(
     } else if (item.type === "image/png") {
       embeddedImage = await pdfDoc.embedPng(uint8);
     } else {
-      // WebP, GIF, BMP, etc. -> convert to PNG via Canvas
       const pngBytes = await convertFileToPngBytes(item.file);
       embeddedImage = await pdfDoc.embedPng(pngBytes);
     }
@@ -106,11 +101,10 @@ export async function convertImagesToPdf(
       targetPageW = imgNaturalW + marginPt * 2;
       targetPageH = imgNaturalH + marginPt * 2;
     } else {
-      const base = STANDARD_PAGE_SIZES[options.pageSize];
+      const base = PAGE_SIZES[options.pageSize];
       targetPageW = base.width;
       targetPageH = base.height;
 
-      // Orientation adjustment
       if (options.orientation === "landscape") {
         if (targetPageW < targetPageH) {
           [targetPageW, targetPageH] = [targetPageH, targetPageW];
@@ -120,7 +114,6 @@ export async function convertImagesToPdf(
           [targetPageW, targetPageH] = [targetPageH, targetPageW];
         }
       } else {
-        // Auto orientation: match image aspect ratio
         const imgIsLandscape = imgNaturalW > imgNaturalH;
         if (imgIsLandscape && targetPageW < targetPageH) {
           [targetPageW, targetPageH] = [targetPageH, targetPageW];
@@ -143,7 +136,6 @@ export async function convertImagesToPdf(
       drawW = imgNaturalW * scale;
       drawH = imgNaturalH * scale;
     } else {
-      // cover
       const scale = Math.max(printableW / imgNaturalW, printableH / imgNaturalH);
       drawW = imgNaturalW * scale;
       drawH = imgNaturalH * scale;
@@ -160,5 +152,5 @@ export async function convertImagesToPdf(
     });
   }
 
-  return await pdfDoc.save();
+  return await savePdf(pdfDoc);
 }

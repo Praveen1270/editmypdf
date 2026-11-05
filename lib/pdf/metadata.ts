@@ -1,4 +1,4 @@
-import { PDFDocument } from "pdf-lib";
+import { loadPdf, savePdf } from "./core";
 
 export interface PdfMetadata {
   title: string;
@@ -15,7 +15,7 @@ export interface PdfMetadata {
  * Reads metadata fields from a PDF document.
  */
 export async function readPdfMetadata(pdfBytes: Uint8Array): Promise<PdfMetadata> {
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
 
   const rawKeywords = doc.getKeywords();
   let keywordsStr = "";
@@ -45,7 +45,7 @@ export async function updatePdfMetadata(
   metadata: Partial<PdfMetadata>,
   stripAll: boolean = false
 ): Promise<Uint8Array> {
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
 
   if (stripAll) {
     doc.setTitle("");
@@ -70,5 +70,5 @@ export async function updatePdfMetadata(
     doc.setModificationDate(new Date());
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

@@ -1,7 +1,5 @@
 import { renderTableToPdf, TableRenderOptions } from "./table-renderer";
 
-export interface CsvToPdfOptions extends TableRenderOptions {}
-
 function detectDelimiter(text: string): string {
   const firstLine = text.split(/\r?\n/)[0] || "";
   const counts: Record<string, number> = { ",": 0, ";": 0, "\t": 0, "|": 0 };
@@ -48,18 +46,11 @@ function detectHeader(rows: string[][]): boolean {
   return firstNonNumeric && laterHasNumbers;
 }
 
-export async function csvToPdf(
-  csvText: string,
-  options: CsvToPdfOptions = {}
-): Promise<Uint8Array> {
+export async function csvFileToPdf(file: File, options: TableRenderOptions = {}): Promise<Uint8Array> {
+  const csvText = await file.text();
   const delim = detectDelimiter(csvText);
   const rows = parseCsv(csvText, delim);
   if (rows.length === 0) throw new Error("Empty CSV.");
   const hasHeader = options.hasHeader !== undefined ? options.hasHeader : detectHeader(rows);
   return await renderTableToPdf(rows, { ...options, hasHeader });
-}
-
-export async function csvFileToPdf(file: File, options: CsvToPdfOptions = {}): Promise<Uint8Array> {
-  const text = await file.text();
-  return await csvToPdf(text, options);
 }
