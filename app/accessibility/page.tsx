@@ -1,5 +1,6 @@
 import { Eye, CheckCircle2 } from "lucide-react";
 import { generatePageMetadata } from "@/lib/seo";
+import { TOOL_COUNT } from "@/lib/tools-data";
 
 export const metadata = generatePageMetadata({
   title: "Accessibility Statement — EditMyPDF",
@@ -31,7 +32,7 @@ export default function AccessibilityPage() {
               Conformance Standards (WCAG 2.2 AA)
             </h2>
             <p className="text-text-secondary">
-              EditMyPDF conforms with the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA. We prioritize clean semantic markup, high-contrast monochrome typography, and intuitive keyboard navigation across all 57 PDF utilities.
+              EditMyPDF conforms with the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA. We prioritize clean semantic markup, high-contrast monochrome typography, and intuitive keyboard navigation across all {TOOL_COUNT} PDF utilities.
             </p>
           </section>
 

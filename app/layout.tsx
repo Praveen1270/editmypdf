@@ -7,6 +7,7 @@ import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { TOOL_COUNT } from "@/lib/tools-data";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -45,7 +46,7 @@ export const metadata: Metadata = {
     siteName: "EditMyPDF",
     title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:
-      "57 free, private PDF utilities running 100% locally in your browser. Edit text, merge, split, compress, protect, convert and annotate without file uploads.",
+      `${TOOL_COUNT} free, private PDF utilities running 100% locally in your browser. Edit text, merge, split, compress, protect, convert and annotate without file uploads.`,
     images: [
       {
         url: "/icon-512.png",
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "EditMyPDF — Privacy-First PDF Tools in Your Browser",
     description:
-      "57 free, private PDF utilities running 100% locally in your browser. Zero uploads, offline ready.",
+      `${TOOL_COUNT} free, private PDF utilities running 100% locally in your browser. Zero uploads, offline ready.`,
     images: ["/icon-512.png"],
   },
   robots: {

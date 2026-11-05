@@ -14,6 +14,7 @@ import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
 import { extractTextFromPdf, ExtractTextResult } from "@/lib/pdf/text-extract";
 import { downloadBytes } from "@/lib/files/download";
+import { useCopyFeedback } from "@/lib/hooks/use-copy-feedback";
 import { formatFileSize } from "@/lib/utils";
 
 export default function PdfToTextPage() {
@@ -22,7 +23,7 @@ export default function PdfToTextPage() {
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [result, setResult] = useState<ExtractTextResult | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyFeedback();
 
   const handleFileSelected = async (files: File[]) => {
     if (files.length === 0) return;
@@ -35,7 +36,6 @@ export default function PdfToTextPage() {
       const uint8 = new Uint8Array(buffer);
       setFile({ name: f.name, size: f.size, bytes: uint8 });
 
-      // Automatically start extraction
       setIsProcessing(true);
       const textResult = await extractTextFromPdf(uint8, (current, total) => {
         setProgress({ current, total });
@@ -52,9 +52,7 @@ export default function PdfToTextPage() {
   const handleCopy = async () => {
     if (!result) return;
     try {
-      await navigator.clipboard.writeText(result.fullText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await copy(result.fullText);
     } catch {
       setErrorMessage("Clipboard copy failed. Please select text manually.");
     }
@@ -76,7 +74,6 @@ export default function PdfToTextPage() {
     setFile(null);
     setResult(null);
     setErrorMessage(null);
-    setCopied(false);
     setOutputFilename("extracted-text.txt");
   };
 
@@ -106,7 +103,6 @@ export default function PdfToTextPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Header Bar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
             <div className="flex items-center gap-3">
               <FileText className="h-6 w-6 text-primary" />
@@ -159,7 +155,6 @@ export default function PdfToTextPage() {
             </div>
           </div>
 
-          {/* Labeled File name field */}
           <div className="rounded-xl border border-border bg-surface-raised p-4 max-w-md">
             <label htmlFor="txt-filename" className="block text-xs font-semibold text-foreground mb-1">
               File name
@@ -188,7 +183,6 @@ export default function PdfToTextPage() {
             </p>
           </div>
 
-          {/* Scanned PDF Notice if no text found */}
           {result && !result.hasText && (
             <div className="flex items-start gap-3 rounded-xl border border-border bg-surface-raised p-4 text-text-primary">
               <AlertTriangle className="h-5 w-5 shrink-0 text-text-primary mt-0.5" />
@@ -201,7 +195,6 @@ export default function PdfToTextPage() {
             </div>
           )}
 
-          {/* Text Content Preview Area */}
           {result && (
             <div>
               <div className="flex items-center justify-between mb-2">

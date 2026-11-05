@@ -1,4 +1,5 @@
-import { PDF_TOOLS } from "@/lib/tools-data";
+import { TOOL_COUNT } from "@/lib/tools-data";
+import { SITE_CONFIG } from "@/lib/site-config";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, Shield, ArrowRight, Zap } from "lucide-react";
@@ -35,7 +36,7 @@ export default function AboutPage() {
         <div className="mt-12 space-y-8 text-sm leading-relaxed text-text-secondary">
           <div>
             <p className="text-text-secondary leading-relaxed">
-              EditMyPDF exists because most free PDF sites make you upload private documents to a stranger's server and then bury the download behind a signup or watermark. This site was built by one developer in India to do the opposite: tools that run in your browser, with no account, no watermark and no file retention. There's no team of marketers behind it - bugs get reported to and fixed by the person who wrote the code. Contact: founder@editmypdf.co.in
+              EditMyPDF exists because most free PDF sites make you upload private documents to a stranger's server and then bury the download behind a signup or watermark. This site was built by one developer in India to do the opposite: tools that run in your browser, with no account, no watermark and no file retention. There's no team of marketers behind it - bugs get reported to and fixed by the person who wrote the code. Contact: {SITE_CONFIG.contactEmail}
             </p>
           </div>
           <div>
@@ -83,8 +84,8 @@ export default function AboutPage() {
             <p className="font-semibold text-text-primary">Ready to work with your PDFs?</p>
             <p className="mt-2 text-xs text-text-secondary">
               Questions or feedback? Email{" "}
-              <a href="mailto:founder@editmypdf.co.in" className="text-text-primary font-semibold hover:underline">
-                founder@editmypdf.co.in
+              <a href={`mailto:${SITE_CONFIG.contactEmail}`} className="text-text-primary font-semibold hover:underline">
+                {SITE_CONFIG.contactEmail}
               </a>
             </p>
             <div className="mt-4">
@@ -92,7 +93,7 @@ export default function AboutPage() {
                 href="/#tools"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-action-primary px-5 py-2.5 text-xs font-semibold text-action-primary-text transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
               >
-                <span>Explore All {PDF_TOOLS.length} Tools</span>
+                <span>Explore All {TOOL_COUNT} Tools</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

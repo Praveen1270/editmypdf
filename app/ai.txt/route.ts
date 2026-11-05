@@ -5,7 +5,6 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const content = `# ai.txt - Usage Policy for Artificial Intelligence Systems
 # Specification: ai-visibility.org.uk ai-txt v1.1.1
-# Note: Keep this file in sync with /robots.txt and /llms.txt
 
 [identity]
 name: ${SITE_CONFIG.name}
@@ -49,14 +48,13 @@ included: /*-pdf
 included: /pdf-*
 excluded: /offline
 excluded: /recent
-excluded: /starred
 excluded: /api/*
 excluded: /_next/*
 
 [contact]
 email: ${SITE_CONFIG.contactEmail}
 
-Last updated: 2026-10-26
+Last updated: ${SITE_CONFIG.lastUpdated}
 `;
 
   return new Response(content, {

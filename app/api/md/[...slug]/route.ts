@@ -22,7 +22,7 @@ function handleCatalog(request: NextRequest) {
       `# Markdown Catalog for ${SITE_CONFIG.name}`,
       `> Directory of all ${routes.length} available machine-readable markdown endpoints.`,
       `\nCanonical: ${SITE_CONFIG.url}/api/md/_catalog`,
-      `Last updated: 2026-10-26\n`,
+      `Last updated: ${SITE_CONFIG.lastUpdated}\n`,
       `| Title | HTML URL | Markdown URL | Category |`,
       `| --- | --- | --- | --- |`,
       ...routes.map((r) => `| ${r.title} | ${r.url} | ${r.mdUrl} | ${r.category} |`),
@@ -47,38 +47,18 @@ function handleCatalog(request: NextRequest) {
   );
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
-  const { slug } = await params;
-  const rawPath = slug && slug.length > 0 ? slug.join("/") : "index";
-
-  if (rawPath === "_catalog" || rawPath === "catalog") {
-    return handleCatalog(request);
-  }
-
-  const normalized = normalizePath(rawPath);
-  const isNegotiated = request.headers.get("x-md-negotiated") === "1";
-
-  const rendered = renderRoute(normalized);
-  if (!rendered) {
-    return createMarkdown404(normalized);
-  }
-
-  return createMarkdownResponse(rendered.markdown, rendered.canonical, {
-    isNegotiated,
-    lastModified: new Date("2026-10-26T00:00:00Z"),
-  });
-}
-
-export async function HEAD(request: NextRequest, { params }: RouteParams) {
+// One shared implementation for GET and HEAD: HEAD returns the same status
+// and headers with an empty body (via createMarkdownResponse's isHead flag
+// and a bodyless catalog response), instead of duplicating the routing.
+async function handleMarkdown(request: NextRequest, { params }: RouteParams, isHead: boolean) {
   const { slug } = await params;
   const rawPath = slug && slug.length > 0 ? slug.join("/") : "index";
 
   if (rawPath === "_catalog" || rawPath === "catalog") {
     const res = handleCatalog(request);
-    return new Response(null, {
-      status: res.status,
-      headers: res.headers,
-    });
+    return isHead
+      ? new Response(null, { status: res.status, headers: res.headers })
+      : res;
   }
 
   const normalized = normalizePath(rawPath);
@@ -86,14 +66,22 @@ export async function HEAD(request: NextRequest, { params }: RouteParams) {
 
   const rendered = renderRoute(normalized);
   if (!rendered) {
-    return createMarkdown404(normalized, true);
+    return createMarkdown404(normalized, isHead);
   }
 
   return createMarkdownResponse(rendered.markdown, rendered.canonical, {
     isNegotiated,
-    isHead: true,
-    lastModified: new Date("2026-10-26T00:00:00Z"),
+    isHead,
+    lastModified: new Date(`${SITE_CONFIG.lastUpdated}T00:00:00Z`),
   });
+}
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  return handleMarkdown(request, { params }, false);
+}
+
+export async function HEAD(request: NextRequest, { params }: RouteParams) {
+  return handleMarkdown(request, { params }, true);
 }
 
 export async function OPTIONS() {

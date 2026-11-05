@@ -18,49 +18,24 @@ import {
   MoveUpRight,
   Undo2,
   Redo2,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
   Download,
-  Loader2,
   CheckSquare,
   CircleDot,
-  Trash2,
-  RotateCw,
-  FilePlus2,
   Search,
   ChevronDown,
   Plus,
 } from "lucide-react";
-import type { EditorToolId } from "@/lib/pdf/edit-pdf/types";
+import { useEditPdf, useEditPdfActions } from "./store";
 
-interface EditorToolbarProps {
-  tool: EditorToolId;
-  onTool: (t: EditorToolId) => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  onUndo: () => void;
-  onRedo: () => void;
-  zoomPct: number;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
-  onFitWidth: () => void;
-  editCount: number;
-  busy: boolean;
-  busyLabel?: string;
-  onDownload: () => void;
-  onFindReplace?: () => void;
-  onDeletePage: () => void;
-  onRotatePage: () => void;
-  onInsertBlank: () => void;
-  onNewImage?: () => void;
-  onNewSignature?: () => void;
-  currentPageNum: number;
-  totalPages: number;
-}
-
-export function EditorToolbar(props: EditorToolbarProps) {
-  const t = props.tool;
+export function EditorToolbar() {
+  const { state } = useEditPdf();
+  const actions = useEditPdfActions();
+  const t = state.tool;
+  const canUndo = state.past.length > 0;
+  const canRedo = state.future.length > 0;
+  const currentPageNum =
+    Math.max(0, state.pages.findIndex((p) => p.key === state.activePageKey)) + 1;
+  const totalPages = state.pages.length;
 
   const [textOpen, setTextOpen] = useState(false);
   const [formsOpen, setFormsOpen] = useState(false);
@@ -120,7 +95,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 overflow-visible">
         <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground shrink-0">
-          <span>Page {props.currentPageNum} of {props.totalPages}</span>
+          <span>Page {currentPageNum} of {totalPages}</span>
         </div>
         <div className="flex items-center justify-center gap-1.5 sm:gap-2 mx-auto flex-wrap sm:flex-nowrap">
           {/* 1. Text [IA Text ▼] */}
@@ -132,7 +107,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 const next = !textOpen;
                 closeAll();
                 setTextOpen(next);
-                if (!isTextActive) props.onTool("text");
+                if (!isTextActive) actions.setTool("text");
               }}
               title="Text tool"
             >
@@ -145,7 +120,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("text");
+                    actions.setTool("text");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -161,7 +136,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("addText");
+                    actions.setTool("addText");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -174,22 +149,20 @@ export function EditorToolbar(props: EditorToolbarProps) {
                     <div className="text-[10px] opacity-80">Click anywhere to place text</div>
                   </div>
                 </button>
-                {props.onFindReplace && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      props.onFindReplace?.();
-                      closeAll();
-                    }}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-foreground hover:bg-surface-subtle"
-                  >
-                    <Search className="h-4 w-4" />
-                    <div>
-                      <div className="font-medium">Find & Replace</div>
-                      <div className="text-[10px] opacity-80">Search and replace text in PDF</div>
-                    </div>
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    actions.openFindReplace();
+                    closeAll();
+                  }}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-foreground hover:bg-surface-subtle"
+                >
+                  <Search className="h-4 w-4" />
+                  <div>
+                    <div className="font-medium">Find & Replace</div>
+                    <div className="text-[10px] opacity-80">Search and replace text in PDF</div>
+                  </div>
+                </button>
               </div>
             )}
           </div>
@@ -200,7 +173,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
             className={btnStyle(t === "link")}
             onClick={() => {
               closeAll();
-              props.onTool("link");
+              actions.setTool("link");
             }}
             title="Links tool — drag a rectangle to add URL or internal page link"
           >
@@ -229,7 +202,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("formText");
+                    actions.setTool("formText");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -242,7 +215,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("formCheck");
+                    actions.setTool("formCheck");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -255,7 +228,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("formRadio");
+                    actions.setTool("formRadio");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -278,7 +251,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 const next = !imagesOpen;
                 closeAll();
                 setImagesOpen(next);
-                props.onTool("image");
+                actions.setTool("image");
               }}
               title="Images tool — upload, add, position or remove images"
             >
@@ -292,8 +265,8 @@ export function EditorToolbar(props: EditorToolbarProps) {
                   type="button"
                   onClick={() => {
                     closeAll();
-                    props.onTool("image");
-                    props.onNewImage?.();
+                    actions.setTool("image");
+                    actions.newImage();
                   }}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-surface-subtle"
                 >
@@ -316,7 +289,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 const next = !signOpen;
                 closeAll();
                 setSignOpen(next);
-                props.onTool("sign");
+                actions.setTool("sign");
               }}
               title="Sign PDF"
             >
@@ -330,8 +303,8 @@ export function EditorToolbar(props: EditorToolbarProps) {
                   type="button"
                   onClick={() => {
                     closeAll();
-                    props.onTool("sign");
-                    props.onNewSignature?.();
+                    actions.setTool("sign");
+                    actions.newSignature();
                   }}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-surface-subtle"
                 >
@@ -348,7 +321,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
             className={btnStyle(isWhiteoutActive)}
             onClick={() => {
               closeAll();
-              props.onTool("whiteout");
+              actions.setTool("whiteout");
             }}
             title="Whiteout — drag a rectangle to cover or remove any text, image or object"
           >
@@ -377,7 +350,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("highlight");
+                    actions.setTool("highlight");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -390,7 +363,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("underline");
+                    actions.setTool("underline");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -403,7 +376,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("strike");
+                    actions.setTool("strike");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -416,7 +389,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("draw");
+                    actions.setTool("draw");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -451,7 +424,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("rect");
+                    actions.setTool("rect");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -464,7 +437,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("ellipse");
+                    actions.setTool("ellipse");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -477,7 +450,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("line");
+                    actions.setTool("line");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -490,7 +463,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
                 <button
                   type="button"
                   onClick={() => {
-                    props.onTool("arrow");
+                    actions.setTool("arrow");
                     closeAll();
                   }}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-left text-xs ${
@@ -507,9 +480,9 @@ export function EditorToolbar(props: EditorToolbarProps) {
           {/* 9. Undo [↩ Undo] */}
           <button
             type="button"
-            className={`${btnStyle(false)} ${!props.canUndo ? "opacity-40 cursor-not-allowed" : ""}`}
-            onClick={props.onUndo}
-            disabled={!props.canUndo}
+            className={`${btnStyle(false)} ${!canUndo ? "opacity-40 cursor-not-allowed" : ""}`}
+            onClick={actions.undo}
+            disabled={!canUndo}
             title="Undo (Ctrl+Z)"
           >
             <Undo2 className="h-4 w-4" />
@@ -519,9 +492,9 @@ export function EditorToolbar(props: EditorToolbarProps) {
           {/* 10. Redo [↪ Redo] */}
           <button
             type="button"
-            className={`${btnStyle(false)} ${!props.canRedo ? "opacity-40 cursor-not-allowed" : ""}`}
-            onClick={props.onRedo}
-            disabled={!props.canRedo}
+            className={`${btnStyle(false)} ${!canRedo ? "opacity-40 cursor-not-allowed" : ""}`}
+            onClick={actions.redo}
+            disabled={!canRedo}
             title="Redo (Ctrl+Y)"
           >
             <Redo2 className="h-4 w-4" />
@@ -533,21 +506,11 @@ export function EditorToolbar(props: EditorToolbarProps) {
         <div className="flex items-center justify-end gap-2 shrink-0">
           <button
             type="button"
-            onClick={props.onDownload}
-            disabled={props.busy}
-            className="inline-flex items-center gap-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 px-4 py-2 text-xs font-semibold shadow-sm transition active:scale-95 disabled:opacity-50 sm:text-sm"
+            onClick={actions.download}
+            className="inline-flex items-center gap-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 px-4 py-2 text-xs font-semibold shadow-sm transition active:scale-95 sm:text-sm"
           >
-            {props.busy ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="max-w-36 truncate">{props.busyLabel ?? "Processing…"}</span>
-              </>
-            ) : (
-              <>
-                <span>Apply changes</span>
-                <span className="font-bold text-sm">›</span>
-              </>
-            )}
+            <span>Apply changes</span>
+            <span className="font-bold text-sm">›</span>
           </button>
         </div>
       </div>

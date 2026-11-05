@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HomeClient } from "@/components/home/HomeClient";
 import { WebsiteJsonLd } from "@/components/seo/JsonLd";
 import { SITE_CONFIG } from "@/lib/site-config";
+import { POPULAR_TOOL_IDS, TOOL_COUNT, getToolsByIds } from "@/lib/tools-data";
 
 export const metadata: Metadata = {
   title: "Free PDF Tools Online – Edit, Convert & Compress PDFs | EditMyPDF",
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "EditMyPDF — Privacy-First PDF Utilities",
-    description: "57 functional PDF tools that run locally in your browser. Files never leave your device.",
+    description: `${TOOL_COUNT} functional PDF tools that run locally in your browser. Files never leave your device.`,
     type: "website",
     images: [
       {
@@ -46,12 +47,13 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  // featureList rule: the popular-tools list from the registry, in order.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     name: "EditMyPDF",
     url: SITE_CONFIG.url,
-    description: "Privacy-first suite of 57 browser-powered PDF utilities operating with zero server uploads.",
+    description: SITE_CONFIG.description,
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "All modern web browsers",
     offers: {
@@ -59,30 +61,7 @@ export default function HomePage() {
       price: "0",
       priceCurrency: "USD",
     },
-    featureList: [
-      "Edit PDF",
-      "Edit PDF Text",
-      "Merge PDF",
-      "Split PDF",
-      "Organize PDF Pages",
-      "Rotate PDF",
-      "Extract PDF Pages",
-      "Compress PDF",
-      "PDF to Images",
-      "Images to PDF",
-      "PDF to Text",
-      "PDF to Grayscale",
-      "Add Page Numbers",
-      "Watermark PDF",
-      "Add Text to PDF",
-      "Crop PDF",
-      "Resize PDF Pages",
-      "Protect PDF (AES-256)",
-      "Unlock PDF",
-      "PDF Metadata Editor",
-      "PDF Page Counter & Properties",
-      "Compare PDFs",
-    ],
+    featureList: getToolsByIds(POPULAR_TOOL_IDS).map((t) => t.name),
   };
 
   const aboutJsonLd = {

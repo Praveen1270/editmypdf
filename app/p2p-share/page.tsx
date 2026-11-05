@@ -4,6 +4,8 @@ import { useState, useRef } from "react";
 import { Share2, Loader2, Download, RefreshCw, Copy, Check } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
+import { createPeer } from "@/lib/peer";
+import { useCopyFeedback } from "@/lib/hooks/use-copy-feedback";
 
 export default function P2PSharePage() {
   const [mode, setMode] = useState<"sender" | "receiver">("sender");
@@ -12,15 +14,14 @@ export default function P2PSharePage() {
   const [status, setStatus] = useState("Idle");
   const [progress, setProgress] = useState(0);
   const [receivedFiles, setReceivedFiles] = useState<{ name: string; url: string }[]>([]);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyFeedback();
   const peerRef = useRef<any>(null);
   const connRef = useRef<any>(null);
   const filesRef = useRef<File[]>([]);
 
   const startSender = async () => {
     setStatus("Creating peer…");
-    const { Peer } = await import("peerjs");
-    const peer = new Peer();
+    const peer = await createPeer();
     peerRef.current = peer;
     peer.on("open", (id: string) => {
       setPeerId(id);
@@ -38,7 +39,6 @@ export default function P2PSharePage() {
 
   const sendFiles = async (conn: any) => {
     const files = filesRef.current;
-    // send metadata
     const meta = files.map((f) => ({ name: f.name, size: f.size, type: f.type }));
     conn.send({ type: "meta", files: meta });
     for (let i = 0; i < files.length; i++) {
@@ -68,8 +68,7 @@ export default function P2PSharePage() {
   const startReceiver = async () => {
     if (!targetId) { setStatus("Enter sender code."); return; }
     setStatus("Connecting…");
-    const { Peer } = await import("peerjs");
-    const peer = new Peer();
+    const peer = await createPeer();
     peerRef.current = peer;
     peer.on("open", () => {
       const conn = peer.connect(targetId);
@@ -103,9 +102,7 @@ export default function P2PSharePage() {
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(peerId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    await copy(peerId);
   };
 
   const handleReset = () => {

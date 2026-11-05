@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { PenTool, Eraser, Trash2, Download, RefreshCw, Loader2, Copy, Check } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
+import { createPeer } from "@/lib/peer";
+import { useCopyFeedback } from "@/lib/hooks/use-copy-feedback";
 
 interface Stroke { points: { x: number; y: number }[]; color: string; size: number; eraser: boolean; }
 
@@ -15,7 +17,7 @@ export default function WhiteboardPage() {
   const [peerId, setPeerId] = useState("");
   const [targetId, setTargetId] = useState("");
   const [status, setStatus] = useState("Idle");
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyFeedback();
   const peerRef = useRef<any>(null);
   const connRef = useRef<any>(null);
   const drawingRef = useRef<Stroke | null>(null);
@@ -68,7 +70,6 @@ export default function WhiteboardPage() {
     if (!drawingRef.current) return;
     const p = getPos(e);
     drawingRef.current.points.push(p);
-    // live draw
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const s = drawingRef.current;
@@ -88,7 +89,6 @@ export default function WhiteboardPage() {
     const stroke = drawingRef.current;
     drawingRef.current = null;
     setStrokes((s) => [...s, stroke]);
-    // broadcast
     connRef.current?.send({ type: "stroke", stroke });
   };
 
@@ -99,15 +99,13 @@ export default function WhiteboardPage() {
 
   const hostRoom = async () => {
     setStatus("Creating room…");
-    const { Peer } = await import("peerjs");
-    const peer = new Peer();
+    const peer = await createPeer();
     peerRef.current = peer;
     peer.on("open", (id: string) => { setPeerId(id); setStatus("Waiting for peers. Share code."); });
     peer.on("connection", (conn: any) => {
       connRef.current = conn;
       conn.on("open", () => {
         setStatus("Peer connected.");
-        // send current state
         conn.send({ type: "state", strokes: strokesRef.current });
       });
       conn.on("data", (data: any) => handleIncoming(data));
@@ -118,8 +116,7 @@ export default function WhiteboardPage() {
   const joinRoom = async () => {
     if (!targetId) { setStatus("Enter host code."); return; }
     setStatus("Connecting…");
-    const { Peer } = await import("peerjs");
-    const peer = new Peer();
+    const peer = await createPeer();
     peerRef.current = peer;
     peer.on("open", () => {
       const conn = peer.connect(targetId);
@@ -141,9 +138,7 @@ export default function WhiteboardPage() {
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(peerId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    await copy(peerId);
   };
 
   const exportPng = () => {

@@ -15,22 +15,14 @@ export async function GET() {
     ``,
     `> ${SITE_CONFIG.description}`,
     ``,
-    `EditMyPDF was founded in ${SITE_CONFIG.foundingYear} as a privacy-first, 100% client-side document processing platform. The pricing model is completely free with no subscriptions, accounts, or watermarks. Built for individuals, legal professionals, students, and businesses who need to modify documents without risking confidential data exposure on third-party servers. Contact: ${SITE_CONFIG.contactEmail}. Repository: ${SITE_CONFIG.githubUrl}. Note: Keep this file in sync with /robots.txt and /ai.txt.`,
+    `EditMyPDF was founded in ${SITE_CONFIG.foundingYear} as a privacy-first, 100% client-side document processing platform. The pricing model is completely free with no subscriptions, accounts, or watermarks. Built for individuals, legal professionals, students, and businesses who need to modify documents without risking confidential data exposure on third-party servers. Contact: ${SITE_CONFIG.contactEmail}. Repository: ${SITE_CONFIG.githubUrl}.`,
     ``,
     `## Core pages`,
     ...coreRoutes.map((r) => `- [${r.title}](${r.mdUrl}): ${r.description}`),
     ``,
     `## PDF Tools`,
-    ...toolRoutes.slice(0, 50).map((r) => `- [${r.title}](${r.mdUrl}): ${r.description}`),
-  ];
-
-  if (toolRoutes.length > 50) {
-    lines.push(
-      `- [All ${toolRoutes.length} Tools](${SITE_CONFIG.url}/api/md/_catalog): Complete list of all PDF manipulation tools.`
-    );
-  }
-
-  lines.push(
+    // Every tool — no truncation. (Previously only the first 50 were listed, silently omitting the rest.)
+    ...toolRoutes.map((r) => `- [${r.title}](${r.mdUrl}): ${r.description}`),
     ``,
     `## Machine-readable`,
     `- [Full content](${SITE_CONFIG.url}/llms-full.txt): Every page concatenated into a single fetchable file`,
@@ -40,7 +32,7 @@ export async function GET() {
     ``,
     `## Optional`,
     ...legalRoutes.map((r) => `- [${r.title}](${r.mdUrl}): ${r.description}`)
-  );
+  ];
 
   const text = lines.join("\n") + "\n";
 
