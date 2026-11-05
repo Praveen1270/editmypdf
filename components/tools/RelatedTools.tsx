@@ -2,23 +2,23 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Files, Scissors, Minimize2, Image, FileText, Wrench } from "lucide-react";
-import { PDF_TOOLS } from "@/lib/tools-data";
+import { ArrowRight } from "lucide-react";
+import { PDF_TOOLS, getToolById, isRealToolRoute } from "@/lib/tools-data";
+import { getToolIcon } from "@/lib/icons";
 
 interface RelatedToolsProps {
   currentToolId: string;
 }
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  Files,
-  Scissors,
-  Minimize2,
-  Image,
-  FileText,
-};
-
 export function RelatedTools({ currentToolId }: RelatedToolsProps) {
-  const related = PDF_TOOLS.filter((t) => t.id !== currentToolId).slice(0, 4);
+  const current = getToolById(currentToolId);
+  // Same-category real tools first, then other real tools — never the
+  // workflow presets (query URLs, excluded from the sitemap) and never the
+  // same first-4 entries on every page.
+  const realTools = PDF_TOOLS.filter((t) => t.id !== currentToolId && isRealToolRoute(t));
+  const sameCategory = current ? realTools.filter((t) => t.categoryId === current.categoryId) : [];
+  const others = realTools.filter((t) => !sameCategory.includes(t));
+  const related = [...sameCategory, ...others].slice(0, 4);
 
   return (
     <section className="mt-14 border-t border-zinc-200 dark:border-zinc-800 pt-10">
@@ -42,7 +42,7 @@ export function RelatedTools({ currentToolId }: RelatedToolsProps) {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {related.map((tool) => {
-          const Icon = ICON_MAP[tool.iconName] || Wrench;
+          const Icon = getToolIcon(tool.icon);
           return (
             <Link
               key={tool.id}
@@ -57,7 +57,7 @@ export function RelatedTools({ currentToolId }: RelatedToolsProps) {
                   {tool.name}
                 </h4>
                 <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2">
-                  {tool.shortDesc}
+                  {tool.description}
                 </p>
               </div>
               <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-black dark:text-white">

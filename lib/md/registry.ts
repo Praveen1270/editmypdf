@@ -1,12 +1,12 @@
-import { PDF_TOOLS, ToolItem } from "@/lib/tools-data";
-import { TOOL_CONTENT } from "@/lib/tool-content";
+import { CATEGORIES, PDF_TOOLS, TOOL_COUNT, ToolItem, isRealToolRoute } from "@/lib/tools-data";
+import { FAQ_ITEMS } from "@/lib/faq";
 import { SITE_CONFIG } from "@/lib/site-config";
 import { buildMarkdownPage, formatList, formatTable, toAbsoluteUrl } from "./format";
 
 export interface MarkdownRouteMeta {
   path: string; // e.g. "/" or "/compress-pdf"
-  url: string; // https://editmypdf.co.in/compress-pdf
-  mdUrl: string; // https://editmypdf.co.in/compress-pdf.md
+  url: string; // absolute HTML URL, e.g. <site-url>/compress-pdf
+  mdUrl: string; // absolute markdown URL, e.g. <site-url>/compress-pdf.md
   title: string;
   description: string;
   category: "core" | "informational" | "tool" | "legal";
@@ -36,8 +36,8 @@ export function normalizePath(rawPath: string): string {
 function renderHomePage(): RenderedPage {
   const toolsByCategory: Record<string, ToolItem[]> = {};
   for (const tool of PDF_TOOLS) {
-    if (tool.href.includes("?")) continue; // skip query variants
-    const cat = tool.categoryName || "Other Tools";
+    if (!isRealToolRoute(tool)) continue; // skip query variants
+    const cat = CATEGORIES.find((c) => c.id === tool.categoryId)?.name || "Other Tools";
     if (!toolsByCategory[cat]) toolsByCategory[cat] = [];
     toolsByCategory[cat].push(tool);
   }
@@ -49,7 +49,7 @@ EditMyPDF is a private, client-side PDF utility platform designed to solve commo
 ## Key Principles
 - **100% Client-Side Processing**: Document rendering, merging, splitting, OCR, and compression execute inside your browser thread or Web Worker.
 - **Zero Data Retention**: No files, text, metadata, or telemetry are ever uploaded or retained on remote servers.
-- **No Account or Subscription Required**: All 57 tools are completely free to use without signing up.
+- **No Account or Subscription Required**: All ${TOOL_COUNT} tools are completely free to use without signing up.
 - **Offline Capable**: Works offline after initial loading as a Progressive Web App (PWA).
 
 ## PDF Utility Catalog by Category
@@ -58,7 +58,7 @@ EditMyPDF is a private, client-side PDF utility platform designed to solve commo
   for (const [catName, tools] of Object.entries(toolsByCategory)) {
     content += `\n### ${catName}\n\n`;
     for (const tool of tools) {
-      content += `- [${tool.name}](${toAbsoluteUrl(tool.href)}) - ${tool.shortDesc || tool.description}\n`;
+      content += `- [${tool.name}](${toAbsoluteUrl(tool.href)}) - ${tool.description}\n`;
     }
   }
 
@@ -182,31 +182,10 @@ At EditMyPDF, privacy is not a policy setting—it is built into our core archit
 }
 
 function renderFaqPage(): RenderedPage {
-  const faqs = [
-    {
-      q: "Are my files uploaded to your servers?",
-      a: "No. All PDF operations run locally inside your browser using JavaScript and WebAssembly. Your files never leave your device.",
-    },
-    {
-      q: "Is EditMyPDF really free?",
-      a: "Yes. All 57 tools are 100% free with no hidden fees, subscriptions, or watermarks added to your documents.",
-    },
-    {
-      q: "What is the maximum file size limit?",
-      a: "Because processing happens locally in your device's memory, file size limits depend on your computer or phone's available RAM and browser limits rather than a server quota. Most modern devices comfortably handle files of several hundred megabytes.",
-    },
-    {
-      q: "Can I use EditMyPDF offline?",
-      a: "Yes. EditMyPDF is configured as a Progressive Web App (PWA). Once loaded, the utility engine runs without an active internet connection.",
-    },
-    {
-      q: "Which browsers are supported?",
-      a: "All modern evergreen browsers including Google Chrome, Mozilla Firefox, Apple Safari, Microsoft Edge, and mobile browsers on iOS and Android.",
-    },
-  ];
-
+  // Single copy lives in lib/faq.ts — the same list the FAQ page renders
+  // and the FAQPage JSON-LD is built from.
   let content = "## Frequently Asked Questions\n\n";
-  for (const item of faqs) {
+  for (const item of FAQ_ITEMS) {
     content += `### ${item.q}\n${item.a}\n\n`;
   }
 
@@ -252,7 +231,7 @@ If you encounter an issue with a specific PDF format or have suggestions for new
 
 function renderPrivacyPolicyPage(): RenderedPage {
   const content = `## Privacy Policy Overview
-Last updated: 2026-10-26
+Last updated: ${SITE_CONFIG.lastUpdated}
 
 EditMyPDF is built on the principle of minimal data collection. We believe your documents belong to you and should never be exposed to third-party servers.
 
@@ -262,7 +241,7 @@ EditMyPDF is built on the principle of minimal data collection. We believe your 
 - No documents, file names, text contents, or metadata are transmitted to our servers or any third-party infrastructure.
 
 ### 2. Local Storage
-EditMyPDF uses browser \`localStorage\` solely to preserve user preferences (such as light/dark mode theme selection) and temporary local tool history (\`/recent\` and \`/starred\`). This data stays strictly on your machine and is never synced to a cloud backend.
+EditMyPDF uses browser \`localStorage\` solely to preserve user preferences (such as light/dark mode theme selection) and temporary local tool history (\`/recent\`). This data stays strictly on your machine and is never synced to a cloud backend.
 
 ### 3. Analytics
 We collect aggregate, non-personally identifiable metrics (such as page visits and broad browser types) to ensure server reliability and detect performance regressions. We never log file contents or parameters.
@@ -288,7 +267,7 @@ We do not sell, rent, or monetize your data. No third-party advertising trackers
 
 function renderTermsPage(): RenderedPage {
   const content = `## Terms of Service
-Last updated: 2026-10-26
+Last updated: ${SITE_CONFIG.lastUpdated}
 
 By accessing and using EditMyPDF ("the Service"), you agree to the following terms:
 
@@ -346,7 +325,7 @@ EditMyPDF does not use tracking cookies, advertising cookies, or cross-site prof
 ### Local Browser Storage
 Instead of cookies, the application utilizes HTML5 \`localStorage\` exclusively for:
 - Saving interface preferences (such as light / dark theme mode).
-- Storing locally favorited tools (\`/starred\`) and recent local history (\`/recent\`).
+- Storing recent local history (\`/recent\`).
 
 This information never leaves your device and can be cleared at any time via your browser's data settings.
 `;
@@ -392,13 +371,12 @@ EditMyPDF is committed to digital accessibility and designing web applications t
 // ----------------------------------------------------
 
 function renderToolPage(tool: ToolItem): RenderedPage {
-  const enriched = TOOL_CONTENT[tool.id];
-
-  const intro = enriched?.intro || tool.description;
-  const steps = enriched?.steps || tool.steps.map((s) => `${s.title}: ${s.desc}`);
+  // Guide content lives on the ToolItem itself (merged from lib/tool-content.ts).
+  const intro = tool.intro || tool.description;
+  const steps = tool.guideSteps || tool.steps.map((s) => `${s.title}: ${s.desc}`);
   const features = tool.features && tool.features.length > 0 ? tool.features : [];
-  const limitations = enriched?.notes || tool.limitations || [];
-  const faqs = enriched?.faqs || tool.faq || [];
+  const limitations = tool.notes || tool.limitations || [];
+  const faqs = tool.faq || [];
 
   let content = `## About ${tool.name}\n\n${intro}\n\n`;
 
@@ -428,7 +406,7 @@ function renderToolPage(tool: ToolItem): RenderedPage {
 
   // Related tools in the same category
   const sameCategoryTools = PDF_TOOLS.filter(
-    (t) => t.id !== tool.id && t.category === tool.category && !t.href.includes("?")
+    (t) => t.id !== tool.id && t.categoryId === tool.categoryId && isRealToolRoute(t)
   ).slice(0, 5);
 
   const related = sameCategoryTools.map((t) => ({
@@ -483,7 +461,7 @@ export function renderRoute(rawPath: string): RenderedPage | null {
     default: {
       // Find matching tool
       const tool = PDF_TOOLS.find((t) => {
-        if (t.href.includes("?")) return false;
+        if (!isRealToolRoute(t)) return false;
         return normalizePath(t.href) === path;
       });
       if (tool) {
@@ -505,7 +483,7 @@ export function listMarkdownRoutes(): MarkdownRouteMeta[] {
       url: toAbsoluteUrl("/"),
       mdUrl: toAbsoluteUrl("/index.md"),
       title: "Home",
-      description: "Overview of EditMyPDF and complete directory of 57 browser-based PDF utilities.",
+      description: `Overview of EditMyPDF and complete directory of ${TOOL_COUNT} browser-based PDF utilities.`,
       category: "core",
       inLlmsFull: true,
     },
@@ -602,14 +580,14 @@ export function listMarkdownRoutes(): MarkdownRouteMeta[] {
   ];
 
   // Tool routes
-  const toolRoutes: MarkdownRouteMeta[] = PDF_TOOLS.filter((t) => !t.href.includes("?")).map((t) => {
+  const toolRoutes: MarkdownRouteMeta[] = PDF_TOOLS.filter(isRealToolRoute).map((t) => {
     const cleanPath = normalizePath(t.href);
     return {
       path: cleanPath,
       url: toAbsoluteUrl(cleanPath),
       mdUrl: toAbsoluteUrl(`${cleanPath}.md`),
       title: t.name,
-      description: t.shortDesc || t.description,
+      description: t.description,
       category: "tool",
       inLlmsFull: true,
     };

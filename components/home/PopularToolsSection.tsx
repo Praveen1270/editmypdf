@@ -1,27 +1,12 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
-
-const POPULAR_TOOLS = [
-  { name: "Merge PDF", href: "/merge-pdf" },
-  { name: "Split PDF", href: "/split-pdf" },
-  { name: "Compress PDF", href: "/compress-pdf" },
-  { name: "Edit PDF", href: "/edit-pdf" },
-  { name: "PDF to Word", href: "/pdf-to-word" },
-  { name: "Word to PDF", href: "/word-to-pdf" },
-  { name: "JPG to PDF", href: "/images-to-pdf" },
-  { name: "PDF to JPG", href: "/pdf-to-images" },
-  { name: "Sign PDF", href: "/sign-pdf" },
-  { name: "Protect PDF", href: "/protect-pdf" },
-  { name: "Unlock PDF", href: "/unlock-pdf" },
-  { name: "OCR PDF", href: "/ocr-pdf" },
-  { name: "Remove Pages", href: "/remove-pdf-pages" },
-  { name: "Rotate PDF", href: "/rotate-pdf" },
-  { name: "PDF to Markdown", href: "/pdf-to-markdown" },
-  { name: "Workflows", href: "/workflows" },
-];
+import { POPULAR_TOOL_IDS, getToolsByIds } from "@/lib/tools-data";
 
 export function PopularToolsSection() {
+  // Names and hrefs come from the registry (POPULAR_TOOL_IDS); the display
+  // name is the tool's registry name (e.g. "Images to PDF", not "JPG to PDF").
+  const popularTools = getToolsByIds(POPULAR_TOOL_IDS);
   return (
     <section className="mt-20 pt-12 border-t border-zinc-200 dark:border-zinc-800">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -44,7 +29,7 @@ export function PopularToolsSection() {
       </div>
 
       <div className="flex flex-wrap gap-2 sm:gap-2.5">
-        {POPULAR_TOOLS.map((tool) => (
+        {popularTools.map((tool) => (
           <Link
             key={tool.href}
             href={tool.href}

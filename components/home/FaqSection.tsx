@@ -2,33 +2,7 @@
 
 import React, { useState } from "react";
 import { ChevronDown, HelpCircle } from "lucide-react";
-
-const FAQS = [
-  {
-    q: "Is EditMyPDF really 100% free with no limits?",
-    a: "Yes. All tools on EditMyPDF are completely free to use. There are no subscriptions, paywalls, watermarks, trial periods, or artificial daily conversion limits.",
-  },
-  {
-    q: "Are my PDF files uploaded to any servers?",
-    a: "No. All PDF processing happens locally in your browser's RAM memory using JavaScript and WebAssembly. Your documents are never sent across the internet to our servers or any third-party APIs.",
-  },
-  {
-    q: "How does in-browser PDF editing and conversion work?",
-    a: "Modern web browsers are capable of running powerful WebAssembly binaries and high-performance JavaScript engines (pdf-lib, pdf.js, fontkit, Tesseract.js). We load the processing libraries onto your browser once, and your computer's CPU processes the files locally.",
-  },
-  {
-    q: "What is the maximum file size I can edit or convert?",
-    a: "Since processing takes place in your local computer memory, the practical limit is determined by your device's available RAM. Most modern computers and smartphones can effortlessly handle files between 100MB and 200MB. For maximum browser stability, we recommend files under 150MB.",
-  },
-  {
-    q: "Can I use EditMyPDF on mobile phones and tablets?",
-    a: "Yes. EditMyPDF is fully responsive and supports all modern mobile browsers on iOS and Android. You can also install it as a Progressive Web App (PWA) to your home screen for one-tap access.",
-  },
-  {
-    q: "Does EditMyPDF work offline?",
-    a: "Yes. Once the web application and tools are cached by your browser's service worker, the core PDF processing utilities can operate completely offline without an active internet connection.",
-  },
-];
+import { HOME_FAQ_ITEMS } from "@/lib/faq";
 
 export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -53,7 +27,7 @@ export function FaqSection() {
       </div>
 
       <div className="max-w-3xl mx-auto space-y-3">
-        {FAQS.map((faq, idx) => {
+        {HOME_FAQ_ITEMS.map((faq, idx) => {
           const isOpen = openIndex === idx;
           return (
             <div

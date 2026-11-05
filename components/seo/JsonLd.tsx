@@ -1,5 +1,5 @@
 import React from "react";
-import { PDF_TOOLS } from "@/lib/tools-data";
+import { CATEGORIES, PDF_TOOLS } from "@/lib/tools-data";
 import { SITE_CONFIG } from "@/lib/site-config";
 
 interface ToolJsonLdProps {
@@ -45,8 +45,8 @@ export function ToolJsonLd({ toolId }: ToolJsonLdProps) {
         {
           "@type": "ListItem",
           "position": 2,
-          "name": tool.categoryName,
-          "item": `${baseUrl}/#${tool.category}`,
+          "name": CATEGORIES.find((c) => c.id === tool.categoryId)?.name ?? tool.categoryId,
+          "item": `${baseUrl}/#${tool.categoryId}`,
         },
         {
           "@type": "ListItem",

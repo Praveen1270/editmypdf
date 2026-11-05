@@ -2,85 +2,36 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Search,
-  X,
-  ArrowRight,
-  Files,
-  Scissors,
-  LayoutGrid,
-  RotateCw,
-  FolderOutput,
-  Minimize2,
-  Image,
-  FileImage,
-  FileText,
-  Palette,
-  Hash,
-  Stamp,
-  Type,
-  Crop,
-  Maximize,
-  Lock,
-  Unlock,
-  FileSliders,
-  Binary,
-  GitCompare,
-  PenLine,
-} from "lucide-react";
+import { Search, X, ArrowRight } from "lucide-react";
 import { PDF_TOOLS, ToolItem } from "@/lib/tools-data";
-
-const ICON_MAP: Record<string, any> = {
-  Files,
-  Scissors,
-  LayoutGrid,
-  RotateCw,
-  FolderOutput,
-  Minimize2,
-  Image,
-  FileImage,
-  FileText,
-  Palette,
-  Hash,
-  Stamp,
-  Type,
-  Crop,
-  Maximize,
-  Lock,
-  Unlock,
-  FileSliders,
-  Binary,
-  GitCompare,
-  PenLine,
-};
+import { getToolIcon } from "@/lib/icons";
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialQuery?: string;
 }
 
-export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalProps) {
-  const [query, setQuery] = useState(initialQuery);
+export function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     if (isOpen) {
-      setQuery(initialQuery);
+      setQuery("");
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [isOpen, initialQuery]);
+  }, [isOpen]);
 
   const filteredTools = PDF_TOOLS.filter((tool) => {
     if (!query.trim()) return true;
     const q = query.toLowerCase();
     return (
       tool.name.toLowerCase().includes(q) ||
-      tool.shortDesc.toLowerCase().includes(q) ||
-      tool.categoryName.toLowerCase().includes(q) ||
+      tool.description.toLowerCase().includes(q) ||
+      tool.categoryId.toLowerCase().includes(q) ||
       tool.keywords.some((k) => k.toLowerCase().includes(q))
     );
   });
@@ -118,7 +69,6 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
         className="relative w-full max-w-xl rounded-2xl border border-border bg-surface shadow-2xl animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col text-foreground"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input bar */}
         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5 bg-surface">
           <Search className="h-5 w-5 text-muted-foreground shrink-0" />
           <input
@@ -146,12 +96,11 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
           </kbd>
         </div>
 
-        {/* Results List */}
         <div className="max-h-80 overflow-y-auto p-2">
           {filteredTools.length > 0 ? (
             <ul className="space-y-1">
               {filteredTools.map((tool, idx) => {
-                const Icon = ICON_MAP[tool.iconName] || Files;
+                const Icon = getToolIcon(tool.icon);
                 const isSelected = idx === selectedIndex;
                 return (
                   <li key={tool.id}>
@@ -178,13 +127,13 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
                             {tool.name}
                           </p>
                           <p className="text-[11px] text-muted-foreground truncate">
-                            {tool.shortDesc}
+                            {tool.description}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 ml-3">
                         <span className="text-[10px] font-mono text-muted-foreground uppercase hidden sm:inline">
-                          {tool.category}
+                          {tool.categoryId}
                         </span>
                         <ArrowRight className={`h-3.5 w-3.5 transition-transform ${isSelected ? "translate-x-0.5 text-accent" : "text-muted-foreground"}`} />
                       </div>
@@ -201,7 +150,6 @@ export function SearchModal({ isOpen, onClose, initialQuery = "" }: SearchModalP
           )}
         </div>
 
-        {/* Footer info */}
         <div className="border-t border-border bg-surface-subtle/50 px-4 py-2 flex items-center justify-between text-[11px] text-muted-foreground">
           <span>{filteredTools.length} tools available</span>
           <div className="flex items-center gap-2">

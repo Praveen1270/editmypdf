@@ -3,115 +3,101 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Search,
-  Menu,
-  ChevronDown,
-  Files,
-  Scissors,
-  Minimize2,
-  FileText,
-  Image,
-  FileType,
-  Presentation,
-  FileSpreadsheet,
-  Code2,
-  FileCode,
-  Archive,
-  RotateCw,
-  Hash,
-  Stamp,
-  Crop,
-  PenLine,
-  FormInput,
-  Lock,
-  Unlock,
-  PenTool,
-  Eraser,
-  GitCompare,
-  Sparkles,
-  Languages,
-  Workflow,
-  Wrench,
-  Layers,
-  Trash2,
-  FolderOutput,
-  ScanLine,
-} from "lucide-react";
+import { Search, Menu, ChevronDown } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { InstallAppButton } from "@/components/pwa/InstallAppButton";
 import { MobileNavigation } from "./MobileNavigation";
+import { PDF_TOOLS, type ToolItem } from "@/lib/tools-data";
+import { getToolIcon } from "@/lib/icons";
 
 interface AppHeaderProps {
   onOpenSearch: () => void;
 }
 
-const CONVERT_TO_PDF = [
-  { name: "JPG to PDF", href: "/images-to-pdf", desc: "Convert images to PDF document", icon: Image },
-  { name: "Word to PDF", href: "/word-to-pdf", desc: "Convert DOCX to formatted PDF", icon: FileType },
-  { name: "PowerPoint to PDF", href: "/powerpoint-to-pdf", desc: "Convert PPTX slides to PDF", icon: Presentation },
-  { name: "Excel to PDF", href: "/excel-to-pdf", desc: "Convert spreadsheets to PDF", icon: FileSpreadsheet },
-  { name: "HTML to PDF", href: "/html-to-pdf", desc: "Convert web pages to PDF", icon: Code2 },
-];
+interface MenuItem {
+  name: string;
+  href: string;
+  desc?: string;
+  icon: ReturnType<typeof getToolIcon>;
+}
 
-const CONVERT_FROM_PDF = [
-  { name: "PDF to JPG", href: "/pdf-to-images", desc: "Extract pages as high-res images", icon: Image },
-  { name: "PDF to Word", href: "/pdf-to-word", desc: "Convert PDF to editable DOCX", icon: FileType },
-  { name: "PDF to PowerPoint", href: "/pdf-to-powerpoint", desc: "Convert PDF to presentation slides", icon: Presentation },
-  { name: "PDF to Excel", href: "/pdf-to-excel", desc: "Extract tables to spreadsheet", icon: FileSpreadsheet },
-  { name: "PDF to PDF/A", href: "/pdf-to-pdfa", desc: "ISO 19005 archival standard", icon: Archive },
-];
+function toolById(id: string): ToolItem {
+  const tool = PDF_TOOLS.find((t) => t.id === id);
+  if (!tool) throw new Error(`AppHeader: unknown tool id "${id}"`);
+  return tool;
+}
 
-const ALL_TOOLS_CATEGORIES = [
+// Menu labels that differ from the registry tool name; everything else uses
+// the registry name. href and icon always come from the registry.
+const MENU_LABELS: Record<string, string> = {
+  "images-to-pdf": "JPG to PDF",
+  "pdf-to-images": "PDF to JPG",
+  "remove-pages": "Remove Pages",
+  extract: "Extract Pages",
+  organize: "Organize PDF",
+  ocr: "OCR PDF",
+  watermark: "Watermark PDF",
+  compare: "Compare PDF",
+  workflows: "Automated Workflows",
+  "ai-summarizer": "AI Summarizer",
+};
+
+// Short descriptions shown in the Convert dropdown (menu copy, not registry data).
+const CONVERT_DESCS: Record<string, string> = {
+  "images-to-pdf": "Convert images to PDF document",
+  "word-to-pdf": "Convert DOCX to formatted PDF",
+  "powerpoint-to-pdf": "Convert PPTX slides to PDF",
+  "excel-to-pdf": "Convert spreadsheets to PDF",
+  "html-to-pdf": "Convert web pages to PDF",
+  "pdf-to-images": "Extract pages as high-res images",
+  "pdf-to-word": "Convert PDF to editable DOCX",
+  "pdf-to-powerpoint": "Convert PDF to presentation slides",
+  "pdf-to-excel": "Extract tables to spreadsheet",
+};
+
+function menuItems(ids: string[], withDesc = false): MenuItem[] {
+  return ids.map((id) => {
+    const tool = toolById(id);
+    return {
+      name: MENU_LABELS[id] ?? tool.name,
+      href: tool.href,
+      desc: withDesc ? CONVERT_DESCS[id] : undefined,
+      icon: getToolIcon(tool.icon),
+    };
+  });
+}
+
+const CONVERT_TO_PDF = menuItems(
+  ["images-to-pdf", "word-to-pdf", "powerpoint-to-pdf", "excel-to-pdf", "html-to-pdf"],
+  true
+);
+
+const CONVERT_FROM_PDF = menuItems(
+  ["pdf-to-images", "pdf-to-word", "pdf-to-powerpoint", "pdf-to-excel"],
+  true
+);
+
+const ALL_TOOLS_CATEGORIES: { title: string; items: MenuItem[] }[] = [
   {
     title: "Organize PDF",
-    items: [
-      { name: "Merge PDF", href: "/merge-pdf", icon: Files },
-      { name: "Split PDF", href: "/split-pdf", icon: Scissors },
-      { name: "Remove Pages", href: "/remove-pdf-pages", icon: Trash2 },
-      { name: "Extract Pages", href: "/extract-pdf-pages", icon: FolderOutput },
-      { name: "Organize PDF", href: "/organize-pdf", icon: Layers },
-      { name: "Scan to PDF", href: "/scan-to-pdf", icon: ScanLine },
-      { name: "Rotate PDF", href: "/rotate-pdf", icon: RotateCw },
-    ],
+    items: menuItems(["merge", "split", "remove-pages", "extract", "organize", "scan-to-pdf", "rotate"]),
   },
   {
     title: "Optimize PDF",
-    items: [
-      { name: "Compress PDF", href: "/compress-pdf", icon: Minimize2 },
-      { name: "Repair PDF", href: "/repair-pdf", icon: Wrench },
-      { name: "OCR PDF", href: "/ocr-pdf", icon: FileText },
-    ],
+    items: menuItems(["compress", "repair", "ocr"]),
   },
   {
     title: "Edit PDF",
-    items: [
-      { name: "Edit PDF", href: "/edit-pdf", icon: PenLine },
-      { name: "Add Page Numbers", href: "/add-page-numbers", icon: Hash },
-      { name: "Add Watermark", href: "/watermark-pdf", icon: Stamp },
-      { name: "Crop PDF", href: "/crop-pdf", icon: Crop },
-      { name: "PDF Forms", href: "/pdf-forms", icon: FormInput },
-    ],
+    items: menuItems(["edit-pdf", "page-numbers", "watermark", "crop", "pdf-forms"]),
   },
   {
     title: "PDF Security",
-    items: [
-      { name: "Protect PDF", href: "/protect-pdf", icon: Lock },
-      { name: "Unlock PDF", href: "/unlock-pdf", icon: Unlock },
-      { name: "Sign PDF", href: "/sign-pdf", icon: PenTool },
-      { name: "Redact PDF", href: "/redact-pdf", icon: Eraser },
-      { name: "Compare PDF", href: "/compare-pdfs", icon: GitCompare },
-    ],
+    items: menuItems(["protect", "unlock", "sign-pdf", "redact", "compare"]),
   },
   {
     title: "Intelligence & Workflows",
-    items: [
-      { name: "AI Summarizer", href: "/ai-summarizer", icon: Sparkles },
-      { name: "Translate PDF", href: "/translate-pdf", icon: Languages },
-      { name: "PDF to Markdown", href: "/pdf-to-markdown", icon: FileCode },
-      { name: "Automated Workflows", href: "/workflows", icon: Workflow },
-    ],
+    items: menuItems(["ai-summarizer", "translate-pdf", "pdf-to-markdown", "workflows"]),
   },
 ];
 
@@ -124,7 +110,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
   const convertRef = useRef<HTMLDivElement>(null);
   const allToolsRef = useRef<HTMLDivElement>(null);
 
-  // Close menus on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (convertRef.current && !convertRef.current.contains(event.target as Node)) {
@@ -138,7 +123,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close menus on escape key
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -150,7 +134,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Close dropdowns on route change
   useEffect(() => {
     setConvertOpen(false);
     setAllToolsOpen(false);
@@ -160,13 +143,10 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
     <>
       <header className="sticky top-0 z-40 h-16 w-full border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-black/95 backdrop-blur-md transition-colors duration-150">
         <div className="mx-auto flex h-full max-w-content items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Left: Brand Logo + Desktop Nav */}
           <div className="flex items-center gap-4 lg:gap-6">
-            <BrandLogo markSize={26} />
+            <BrandLogo />
 
-            {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs font-semibold shrink-0" aria-label="Main Navigation">
-              {/* Direct Link: Merge PDF */}
               <Link
                 href="/merge-pdf"
                 className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
@@ -178,7 +158,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 Merge PDF
               </Link>
 
-              {/* Direct Link: Split PDF */}
               <Link
                 href="/split-pdf"
                 className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
@@ -190,7 +169,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 Split PDF
               </Link>
 
-              {/* Direct Link: Compress PDF */}
               <Link
                 href="/compress-pdf"
                 className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
@@ -202,7 +180,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 Compress PDF
               </Link>
 
-              {/* Dropdown: Convert PDF */}
               <div
                 ref={convertRef}
                 className="relative"
@@ -230,7 +207,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                     role="menu"
                   >
                     <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-xl grid grid-cols-2 gap-4">
-                      {/* Convert to PDF Column */}
                       <div>
                         <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 mb-2">
                           Convert to PDF
@@ -262,7 +238,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                         </div>
                       </div>
 
-                      {/* Convert from PDF Column */}
                       <div>
                         <div className="px-2 pb-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 border-b border-zinc-200 dark:border-zinc-800 mb-2">
                           Convert from PDF
@@ -298,7 +273,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 )}
               </div>
 
-              {/* Mega Dropdown: All PDF Tools */}
               <div
                 ref={allToolsRef}
                 className="relative"
@@ -356,7 +330,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
                 )}
               </div>
 
-              {/* Direct Link: About */}
               <Link
                 href="/about"
                 className={`rounded-lg px-2.5 py-1.5 whitespace-nowrap shrink-0 transition-colors ${
@@ -370,9 +343,7 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
             </nav>
           </div>
 
-          {/* Right: Search, Theme Toggle, Install Action, Mobile Hamburger */}
           <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Compact Search Trigger */}
             <button
               type="button"
               onClick={onOpenSearch}
@@ -386,15 +357,12 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
               </kbd>
             </button>
 
-            {/* PWA Install Action */}
             <div className="hidden sm:block">
               <InstallAppButton />
             </div>
 
-            {/* Theme Toggle */}
             <ThemeToggle />
 
-            {/* Mobile Hamburger Button */}
             <button
               type="button"
               onClick={() => setMobileNavOpen(true)}
@@ -407,7 +375,6 @@ export function AppHeader({ onOpenSearch }: AppHeaderProps) {
         </div>
       </header>
 
-      {/* Mobile Slide-Out Drawer Navigation */}
       <MobileNavigation
         isOpen={mobileNavOpen}
         onClose={() => setMobileNavOpen(false)}

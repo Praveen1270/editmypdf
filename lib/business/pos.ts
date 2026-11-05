@@ -1,5 +1,4 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import { uid } from "./storage";
 
 export interface Product {
   id: string;
@@ -88,5 +87,3 @@ export async function generateReceiptPdf(sale: Sale, shopName: string): Promise<
 
   return await doc.save();
 }
-
-export { uid };

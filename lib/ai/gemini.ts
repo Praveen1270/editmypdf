@@ -1,5 +1,21 @@
 export interface ChatMessage { role: "user" | "model"; text: string; }
 
+// Single per-document context limit: callers must not slice the extracted text themselves.
+export const MAX_CONTEXT_CHARS = 150000;
+
+// Overall cap for a combined multi-document context (chat-with-pdf): the old
+// call-site slice capped the whole context at 200k even when several
+// documents were loaded. Per-document truncation alone would let it grow
+// without bound, so the combined text is capped here too.
+export const MAX_TOTAL_CONTEXT_CHARS = 200000;
+
+export function truncateContext(text: string, maxChars: number = MAX_TOTAL_CONTEXT_CHARS): string {
+  return text.length > maxChars ? text.slice(0, maxChars) : text;
+}
+
+export const GEMINI_PRIVACY_NOTICE =
+  "This tool sends your PDF's text to Google Gemini to generate its answer. Your file is not uploaded by EditMyPDF's other tools, which run entirely in your browser.";
+
 export async function streamGemini(
   apiKey: string,
   system: string,
@@ -49,7 +65,6 @@ export async function streamGemini(
           if (part.text) onToken(part.text);
         }
       } catch {
-        /* ignore parse errors */
       }
     }
   }
@@ -69,5 +84,5 @@ export async function extractPdfTextForContext(pdfBytes: Uint8Array): Promise<st
     out.push(`[Page ${p}]\n${text}`);
   }
   await doc.destroy();
-  return out.join("\n\n");
+  return out.join("\n\n").slice(0, MAX_CONTEXT_CHARS);
 }

@@ -1,5 +1,3 @@
-"use client";
-
 export interface ActiveDocumentState {
   name: string;
   size: number;
@@ -43,7 +41,6 @@ async function persistToIdb(doc: ActiveDocumentState | null): Promise<void> {
       const tx = db.transaction(STORE_NAME, "readwrite");
       const store = tx.objectStore(STORE_NAME);
       if (doc) {
-        // Store serializable payload
         const record = {
           name: doc.name,
           size: doc.size,
@@ -66,6 +63,15 @@ async function persistToIdb(doc: ActiveDocumentState | null): Promise<void> {
 let activeDoc: ActiveDocumentState | null = null;
 const LISTENERS = new Set<() => void>();
 
+// The subscription Set is the only notification mechanism.
+function notifyListeners() {
+  LISTENERS.forEach((listener) => {
+    try {
+      listener();
+    } catch {}
+  });
+}
+
 export function setActiveDocument(doc: Omit<ActiveDocumentState, "timestamp"> | null) {
   if (doc) {
     activeDoc = {
@@ -76,16 +82,7 @@ export function setActiveDocument(doc: Omit<ActiveDocumentState, "timestamp"> | 
     activeDoc = null;
   }
   void persistToIdb(activeDoc);
-  LISTENERS.forEach((listener) => {
-    try {
-      listener();
-    } catch {
-      // ignore
-    }
-  });
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("editmypdf_active_doc_changed"));
-  }
+  notifyListeners();
 }
 
 export function getActiveDocument(): ActiveDocumentState | null {
@@ -111,9 +108,7 @@ export async function loadPersistedActiveDocument(): Promise<ActiveDocumentState
             bytes: val.bytes instanceof Uint8Array ? val.bytes : new Uint8Array(val.bytes),
             timestamp: val.timestamp || Date.now(),
           };
-          LISTENERS.forEach((l) => {
-            try { l(); } catch {}
-          });
+          notifyListeners();
           resolve(activeDoc);
         } else {
           resolve(null);

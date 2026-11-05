@@ -14,7 +14,6 @@ export interface ResultCardProps {
   onReset: () => void;
   pdfBytes?: Uint8Array | null;
   password?: string;
-  textContent?: string | null;
   downloadButtonLabel?: string;
   fileExtension?: string;
 }
@@ -28,11 +27,9 @@ export function ResultCard({
   onReset,
   pdfBytes,
   password,
-  textContent,
   downloadButtonLabel,
   fileExtension,
 }: ResultCardProps) {
-  // Infer file extension if not provided
   const detectedExt =
     fileExtension ||
     (filename.includes(".")
@@ -41,7 +38,6 @@ export function ResultCard({
 
   const [userFilename, setUserFilename] = useState<string>(filename);
 
-  // Sanitizes filename and guarantees correct extension
   const getSanitizedFilename = (): string => {
     let clean = userFilename.replace(/[\\/:*?"<>|\x00-\x1F]/g, "").trim();
     if (!clean) {
@@ -63,7 +59,6 @@ export function ResultCard({
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-5 sm:p-8 shadow-paper text-center animate-in fade-in-50 duration-150">
-      {/* Restrained Success Badge */}
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-success/20 bg-success/10 text-success">
         <CheckCircle2 className="h-6 w-6" />
       </div>
@@ -75,7 +70,6 @@ export function ResultCard({
         Your document was processed 100% locally in browser memory. Review below and export.
       </p>
 
-      {/* 1. ACTUAL GENERATED OUTPUT PREVIEW */}
       {pdfBytes && pdfBytes.byteLength > 0 ? (
         <div className="mt-6 text-left">
           <div className="mb-2 flex items-center justify-between">
@@ -89,27 +83,8 @@ export function ResultCard({
           </div>
           <PdfOutputViewer pdfBytes={pdfBytes} password={password} />
         </div>
-      ) : textContent ? (
-        <div className="mt-6 text-left">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <Eye className="h-3.5 w-3.5 text-accent" />
-              <span>Extracted Output</span>
-            </span>
-            <span className="text-[11px] text-muted-foreground font-mono">
-              Plain Text
-            </span>
-          </div>
-          <textarea
-            readOnly
-            value={textContent}
-            rows={10}
-            className="w-full rounded-xl border border-border bg-surface-subtle p-4 font-mono text-xs text-foreground focus:outline-none leading-relaxed resize-y"
-          />
-        </div>
       ) : null}
 
-      {/* 2. File Summary Box */}
       <div className="mx-auto mt-6 flex max-w-lg items-center justify-between rounded-xl border border-border bg-surface-subtle px-4 py-3 text-left">
         <div className="flex items-center gap-3 overflow-hidden">
           {isZip ? (
@@ -147,7 +122,6 @@ export function ResultCard({
         </p>
       )}
 
-      {/* 3. EDITABLE OUTPUT FILENAME */}
       <div className="mx-auto mt-6 max-w-lg text-left">
         <label
           htmlFor="output-file-name"
@@ -170,7 +144,6 @@ export function ResultCard({
         </p>
       </div>
 
-      {/* 4. ACTIONS: Download PDF & Return to Editing */}
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <button
           type="button"

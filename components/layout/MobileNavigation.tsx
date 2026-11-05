@@ -16,7 +16,7 @@ import {
   Layers,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
-import { MASTER_CATEGORIES, PDF_TOOLS, getMasterCategoryId } from "@/lib/tools-data";
+import { CATEGORIES, TOOL_COUNT, getToolsByCategory } from "@/lib/tools-data";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface MobileNavigationProps {
@@ -38,7 +38,7 @@ export function MobileNavigation({ isOpen, onClose, onOpenSearch }: MobileNaviga
     >
       {/* Top Bar inside Drawer */}
       <div className="flex h-16 items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-4">
-        <BrandLogo markSize={24} />
+        <BrandLogo />
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <button
@@ -150,13 +150,13 @@ export function MobileNavigation({ isOpen, onClose, onOpenSearch }: MobileNaviga
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-              Browse by Category ({PDF_TOOLS.length} Tools)
+              Browse by Category ({TOOL_COUNT} Tools)
             </h3>
           </div>
 
           <div className="space-y-2">
-            {MASTER_CATEGORIES.filter((c) => c.id !== "all").map((cat) => {
-              const tools = PDF_TOOLS.filter((t) => getMasterCategoryId(t) === cat.id);
+            {CATEGORIES.filter((c) => c.id !== "all").map((cat) => {
+              const tools = getToolsByCategory(cat.id);
               const isExpanded = expandedCat === cat.id;
 
               return (

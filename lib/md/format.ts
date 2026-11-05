@@ -37,7 +37,7 @@ export function formatList(items: string[], ordered = false): string {
 
 export function buildMarkdownPage(data: MarkdownPageData): string {
   const canonicalUrl = toAbsoluteUrl(data.canonicalPath);
-  const updatedDate = data.lastUpdated || "2026-10-26";
+  const updatedDate = data.lastUpdated || SITE_CONFIG.lastUpdated;
 
   const parts: string[] = [];
 

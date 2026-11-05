@@ -1,5 +1,6 @@
 import { PDFDocument } from "pdf-lib";
 import { renderPageToImageBlob, getPdfInfo } from "./pdf-loader";
+import { loadPdf, savePdf, ProgressFn } from "./core";
 
 export type CompressionPreset = "low" | "recommended" | "high";
 
@@ -14,14 +15,12 @@ export interface CompressResult {
 export async function compressPDF(
   pdfBytes: Uint8Array,
   preset: CompressionPreset,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<CompressResult> {
   const originalSize = pdfBytes.byteLength;
 
   if (preset === "low") {
-    // Structural optimization & object streams
-    const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-    // Remove unnecessary metadata or compact streams
+    const doc = await loadPdf(pdfBytes);
     doc.setTitle("");
     doc.setAuthor("");
     doc.setSubject("");
@@ -55,7 +54,6 @@ export async function compressPDF(
     }
   }
 
-  // Recommended or High preset: intelligent rasterization & recompression
   // Recommended = 1.5x scale (~108-150 DPI), 0.75 JPEG quality
   // High = 1.0x scale (~72-100 DPI), 0.55 JPEG quality
   const scale = preset === "recommended" ? 1.5 : 1.0;
@@ -73,7 +71,6 @@ export async function compressPDF(
     const jpgBytes = new Uint8Array(arrayBuffer);
     const embeddedImg = await newDoc.embedJpg(jpgBytes);
 
-    // Create page matching image aspect ratio
     const page = newDoc.addPage([embeddedImg.width / scale, embeddedImg.height / scale]);
     page.drawImage(embeddedImg, {
       x: 0,
@@ -83,7 +80,7 @@ export async function compressPDF(
     });
   }
 
-  const compressed = await newDoc.save({ useObjectStreams: true });
+  const compressed = await savePdf(newDoc);
   const compressedSize = compressed.byteLength;
 
   if (compressedSize < originalSize) {
@@ -99,7 +96,6 @@ export async function compressPDF(
           : "Maximum compression at 100 DPI (55% quality). Smallest file size, ideal for email attachments and web sharing.",
     };
   } else {
-    // If re-rasterization produced a larger file (e.g., small text-only PDF), keep original
     return {
       bytes: pdfBytes,
       originalSize,
