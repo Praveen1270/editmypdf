@@ -1,4 +1,4 @@
-import { PDFDocument } from "pdf-lib";
+import { loadPdf, savePdf, openPdfJs } from "./core";
 
 export type RiskLevel = "high" | "medium" | "low";
 
@@ -29,7 +29,7 @@ export async function scanPdfPrivacy(
   options: { clean?: boolean } = {}
 ): Promise<PrivacyScanResult> {
   const findings: PrivacyFinding[] = [];
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
 
   // Info dictionary
   const metaFields: [string, string | undefined][] = [
@@ -76,8 +76,8 @@ export async function scanPdfPrivacy(
         removable: true,
       });
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("scanPdfPrivacy: could not check for embedded files", err);
   }
 
   // JavaScript actions
@@ -97,8 +97,8 @@ export async function scanPdfPrivacy(
         });
       }
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("scanPdfPrivacy: could not check for JavaScript actions", err);
   }
 
   // XFA
@@ -114,8 +114,8 @@ export async function scanPdfPrivacy(
         removable: true,
       });
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("scanPdfPrivacy: could not check for XFA data", err);
   }
 
   // Form fields (hidden fields)
@@ -132,8 +132,8 @@ export async function scanPdfPrivacy(
         removable: true,
       });
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("scanPdfPrivacy: could not list form fields", err);
   }
 
   // Annotations
@@ -142,8 +142,8 @@ export async function scanPdfPrivacy(
     try {
       const annots = (page.node as any).getArray?.("Annots");
       if (annots && typeof annots.size === "function") annotCount += annots.size();
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("scanPdfPrivacy: could not count annotations on a page", err);
     }
   }
   if (annotCount > 0) {
@@ -159,10 +159,7 @@ export async function scanPdfPrivacy(
 
   // External links / URIs
   try {
-    const { getPdfJs } = await import("./pdf-loader");
-    const pdfjs = await getPdfJs();
-    const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-    const srcDoc = await task.promise;
+    const srcDoc = await openPdfJs(pdfBytes);
     let linkCount = 0;
     for (let i = 1; i <= srcDoc.numPages; i++) {
       const page = await srcDoc.getPage(i);
@@ -182,8 +179,8 @@ export async function scanPdfPrivacy(
         removable: true,
       });
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("scanPdfPrivacy: could not check for external links", err);
   }
 
   // Image EXIF check (best-effort: flag if images present)
@@ -201,14 +198,14 @@ export async function scanPdfPrivacy(
         removable: true,
       });
     }
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn("scanPdfPrivacy: could not check for embedded images", err);
   }
 
   let cleanedBytes: Uint8Array | undefined;
   if (options.clean) {
     // Produce cleaned copy
-    const cleanDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+    const cleanDoc = await loadPdf(pdfBytes);
     // Clear info dict
     cleanDoc.setTitle("");
     cleanDoc.setAuthor("");
@@ -220,8 +217,8 @@ export async function scanPdfPrivacy(
     for (const page of cleanDoc.getPages()) {
       try {
         (page.node as any).delete?.("Annots");
-      } catch {
-        /* ignore */
+      } catch (err) {
+        console.warn("scanPdfPrivacy: could not remove annotations from a page while cleaning", err);
       }
     }
     // Remove scripts/actions
@@ -233,18 +230,18 @@ export async function scanPdfPrivacy(
         const names = catalog.get("Names");
         if (names && typeof names.delete === "function") names.delete("JavaScript");
       }
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("scanPdfPrivacy: could not remove scripts/actions while cleaning", err);
     }
     // Remove XFA
     try {
       const form: any = (cleanDoc as any).getForm?.();
       form?.removeXFA?.();
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("scanPdfPrivacy: could not remove XFA while cleaning", err);
     }
     // Re-encode images by rasterizing? Skip heavy; just save
-    cleanedBytes = await cleanDoc.save({ useObjectStreams: true });
+    cleanedBytes = await savePdf(cleanDoc);
   }
 
   return { findings, cleanedBytes };

@@ -1,6 +1,6 @@
-import JSZip from "jszip";
 import { renderPageToImageBlob, getPdfInfo } from "./pdf-loader";
-import { parsePageRangeString } from "./split";
+import { parsePageRangeString } from "./page-range";
+import { zipFiles, ProgressFn } from "./core";
 
 export interface ConvertedImagePage {
   pageNumber: number;
@@ -22,7 +22,7 @@ export async function convertPdfToImages(
   pdfBytes: Uint8Array,
   baseFilename: string,
   options: ConvertToImagesOptions,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<ConvertedImagePage[]> {
   const cleanBase = baseFilename.replace(/\.pdf$/i, "");
   const info = await getPdfInfo(pdfBytes);
@@ -73,11 +73,11 @@ export async function createImagesZip(
   images: ConvertedImagePage[],
   zipFilename: string
 ): Promise<{ bytes: Uint8Array; filename: string }> {
-  const zip = new JSZip();
+  const files: { name: string; data: Uint8Array }[] = [];
   for (const img of images) {
     const buffer = await img.blob.arrayBuffer();
-    zip.file(img.filename, buffer);
+    files.push({ name: img.filename, data: new Uint8Array(buffer) });
   }
-  const zipBytes = await zip.generateAsync({ type: "uint8array" });
+  const zipBytes = await zipFiles(files);
   return { bytes: zipBytes, filename: zipFilename };
 }

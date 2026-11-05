@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { savePdf } from "./core";
 
 export async function powerpointToPdf(pptxBytes: Uint8Array): Promise<Uint8Array> {
   const JSZip = (await import("jszip")).default;
@@ -44,5 +45,5 @@ export async function powerpointToPdf(pptxBytes: Uint8Array): Promise<Uint8Array
     const page = doc.addPage([pageW, pageH]);
     page.drawText("No slides found in presentation.", { x: 40, y: pageH - 40, size: 12, font });
   }
-  return doc.save();
+  return savePdf(doc);
 }

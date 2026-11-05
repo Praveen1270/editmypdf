@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import { savePdf, PAGE_SIZES, PDF_ERRORS } from "./core";
 
 export interface ScanPage {
   dataUrl: string; // image data url
@@ -20,16 +21,13 @@ export async function scanToPdf(
   const { pageSize = "a4", filter = "original" } = options;
   const doc = await PDFDocument.create();
 
-  const STANDARD = { a4: { w: 595.28, h: 841.89 }, letter: { w: 612, h: 792 } };
-
   for (const p of pages) {
-    // Load image into canvas for filter + dimensions
     const img = await loadImage(p.dataUrl);
     const canvas = document.createElement("canvas");
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
     const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Canvas unavailable");
+    if (!ctx) throw new Error(PDF_ERRORS.canvasUnavailable);
     ctx.drawImage(img, 0, 0);
 
     if (filter === "grayscale") {
@@ -59,9 +57,8 @@ export async function scanToPdf(
     if (pageSize === "fit") {
       pageW = embedded.width; pageH = embedded.height;
     } else {
-      const base = STANDARD[pageSize];
-      pageW = base.w; pageH = base.h;
-      // auto orientation
+      const base = PAGE_SIZES[pageSize];
+      pageW = base.width; pageH = base.height;
       if (embedded.width > embedded.height && pageW < pageH) [pageW, pageH] = [pageH, pageW];
     }
 
@@ -72,7 +69,7 @@ export async function scanToPdf(
     page.drawImage(embedded, { x: (pageW - dw) / 2, y: (pageH - dh) / 2, width: dw, height: dh });
   }
 
-  return await doc.save();
+  return await savePdf(doc);
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {

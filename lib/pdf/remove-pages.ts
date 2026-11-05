@@ -1,7 +1,8 @@
 import { PDFDocument } from "pdf-lib";
+import { loadPdf, savePdf } from "./core";
 
 export async function removePdfPages(pdfBytes: Uint8Array, pagesToRemove: number[]): Promise<Uint8Array> {
-  const src = await PDFDocument.load(pdfBytes);
+  const src = await loadPdf(pdfBytes);
   const total = src.getPageCount();
   const removeSet = new Set(pagesToRemove);
   const keep: number[] = [];
@@ -14,5 +15,5 @@ export async function removePdfPages(pdfBytes: Uint8Array, pagesToRemove: number
   const out = await PDFDocument.create();
   const copied = await out.copyPages(src, keep);
   copied.forEach((p) => out.addPage(p));
-  return out.save();
+  return savePdf(out);
 }

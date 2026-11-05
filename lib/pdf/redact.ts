@@ -1,5 +1,5 @@
 import { PDFDocument } from "pdf-lib";
-import { getPdfJs } from "./pdf-loader";
+import { loadPdf, savePdf, openPdfJs, ProgressFn, PDF_ERRORS } from "./core";
 
 export interface RedactRect {
   page: number; // 0-indexed
@@ -30,22 +30,18 @@ export interface RedactResult {
 export async function redactPdf(
   pdfBytes: Uint8Array,
   options: RedactOptions,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<RedactResult> {
   const { rects = [], searchTerms = [], useRegex = false, mode = "safe" } = options;
   // "precise" is retained for API compatibility, but is intentionally mapped
   // to safe rasterization because drawing an overlay is not true redaction.
   const effectiveMode = mode === "precise" ? "safe" : mode;
 
-  // Build rect list, deriving rects from search terms when provided
   const allRects: RedactRect[] = [...rects];
 
-  const pdfjs = await getPdfJs();
-  const loadingTask = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const srcDoc = await loadingTask.promise;
+  const srcDoc = await openPdfJs(pdfBytes);
   const totalPages = srcDoc.numPages;
 
-  // Derive rects from search terms
   if (searchTerms.length > 0) {
     for (let p = 1; p <= totalPages; p++) {
       const page = await srcDoc.getPage(p);
@@ -58,7 +54,8 @@ export async function redactPdf(
           if (useRegex) {
             try {
               matched = new RegExp(term, "i").test(str);
-            } catch {
+            } catch (err) {
+              console.warn(`redactPdf: invalid regex "${term}", falling back to plain substring match`, err);
               matched = str.toLowerCase().includes(term.toLowerCase());
             }
           } else {
@@ -77,7 +74,6 @@ export async function redactPdf(
     }
   }
 
-  // Group rects by page
   const rectsByPage = new Map<number, RedactRect[]>();
   for (const r of allRects) {
     if (!rectsByPage.has(r.page)) rectsByPage.set(r.page, []);
@@ -90,7 +86,7 @@ export async function redactPdf(
     // Rasterize affected pages with boxes burned in; leave unaffected pages as-is via copy
     const outDoc = await PDFDocument.create();
     // Copy all pages first as vector (preserves text on clean pages)
-    const srcPdfLib = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+    const srcPdfLib = await loadPdf(pdfBytes);
 
     for (let i = 0; i < totalPages; i++) {
       const pageRects = rectsByPage.get(i);
@@ -101,7 +97,6 @@ export async function redactPdf(
         if (onProgress) onProgress(i + 1, totalPages);
         continue;
       }
-      // rasterize this page
       const page = await srcDoc.getPage(i + 1);
       const scale = 2.5;
       const viewport = page.getViewport({ scale });
@@ -109,10 +104,9 @@ export async function redactPdf(
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Canvas context unavailable");
+      if (!ctx) throw new Error(PDF_ERRORS.canvasUnavailable);
       await page.render({ canvasContext: ctx as any, viewport }).promise;
 
-      // burn black boxes
       const unscaledVp = page.getViewport({ scale: 1 });
       const sx = viewport.width / unscaledVp.width;
       const sy = viewport.height / unscaledVp.height;
@@ -133,7 +127,6 @@ export async function redactPdf(
       if (onProgress) onProgress(i + 1, totalPages);
     }
 
-    // Strip metadata
     try {
       outDoc.setTitle("");
       outDoc.setAuthor("");
@@ -141,40 +134,24 @@ export async function redactPdf(
       outDoc.setKeywords([]);
       outDoc.setCreator("");
       outDoc.setProducer("");
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("redactPdf: could not strip metadata from redacted output", err);
     }
 
-    const bytes = await outDoc.save({ useObjectStreams: true });
+    const bytes = await savePdf(outDoc);
     await srcDoc.destroy();
 
     // Verify no search terms remain in text layer
     const remaining: string[] = [];
-    if (searchTerms.length > 0) {
-      // rasterized pages have no text; clean pages may still contain terms -> check
-      for (let i = 0; i < totalPages; i++) {
-        if (rectsByPage.has(i)) continue; // rasterized, text gone
-        // page kept vector; check text
-        try {
-          const pg = await srcDoc.getPage(i + 1);
-          // srcDoc destroyed? reopen
-        } catch {
-          /* ignore */
-        }
-      }
-    }
-    // Re-open output to verify text extraction has no redacted terms
     let verified = true;
     try {
-      const verifyTask = pdfjs.getDocument({ data: bytes.slice() });
-      const vDoc = await verifyTask.promise;
+      const vDoc = await openPdfJs(bytes);
       for (let i = 1; i <= vDoc.numPages; i++) {
         const pg = await vDoc.getPage(i);
         const tc = await pg.getTextContent();
         const pageText = (tc.items as any[]).map((it) => it.str).join(" ").toLowerCase();
         for (const term of searchTerms) {
           if (pageText.includes(term.toLowerCase())) {
-            // only flag if page was redacted
             if (rectsByPage.has(i - 1)) {
               remaining.push(term);
               verified = false;
@@ -183,8 +160,8 @@ export async function redactPdf(
         }
       }
       await vDoc.destroy();
-    } catch {
-      /* ignore */
+    } catch (err) {
+      console.warn("redactPdf: could not verify redacted output text layer", err);
     }
 
     return { bytes, redactedCount, verified, remainingMatches: remaining };

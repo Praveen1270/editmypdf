@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { PDFDocument } from "pdf-lib";
 import { mergePDFs } from "../lib/pdf/merge.ts";
 import { splitPDF, parsePageRangeString } from "../lib/pdf/split.ts";
@@ -20,7 +23,7 @@ import { scanPdfPrivacy } from "../lib/pdf/privacy-scan.ts";
 import { invertPdfColors } from "../lib/pdf/invert.ts";
 import { repairPdf } from "../lib/pdf/repair.ts";
 import { convertPdfToHtml } from "../lib/pdf/pdf-to-html.ts";
-import { PDF_TOOLS, TOOL_CATEGORIES } from "../lib/tools-data.ts";
+import { PDF_TOOLS } from "../lib/tools-data.ts";
 
 async function createSamplePdf(pageCount = 3, text = "Test Page") {
   const doc = await PDFDocument.create();
@@ -70,20 +73,23 @@ async function runTests() {
   // 3. Tool 2: Split PDF
   {
     const sample = await createSamplePdf(4, "SplitDoc");
-    // Extract single
     const extracted = await splitPDF(sample, "sample.pdf", "extract-single", "1-2");
     const extDoc = await PDFDocument.load(extracted.bytes);
     assert(extDoc.getPageCount() === 2, "Split PDF (extract single): Extracted exactly 2 pages");
 
-    // Split all into ZIP
     const splitZip = await splitPDF(sample, "sample.pdf", "split-all");
-    assert(splitZip.type === "zip" && splitZip.bytes.byteLength > 0, "Split PDF (split all): Successfully generated ZIP archive");
+    assert(
+      splitZip.type === "zip" &&
+        splitZip.bytes.byteLength > 0 &&
+        splitZip.bytes[0] === 0x50 &&
+        splitZip.bytes[1] === 0x4b,
+      "Split PDF (split all): Generated a real ZIP archive (PK magic bytes)"
+    );
   }
 
   // 4. Tool 3: Organize PDF
   {
     const sample = await createSamplePdf(3, "OrgDoc");
-    // Reorder pages: reverse order and duplicate page 1 (original index 0)
     const orgItems = [
       { id: "1", originalIndex: 2, rotation: 90 },
       { id: "2", originalIndex: 1, rotation: 0 },
@@ -114,7 +120,13 @@ async function runTests() {
     assert(singleDoc.getPageCount() === 2, "Extract PDF Pages (single-pdf): Extracted exactly 2 selected pages");
 
     const zipExt = await extractPdfPages(sample, "doc.pdf", [0, 2, 4], "zip-separate");
-    assert(zipExt.type === "zip" && zipExt.bytes.byteLength > 0, "Extract PDF Pages (zip-separate): Packaged pages into valid ZIP archive");
+    assert(
+      zipExt.type === "zip" &&
+        zipExt.bytes.byteLength > 0 &&
+        zipExt.bytes[0] === 0x50 &&
+        zipExt.bytes[1] === 0x4b,
+      "Extract PDF Pages (zip-separate): Packaged pages into a real ZIP archive (PK magic bytes)"
+    );
   }
 
   // 7. Tool 6: Compress PDF
@@ -188,7 +200,6 @@ async function runTests() {
   // 12. Tool 11: Resize PDF Pages
   {
     const sample = await createSamplePdf(2, "ResizeDoc");
-    // Resize to A4 (595.28 x 841.89 pt)
     const resized = await resizePdfPages(sample, {
       pageSize: "a4",
       orientation: "portrait",
@@ -213,7 +224,6 @@ async function runTests() {
     assert(meta.author === "Chief Financial Officer", "Metadata Editor: Author successfully written and retrieved");
     assert(meta.subject === "Fiscal Q3 Results", "Metadata Editor: Subject successfully written and retrieved");
 
-    // Test stripping metadata
     const stripped = await updatePdfMetadata(updated, {}, true);
     const strippedMeta = await readPdfMetadata(stripped);
     assert(!strippedMeta.title && !strippedMeta.author, "Metadata Editor: Metadata sanitization stripped all personal tags");
@@ -251,14 +261,12 @@ async function runTests() {
 
   // 17. Tool 16: Unlock PDF
   {
-    // Test with correct password
     const decrypted = await unlockPDF(encryptedBytes, "mySecretPassword123");
     const checkDec = await checkPdfEncryption(decrypted);
     assert(checkDec.encrypted === false, "Unlock PDF: Document successfully decrypted and openable without password");
     const doc = await PDFDocument.load(decrypted);
     assert(doc.getPageCount() === 2, "Unlock PDF: Decrypted document has intact pages and content");
 
-    // Test with wrong password
     let failedAsExpected = false;
     try {
       await unlockPDF(encryptedBytes, "wrongPassword");
@@ -341,11 +349,24 @@ async function runTests() {
     assert(caughtMergeEncrypted, "Merge PDF: Successfully caught encrypted file and guided user to Unlock PDF tool");
   }
 
-  // New tools tests
+  // Tool registry integrity, derived from the registry itself (no hardcoded
+  // counts, so adding or removing a tool does not need a test edit).
   {
-    const toolIds = new Set(PDF_TOOLS.map((tool) => tool.id));
-    const missing = TOOL_CATEGORIES.flatMap((category) => category.toolIds.filter((id) => !toolIds.has(id)));
-    assert(missing.length === 0, `Tool directory: every category entry resolves to a registered tool${missing.length ? ` (missing: ${missing.join(", ")})` : ""}`);
+    const ids = PDF_TOOLS.map((tool) => tool.id);
+    assert(new Set(ids).size === ids.length, "Tool registry: tool ids are unique");
+    const hrefs = PDF_TOOLS.map((tool) => tool.href);
+    assert(new Set(hrefs).size === hrefs.length, "Tool registry: tool hrefs are unique");
+    const incomplete = PDF_TOOLS.filter((tool) => !tool.id || !tool.name || !tool.href);
+    assert(incomplete.length === 0, "Tool registry: every tool has an id, name and href");
+    const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "app");
+    const withoutPage = PDF_TOOLS.filter((tool) => {
+      const base = tool.href.split("?")[0].slice(1) || "";
+      return !fs.existsSync(path.join(appDir, base, "page.tsx"));
+    });
+    assert(
+      withoutPage.length === 0,
+      `Tool registry: every tool href has a matching page on disk${withoutPage.length ? ` (missing: ${withoutPage.map((t) => t.href).join(", ")})` : ""}`
+    );
   }
   {
     const sample = await createSamplePdf(2, "FlattenDoc");
@@ -353,7 +374,14 @@ async function runTests() {
     const d = await PDFDocument.load(bytes);
     assert(d.getPageCount() === 2, "Flatten PDF: preserved page count");
     assert(bytes.byteLength > 0, "Flatten PDF: produced output");
-    void report;
+    assert(
+      typeof report.fieldsFlattened === "number" &&
+        typeof report.annotationsRemoved === "number" &&
+        typeof report.scriptsRemoved === "boolean" &&
+        typeof report.xfaRemoved === "boolean",
+      "Flatten PDF: report describes what was flattened/removed"
+    );
+    assert(report.fieldsFlattened === 0, "Flatten PDF: sample has no form fields to flatten");
   }
   // Note: redact, privacy-scan, invert, repair, pdf-to-html rely on pdf.js/DOM
   // and are validated in the browser; skipped in the node test runner.
