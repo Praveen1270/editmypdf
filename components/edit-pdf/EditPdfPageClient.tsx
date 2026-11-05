@@ -1,14 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { ShieldCheck, CheckCircle2, AlertTriangle, HelpCircle } from "lucide-react";
 import { RelatedTools } from "@/components/tools/RelatedTools";
 import { EditPdfLazy } from "@/components/edit-pdf/EditPdfLazy";
+import { EditPdfProvider, useEditPdf } from "@/components/edit-pdf/store";
+import { getToolById } from "@/lib/tools-data";
 
-export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
-  const [stage, setStage] = useState<string>("upload");
+function EditPdfPageContent() {
+  const { state } = useEditPdf();
+  const stage = state.stage;
   const isEditing = stage === "editor" || stage === "processing" || stage === "done";
+  const toolMeta = getToolById("edit-pdf");
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-12">
@@ -50,7 +54,7 @@ export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
       )}
 
       {/* Editor (client-only, lazy) */}
-      <EditPdfLazy onStageChange={setStage} />
+      <EditPdfLazy />
 
       {/* Help content - only show when not actively editing */}
       {!isEditing && toolMeta && (
@@ -58,7 +62,7 @@ export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
           <div>
             <h2 className="text-lg font-bold text-foreground">How to edit a PDF</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {toolMeta.steps.map((step: any, idx: number) => (
+              {toolMeta.steps.map((step, idx) => (
                 <div key={idx} className="rounded-xl border border-border bg-surface p-5 shadow-paper">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface-subtle text-xs font-bold text-foreground">
                     {idx + 1}
@@ -77,7 +81,7 @@ export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
                 <span>Capabilities & Features</span>
               </h3>
               <ul className="mt-3.5 space-y-2 text-xs text-muted-foreground">
-                {toolMeta.features.map((feat: any, idx: number) => (
+                {toolMeta.features.map((feat, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="mt-0.5 font-bold">•</span>
                     <span>{feat}</span>
@@ -91,7 +95,7 @@ export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
                 <span>Important Notes & Limitations</span>
               </h3>
               <ul className="mt-3.5 space-y-2 text-xs text-muted-foreground">
-                {toolMeta.limitations.map((lim: any, idx: number) => (
+                {toolMeta.limitations.map((lim, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="mt-0.5 font-bold">•</span>
                     <span>{lim}</span>
@@ -107,7 +111,7 @@ export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
               <span>Frequently Asked Questions</span>
             </h2>
             <div className="mt-4 space-y-3">
-              {toolMeta.faq.map((item: any, idx: number) => (
+              {toolMeta.faq.map((item, idx) => (
                 <div key={idx} className="rounded-xl border border-border bg-surface p-5 shadow-paper">
                   <h3 className="text-sm font-semibold text-foreground">{item.q}</h3>
                   <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.a}</p>
@@ -120,5 +124,13 @@ export function EditPdfPageClient({ toolMeta }: { toolMeta: any }) {
         </div>
       )}
     </div>
+  );
+}
+
+export function EditPdfPageClient() {
+  return (
+    <EditPdfProvider>
+      <EditPdfPageContent />
+    </EditPdfProvider>
   );
 }

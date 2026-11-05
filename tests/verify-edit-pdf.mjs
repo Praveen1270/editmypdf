@@ -186,7 +186,9 @@ async function verifyCase(cfg) {
       check("output page count preserved", probe.getPageCount() === cfg.pages, `${probe.getPageCount()} pages`);
       const outDoc = await openDoc(outBytes);
       const t = await pageText(outDoc, 1);
-      check("edited text present in output", edits.length === 0 || t.includes("[EDITED]"));
+      if (edits.length > 0) {
+        check("edited text present in output", t.includes("[EDITED]"));
+      }
       await outDoc.destroy();
     } catch (e) {
       check("output re-opens", false, String(e?.message ?? e).slice(0, 160));

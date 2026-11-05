@@ -17,7 +17,6 @@ export async function ebookToPdf(file: File, options: EbookToPdfOptions = {}): P
   const buf = await file.arrayBuffer();
   const zip = await JSZip.loadAsync(buf);
 
-  // find container.xml
   const containerFile = zip.file("META-INF/container.xml");
   if (!containerFile) throw new Error("Invalid EPUB: missing container.xml");
   const containerXml = await containerFile.async("string");
@@ -30,22 +29,18 @@ export async function ebookToPdf(file: File, options: EbookToPdfOptions = {}): P
   if (!opfFile) throw new Error("Invalid EPUB: missing OPF");
   const opfXml = await opfFile.async("string");
 
-  // manifest: id -> href
   const manifest = new Map<string, string>();
   const itemRegex = /<item[^>]*id="([^"]*)"[^>]*href="([^"]*)"[^>]*>/g;
   let m: RegExpExecArray | null;
   while ((m = itemRegex.exec(opfXml)) !== null) manifest.set(m[1], m[2]);
 
-  // spine order
   const spineIds: string[] = [];
   const spineRegex = /<itemref[^>]*idref="([^"]*)"[^>]*>/g;
   while ((m = spineRegex.exec(opfXml)) !== null) spineIds.push(m[1]);
 
-  // title
   const titleMatch = opfXml.match(/<dc:title[^>]*>([^<]*)<\/dc:title>/);
   const title = titleMatch ? titleMatch[1] : file.name;
 
-  // concatenate chapters
   let html = `<h1>${escapeHtml(title)}</h1>`;
   for (const id of spineIds) {
     const href = manifest.get(id);
@@ -54,7 +49,6 @@ export async function ebookToPdf(file: File, options: EbookToPdfOptions = {}): P
     const chapFile = zip.file(fullPath);
     if (!chapFile) continue;
     const chapHtml = await chapFile.async("string");
-    // strip head/body wrappers, keep body content
     const bodyMatch = chapHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     const content = bodyMatch ? bodyMatch[1] : chapHtml;
     html += content;

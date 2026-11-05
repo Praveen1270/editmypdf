@@ -235,7 +235,7 @@ export function stripSubsetPrefix(name: string): string {
 }
 
 /** Normalize a PDF font name for mapping (lowercase, split on - , _ +). */
-export function normalizeFontName(name: string): string {
+function normalizeFontName(name: string): string {
   return stripSubsetPrefix(name).toLowerCase().replace(/[_+,]/g, "-");
 }
 
@@ -254,7 +254,7 @@ export function detectItalicFromName(name: string): boolean {
 
 export type ScriptKind = "devanagari" | "telugu" | "latin-other";
 
-export function detectScript(text: string): ScriptKind {
+function detectScript(text: string): ScriptKind {
   for (const ch of text) {
     const cp = ch.codePointAt(0) ?? 0;
     if (cp >= 0x0900 && cp <= 0x097f) return "devanagari";
@@ -323,7 +323,7 @@ export async function registerEmbeddedFontFace(family: string, bytes: Uint8Array
 
 /** Lazily loaded fontkit (browser + node compatible). */
 let fontkitModule: any = null;
-export async function getFontkit(): Promise<any> {
+async function getFontkit(): Promise<any> {
   if (!fontkitModule) {
     const mod = await import("@pdf-lib/fontkit");
     fontkitModule = (mod as any).default ?? mod;

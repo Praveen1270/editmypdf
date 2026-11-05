@@ -10,13 +10,11 @@ const rootDir = path.resolve(__dirname, "..");
 const EXPLICIT_SKIPS = new Map([
   ["offline", "PWA offline fallback cache page; client-only service worker view"],
   ["recent", "User local document processing history; client-only localStorage view"],
-  ["starred", "User bookmarked tool favorites; client-only localStorage view"],
 ]);
 
 async function runCoverageCheck() {
   console.log("🔍 Checking markdown coverage for all public routes...\n");
 
-  // Dynamic import of compiled or tsx module
   const { renderRoute, listMarkdownRoutes, normalizePath } = await import("../lib/md/registry.ts");
   const { prefersMarkdown } = await import("../lib/md/negotiate.ts");
 
@@ -27,7 +25,6 @@ async function runCoverageCheck() {
     .filter((e) => e.isDirectory() && fs.existsSync(path.join(appDir, e.name, "page.tsx")))
     .map((e) => e.name);
 
-  // Add root home page
   const allAppRoutes = ["/", ...foundPageDirs.map((d) => `/${d}`)];
 
   let passed = true;
@@ -71,9 +68,14 @@ async function runCoverageCheck() {
   console.log(`\n✅ Verified ${verifiedCount} public routes with active markdown renderers.`);
   console.log(`ℹ️ Skipped ${skippedCount} client-only routes documented in skip list.`);
 
-  // Verify route catalog count matches
   const catalog = listMarkdownRoutes();
   console.log(`📋 Catalog lists ${catalog.length} addressable markdown endpoints.`);
+  if (catalog.length !== verifiedCount) {
+    console.error(
+      `❌ [CATALOG MISMATCH] Markdown catalog lists ${catalog.length} routes but ${verifiedCount} routes verified on disk`
+    );
+    passed = false;
+  }
 
   // Content negotiation tests
   console.log("\n🧪 Running Content Negotiation tests...");

@@ -24,7 +24,7 @@ export async function GET() {
   const parts: string[] = [
     `# ${SITE_CONFIG.name} - Full Content`,
     `> ${SITE_CONFIG.description}`,
-    `Generated: 2026-10-26`,
+    `Generated: ${SITE_CONFIG.lastUpdated}`,
     `Source: ${SITE_CONFIG.url}`,
     `Contact: ${SITE_CONFIG.contactEmail}`,
     `Total Documents: ${sortedRoutes.length}`,

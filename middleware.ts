@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { prefersMarkdown } from "@/lib/md/negotiate";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 const DESCRIBED_BY_LINK =
-  '<https://editmypdf.co.in/llms.txt>; rel="describedby", <https://editmypdf.co.in/llms-full.txt>; rel="describedby", <https://editmypdf.co.in/ai.txt>; rel="describedby"';
+  `<${SITE_CONFIG.url}/llms.txt>; rel="describedby", <${SITE_CONFIG.url}/llms-full.txt>; rel="describedby", <${SITE_CONFIG.url}/ai.txt>; rel="describedby"`;
 
 const EXCLUDED_PREFIXES = [
   "/api/",

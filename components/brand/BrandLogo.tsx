@@ -3,7 +3,6 @@ import Link from "next/link";
 
 interface BrandLogoProps {
   className?: string;
-  markSize?: number;
   showWordmark?: boolean;
   linkToHome?: boolean;
 }

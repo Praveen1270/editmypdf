@@ -6,10 +6,9 @@ import { useTheme } from "./ThemeProvider";
 
 interface ThemeToggleProps {
   className?: string;
-  showLabel?: boolean;
 }
 
-export function ThemeToggle({ className = "", showLabel = false }: ThemeToggleProps) {
+export function ThemeToggle({ className = "" }: ThemeToggleProps) {
   const { theme, toggleTheme, mounted } = useTheme();
 
   // Guard against hydration mismatch
@@ -41,11 +40,6 @@ export function ThemeToggle({ className = "", showLabel = false }: ThemeTogglePr
         <Sun className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:rotate-45" />
       ) : (
         <Moon className="h-4 w-4 shrink-0 transition-transform duration-150 group-hover:-rotate-12" />
-      )}
-      {showLabel && (
-        <span className="text-xs font-medium text-foreground">
-          {isDark ? "Light" : "Dark"}
-        </span>
       )}
     </button>
   );

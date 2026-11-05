@@ -12,6 +12,9 @@
  *   rotated pages and non-zero CropBox/MediaBox origins automatically.
  */
 
+/** Text-markup annotation subtype (highlight / underline / strike). */
+export type AnnotSubtype = "highlight" | "underline" | "strike";
+
 /** Toolbar tool identifiers. `select` is the default pan/select tool. */
 export type EditorToolId =
   | "select"
@@ -247,10 +250,6 @@ export interface EditorSnapshot {
   pages: EditorPage[];
   overlays: Overlay[];
   fills: FormFill[];
-}
-
-export function isTextOverlay(o: Overlay): o is EditTextOverlay | AddTextOverlay {
-  return o.kind === "edit" || o.kind === "text";
 }
 
 let overlayCounter = 0;

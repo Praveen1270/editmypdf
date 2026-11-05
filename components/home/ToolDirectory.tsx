@@ -2,22 +2,19 @@
 
 import React, { useState, useMemo } from "react";
 import {
-  MASTER_CATEGORIES,
-  MasterCategoryId,
+  CATEGORIES,
   PDF_TOOLS,
-  getMasterCategoryId,
+  type ToolCategoryId,
+  getToolsByCategory,
 } from "@/lib/tools-data";
 import { ToolCard } from "./ToolCard";
 
 export function ToolDirectory() {
-  const [selectedCategory, setSelectedCategory] = useState<MasterCategoryId>("all");
+  const [selectedCategory, setSelectedCategory] = useState<ToolCategoryId | "all">("all");
 
   // Filter tools based on selected category
   const displayedTools = useMemo(() => {
-    if (selectedCategory === "all") {
-      return PDF_TOOLS;
-    }
-    return PDF_TOOLS.filter((tool) => getMasterCategoryId(tool) === selectedCategory);
+    return getToolsByCategory(selectedCategory);
   }, [selectedCategory]);
 
   // Counts per category
@@ -25,9 +22,9 @@ export function ToolDirectory() {
     const counts: Record<string, number> = {
       all: PDF_TOOLS.length,
     };
-    MASTER_CATEGORIES.forEach((cat) => {
+    CATEGORIES.forEach((cat) => {
       if (cat.id !== "all") {
-        counts[cat.id] = PDF_TOOLS.filter((t) => getMasterCategoryId(t) === cat.id).length;
+        counts[cat.id] = getToolsByCategory(cat.id).length;
       }
     });
     return counts;
@@ -42,7 +39,7 @@ export function ToolDirectory() {
           aria-label="PDF tool categories"
           className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none no-scrollbar w-full px-0.5"
         >
-          {MASTER_CATEGORIES.map((cat) => {
+          {CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             const count = categoryCounts[cat.id] || 0;
 

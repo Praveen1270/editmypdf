@@ -1,5 +1,5 @@
 import { PDFDocument } from "pdf-lib";
-import { getPdfJs } from "./pdf-loader";
+import { savePdf, openPdfJs, ProgressFn, PDF_ERRORS } from "./core";
 
 export type InvertMode = "invert" | "dark" | "sepia" | "grayscale" | "smart";
 
@@ -15,12 +15,10 @@ export interface InvertOptions {
 export async function invertPdfColors(
   pdfBytes: Uint8Array,
   options: InvertOptions = {},
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<Uint8Array> {
   const { mode = "invert", dpi = 144 } = options;
-  const pdfjs = await getPdfJs();
-  const loadingTask = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const srcDoc = await loadingTask.promise;
+  const srcDoc = await openPdfJs(pdfBytes);
   const totalPages = srcDoc.numPages;
   const scale = dpi / 72;
 
@@ -36,9 +34,8 @@ export async function invertPdfColors(
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) throw new Error("Canvas context unavailable");
+      if (!ctx) throw new Error(PDF_ERRORS.canvasUnavailable);
 
-      // white background
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -61,9 +58,7 @@ export async function invertPdfColors(
           ng = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
           nb = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
         } else if (mode === "dark") {
-          // invert then slight hue rotate toward cool
           nr = 255 - r; ng = 255 - g; nb = 255 - b;
-          // soften: blend toward dark blue-gray
           nr = Math.round(nr * 0.85 + 20);
           ng = Math.round(ng * 0.85 + 20);
           nb = Math.round(nb * 0.9 + 30);
@@ -87,7 +82,7 @@ export async function invertPdfColors(
       if (onProgress) onProgress(pageNum, totalPages);
     }
 
-    return await outDoc.save({ useObjectStreams: true });
+    return await savePdf(outDoc);
   } finally {
     await srcDoc.destroy();
   }

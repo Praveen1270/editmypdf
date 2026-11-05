@@ -1,4 +1,5 @@
-import { estimateTokens } from "./format";
+import { SITE_CONFIG } from "@/lib/site-config";
+import { estimateTokens, toAbsoluteUrl } from "./format";
 
 export interface MarkdownResponseOptions {
   status?: number;
@@ -71,22 +72,23 @@ export function createMarkdownOptionsResponse(): Response {
 }
 
 export function createMarkdown404(attemptedPath: string, isHead = false): Response {
+  const canonical = toAbsoluteUrl(attemptedPath);
   const body = `# 404 Not Found
 
 > The requested markdown document could not be found.
 
-Canonical: https://editmypdf.co.in${attemptedPath.startsWith("/") ? attemptedPath : `/${attemptedPath}`}
-Last updated: 2026-10-26
+Canonical: ${canonical}
+Last updated: ${SITE_CONFIG.lastUpdated}
 
 The route \`${attemptedPath}\` is not a registered public route on EditMyPDF, or has been moved.
 
 ## Available Resources
-- [Browse All Tools](https://editmypdf.co.in)
-- [Markdown Route Catalog](https://editmypdf.co.in/api/md/_catalog)
-- [LLMs Site Index](https://editmypdf.co.in/llms.txt)
+- [Browse All Tools](${SITE_CONFIG.url})
+- [Markdown Route Catalog](${SITE_CONFIG.url}/api/md/_catalog)
+- [LLMs Site Index](${SITE_CONFIG.url}/llms.txt)
 `;
 
-  return createMarkdownResponse(body, `https://editmypdf.co.in${attemptedPath.startsWith("/") ? attemptedPath : `/${attemptedPath}`}`, {
+  return createMarkdownResponse(body, canonical, {
     status: 404,
     isHead,
   });

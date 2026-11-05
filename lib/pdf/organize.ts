@@ -1,4 +1,5 @@
 import { PDFDocument, degrees } from "pdf-lib";
+import { loadPdf, savePdf, ProgressFn } from "./core";
 
 export interface OrganizedPageItem {
   id: string;
@@ -12,13 +13,13 @@ export interface OrganizedPageItem {
 export async function organizePdf(
   pdfBytes: Uint8Array,
   pageItems: OrganizedPageItem[],
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<Uint8Array> {
   if (pageItems.length === 0) {
     throw new Error("Cannot generate a PDF with zero pages. Please keep at least one page.");
   }
 
-  const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const srcDoc = await loadPdf(pdfBytes);
   const outDoc = await PDFDocument.create();
 
   const total = pageItems.length;
@@ -39,5 +40,5 @@ export async function organizePdf(
     }
   }
 
-  return await outDoc.save({ useObjectStreams: true });
+  return await savePdf(outDoc);
 }

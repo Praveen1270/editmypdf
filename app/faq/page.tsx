@@ -3,72 +3,13 @@
 import { useState } from "react";
 import { HelpCircle, ChevronDown, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { PDF_TOOLS } from "@/lib/tools-data";
-
-interface FaqItem {
-  q: string;
-  a: string;
-  category: "privacy" | "technical" | "tools" | "security";
-}
-
-const FAQ_DATA: FaqItem[] = [
-  {
-    category: "privacy",
-    q: "Are my PDF files uploaded to any server or cloud storage?",
-    a: "Never. All document operations happen entirely on your computer or mobile device inside your browser's local runtime. Neither your files, extracted text, or passwords are ever transmitted over the network.",
-  },
-  {
-    category: "privacy",
-    q: "How can I independently verify that files stay on my device?",
-    a: "Open your browser Developer Tools (F12 or Cmd+Option+I), navigate to the Network tab, and process any file. You will observe zero POST or upload requests. You can also turn off your internet connection completely after loading the page and the tools will still function.",
-  },
-  {
-    category: "technical",
-    q: "What are the file size limits?",
-    a: "There are no arbitrary software limits imposed by EditMyPDF. Because processing relies on client-side RAM, documents up to several hundred megabytes process smoothly on most modern laptops and desktops. Mobile devices with limited RAM may experience memory constraints with extremely large files.",
-  },
-  {
-    category: "technical",
-    q: "Which browsers are supported?",
-    a: "EditMyPDF is compatible with all modern standards-compliant web browsers supporting WebAssembly and the HTML5 File API, including Google Chrome, Mozilla Firefox, Apple Safari, and Microsoft Edge on desktop, tablet, and mobile.",
-  },
-  {
-    category: "tools",
-    q: "Why did PDF to Text return no text from my document?",
-    a: "If your PDF was created by scanning physical paper with an office scanner or photo app without OCR (Optical Character Recognition), the document contains only bitmap pictures of pages. Text extraction requires selectable digital characters. Pure image scans require OCR software.",
-  },
-  {
-    category: "tools",
-    q: "How does the local PDF compression tool work?",
-    a: "Our compression engine eliminates duplicate structural objects, optimizes cross-reference streams, and re-encodes oversized embedded raster graphics at calibrated resolutions. We report honest before-and-after measurements and never display fabricated savings.",
-  },
-  {
-    category: "security",
-    q: "What encryption standard does Protect PDF use?",
-    a: "We utilize industry-standard AES-256 bit encryption (PDF 2.0 / ISO 32000-2) and AES-128 via the native Web Crypto API. The resulting protected files are fully compatible with Adobe Acrobat, Apple Preview, Google Chrome, and standard PDF readers.",
-  },
-  {
-    category: "security",
-    q: "Can Unlock PDF recover a forgotten password?",
-    a: "No. EditMyPDF is designed to decrypt PDFs when you know the legitimate document password. We do not support password cracking or bypassing security controls.",
-  },
-  {
-    category: "technical",
-    q: "Can I use EditMyPDF completely offline?",
-    a: `Yes. Once the initial application scripts and PDF worker are loaded into your browser cache, you can disconnect Wi-Fi or enable Airplane Mode and all ${PDF_TOOLS.length} PDF utilities will continue working offline.`,
-  },
-  {
-    category: "privacy",
-    q: "Do I need an account or subscription to use EditMyPDF?",
-    a: `No. EditMyPDF requires no account, registration, or credit card. All ${PDF_TOOLS.length} tools are completely free to use without restrictions.`,
-  },
-];
+import { FAQ_ITEMS } from "@/lib/faq";
 
 export default function FaqPage() {
   const [search, setSearch] = useState("");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const filteredFaqs = FAQ_DATA.filter(
+  const filteredFaqs = FAQ_ITEMS.filter(
     (item) =>
       item.q.toLowerCase().includes(search.toLowerCase()) ||
       item.a.toLowerCase().includes(search.toLowerCase())

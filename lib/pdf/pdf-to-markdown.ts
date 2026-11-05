@@ -1,9 +1,7 @@
-import { getPdfJs } from "./pdf-loader";
+import { openPdfJs } from "./core";
 
 export async function pdfToMarkdown(pdfBytes: Uint8Array): Promise<string> {
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const doc = await task.promise;
+  const doc = await openPdfJs(pdfBytes);
   const out: string[] = [];
   out.push("# Document");
   out.push("");

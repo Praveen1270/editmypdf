@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FileQuestion, Home, Search } from "lucide-react";
-import { PDF_TOOLS } from "@/lib/tools-data";
+import { POPULAR_TOOL_IDS, getToolsByIds } from "@/lib/tools-data";
 
 export const metadata = {
   title: "Page Not Found — EditMyPDF",
@@ -50,7 +50,9 @@ export default function NotFound() {
             Popular PDF Utilities
           </p>
           <div className="flex flex-wrap justify-center gap-2 text-xs">
-            {PDF_TOOLS.slice(0, 6).map((tool) => (
+            {getToolsByIds(POPULAR_TOOL_IDS)
+              .slice(0, 6)
+              .map((tool) => (
               <Link
                 key={tool.id}
                 href={tool.href}

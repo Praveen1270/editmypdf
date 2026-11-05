@@ -4,7 +4,8 @@ import { useState } from "react";
 import { Sparkles, Loader2, Download, RefreshCw, Copy, Check } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
-import { streamGemini, extractPdfTextForContext } from "@/lib/ai/gemini";
+import { streamGemini, extractPdfTextForContext, GEMINI_PRIVACY_NOTICE } from "@/lib/ai/gemini";
+import { useCopyFeedback } from "@/lib/hooks/use-copy-feedback";
 import { downloadBytes } from "@/lib/files/download";
 
 export default function AiSummarizerPage() {
@@ -14,7 +15,7 @@ export default function AiSummarizerPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [summary, setSummary] = useState("");
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyFeedback();
 
   const handleFileSelected = async (files: File[]) => {
     if (files.length === 0) return;
@@ -36,7 +37,7 @@ export default function AiSummarizerPage() {
         detailed: "Write a detailed section-by-section summary of the document.",
       };
       const system = `You are a summarizer. ${prompts[mode]} Use only the document content.`;
-      const user = `DOCUMENT:\n${text.slice(0, 150000)}`;
+      const user = `DOCUMENT:\n${text}`;
       await streamGemini(apiKey, system, [], user, (token) => setSummary((s) => s + token));
     } catch (err: any) {
       setErrorMessage(`Failed: ${err?.message || "Unknown error"}`);
@@ -46,7 +47,7 @@ export default function AiSummarizerPage() {
   };
 
   const handleCopy = async () => {
-    try { await navigator.clipboard.writeText(summary); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { setErrorMessage("Copy failed."); }
+    try { await copy(summary); } catch { setErrorMessage("Copy failed."); }
   };
 
   const handleDownload = () => {
@@ -65,6 +66,7 @@ export default function AiSummarizerPage() {
         <div className="flex flex-col gap-2">
           <label className="text-xs font-semibold">Gemini API key (kept in memory)</label>
           <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="AIza..." className="rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs" />
+          <p className="text-[11px] text-muted-foreground">{GEMINI_PRIVACY_NOTICE}</p>
         </div>
 
         {!file ? (

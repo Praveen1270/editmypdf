@@ -1,6 +1,10 @@
 import { encryptPDF, EncryptPDFOptions, AlreadyEncryptedError } from "@pdfsmaller/pdf-encrypt";
 import { decryptPDF, isEncrypted } from "@pdfsmaller/pdf-decrypt";
 
+// Canonical home is ./encryption; re-exported here so existing importers keep working.
+export { checkPdfEncryption } from "./encryption";
+export type { EncryptionInfo } from "./encryption";
+
 export interface ProtectOptions {
   algorithm?: "AES-256" | "RC4";
   ownerPassword?: string;
@@ -8,21 +12,6 @@ export interface ProtectOptions {
   allowModifying?: boolean;
   allowCopying?: boolean;
   allowAnnotating?: boolean;
-}
-
-export interface EncryptionInfo {
-  encrypted: boolean;
-  algorithm?: "AES-256" | "RC4";
-  version?: number;
-  revision?: number;
-  keyLength?: number;
-}
-
-/**
- * Check if a PDF file is encrypted without decrypting it.
- */
-export async function checkPdfEncryption(pdfBytes: Uint8Array): Promise<EncryptionInfo> {
-  return await isEncrypted(pdfBytes);
 }
 
 /**

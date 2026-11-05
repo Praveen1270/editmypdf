@@ -1,5 +1,6 @@
-import { PDFDocument, StandardFonts, rgb, degrees } from "pdf-lib";
-import { parsePageRangeString } from "./split";
+import { StandardFonts, rgb, degrees } from "pdf-lib";
+import { parsePageRangeString } from "./page-range";
+import { loadPdf, savePdf, hexToRgb } from "./core";
 
 export type WatermarkPreset = "diagonal" | "center" | "footer";
 
@@ -14,18 +15,6 @@ export interface WatermarkOptions {
   colorHex: string; // e.g. "#6B7280"
 }
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  let clean = hex.replace("#", "");
-  if (clean.length === 3) {
-    clean = clean.split("").map((c) => c + c).join("");
-  }
-  const intVal = parseInt(clean, 16);
-  const r = ((intVal >> 16) & 255) / 255;
-  const g = ((intVal >> 8) & 255) / 255;
-  const b = (intVal & 255) / 255;
-  return { r, g, b };
-}
-
 export async function addWatermark(
   pdfBytes: Uint8Array,
   options: WatermarkOptions
@@ -34,7 +23,7 @@ export async function addWatermark(
     throw new Error("Watermark text cannot be empty.");
   }
 
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const font = await doc.embedFont(StandardFonts.HelveticaBold);
   const totalPages = doc.getPageCount();
 
@@ -68,7 +57,6 @@ export async function addWatermark(
       x = (width - textWidth) / 2;
       y = (height - textHeight) / 2;
     } else {
-      // diagonal preset
       rotDeg = options.rotation || 45;
       const rad = (rotDeg * Math.PI) / 180;
       // Approximate center offset when rotated around its origin
@@ -89,5 +77,5 @@ export async function addWatermark(
     });
   }
 
-  return await doc.save();
+  return await savePdf(doc);
 }

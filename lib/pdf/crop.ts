@@ -1,4 +1,4 @@
-import { PDFDocument } from "pdf-lib";
+import { loadPdf, savePdf } from "./core";
 
 export interface CropMargins {
   top: number; // in points
@@ -22,7 +22,7 @@ export async function cropPdf(
   const { margins, pageIndices } = options;
   const { top, bottom, left, right } = margins;
 
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const totalPages = doc.getPageCount();
 
   const targetIndices =
@@ -54,5 +54,5 @@ export async function cropPdf(
     page.setCropBox(cropX, cropY, cropWidth, cropHeight);
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

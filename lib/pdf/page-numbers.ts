@@ -1,4 +1,5 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { StandardFonts, rgb } from "pdf-lib";
+import { loadPdf, savePdf } from "./core";
 
 export type PositionVertical = "top" | "bottom";
 export type AlignmentHorizontal = "left" | "center" | "right";
@@ -17,7 +18,7 @@ export async function addPageNumbers(
   pdfBytes: Uint8Array,
   options: PageNumberOptions
 ): Promise<Uint8Array> {
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const totalPages = doc.getPageCount();
 
@@ -42,7 +43,6 @@ export async function addPageNumbers(
     const textWidth = font.widthOfTextAtSize(formattedText, options.fontSize);
     const textHeight = font.heightAtSize(options.fontSize);
 
-    // Compute horizontal position
     let x: number;
     if (options.alignment === "left") {
       x = options.margin;
@@ -52,7 +52,6 @@ export async function addPageNumbers(
       x = width - options.margin - textWidth;
     }
 
-    // Compute vertical position
     let y: number;
     if (options.position === "top") {
       y = height - options.margin - textHeight;
@@ -69,5 +68,5 @@ export async function addPageNumbers(
     });
   }
 
-  return await doc.save();
+  return await savePdf(doc);
 }

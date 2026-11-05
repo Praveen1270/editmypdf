@@ -40,13 +40,25 @@ import type {
   FormFill,
   PdfRect,
 } from "./types";
-import { hexToRgb01 } from "./text-extraction";
+import { loadPdf, savePdf, hexToRgb } from "@/lib/pdf/core";
 import {
   getBundledFont,
   getStandardFontOption,
   isStandardFontId,
   ttfPathFor,
 } from "./font-matching";
+
+/** One overlay/fill/page step the export skipped or downgraded. */
+export interface SaveWarning {
+  overlayId?: string;
+  kind?: string;
+  pageKey?: string;
+  message: string;
+}
+
+function errMsg(e: unknown): string {
+  return e instanceof Error ? e.message : String(e ?? "unknown error");
+}
 
 export interface SaveInput {
   originalBytes: Uint8Array;
@@ -58,6 +70,8 @@ export interface SaveInput {
   /** Harvested embedded-subset bytes (blockId -> bytes). */
   embeddedBytesByBlock: Map<string, Uint8Array>;
   fontBytesProvider?: (path: string) => Promise<Uint8Array>;
+  /** Called once, at the end of the export, with every skipped/failed step. */
+  onWarnings?: (warnings: SaveWarning[]) => void;
 }
 
 async function defaultFontBytesProvider(path: string): Promise<Uint8Array> {
@@ -66,7 +80,7 @@ async function defaultFontBytesProvider(path: string): Promise<Uint8Array> {
   return new Uint8Array(await res.arrayBuffer());
 }
 
-export function safeMeasureTextWidth(font: PDFFont, text: string, size: number): number {
+function safeMeasureTextWidth(font: PDFFont, text: string, size: number): number {
   try {
     return font.widthOfTextAtSize(text, size);
   } catch {
@@ -75,7 +89,7 @@ export function safeMeasureTextWidth(font: PDFFont, text: string, size: number):
 }
 
 /** Wrap paragraphs to a max width using real font metrics. */
-export function wrapTextToWidth(
+function wrapTextToWidth(
   text: string,
   font: PDFFont,
   size: number,
@@ -225,9 +239,11 @@ function drawWrappedText(
     align: "left" | "center" | "right";
     underline: boolean;
     fallbackFont?: PDFFont;
+    /** Called once per text line that no font could draw (line is dropped). */
+    onUndrawnLine?: () => void;
   }
 ) {
-  const { r, g, b } = hexToRgb01(opts.colorHex);
+  const { r, g, b } = hexToRgb(opts.colorHex);
   const color = rgb(r, g, b);
   // Normalize any exotic unicode whitespace/non-breaking spaces to standard ASCII space (0x20)
   const normalizedText = opts.text.replace(/[\u00A0\u1680\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, " ");
@@ -280,7 +296,7 @@ function drawWrappedText(
               });
             }
           } catch {
-            /* best effort */
+            opts.onUndrawnLine?.();
           }
         }
       }
@@ -305,8 +321,12 @@ export async function exportEditedPdf(
   onProgress?: (stage: string) => void
 ): Promise<Uint8Array> {
   const provider = input.fontBytesProvider ?? defaultFontBytesProvider;
+  const warnings: SaveWarning[] = [];
+  const warn = (message: string, ov?: Overlay) => {
+    warnings.push({ overlayId: ov?.id, kind: ov?.kind, pageKey: ov?.pageKey, message });
+  };
   onProgress?.("Loading document…");
-  const srcDoc = await PDFDocument.load(input.originalBytes.slice(), { ignoreEncryption: true });
+  const srcDoc = await loadPdf(input.originalBytes.slice());
 
   // Apply fills for EXISTING AcroForm fields before copying (survives reorder).
   if (input.fills.length > 0) {
@@ -325,27 +345,27 @@ export async function exportEditedPdf(
           } else if (ctor === "PDFRadioGroup") {
             try {
               (field as any).select(fill.value);
-            } catch {
-              /* unknown option */
+            } catch (e) {
+              warn(`Could not select option "${fill.value}" for form field "${fill.name}": ${errMsg(e)}`);
             }
           } else if (ctor === "PDFDropdown" || ctor === "PDFOptionList") {
             try {
               (field as any).select(fill.value);
-            } catch {
-              /* ignore */
+            } catch (e) {
+              warn(`Could not select option "${fill.value}" for form field "${fill.name}": ${errMsg(e)}`);
             }
           }
-        } catch {
-          /* per-field best effort */
+        } catch (e) {
+          warn(`Could not apply fill for form field "${fill.name}": ${errMsg(e)}`);
         }
       }
       try {
         srcForm.updateFieldAppearances();
-      } catch {
-        /* ignore */
+      } catch (e) {
+        warn(`Could not refresh form field appearances: ${errMsg(e)}`);
       }
-    } catch {
-      /* no form in document */
+    } catch (e) {
+      warn(`Could not apply form fills: ${errMsg(e)}`);
     }
   }
 
@@ -353,7 +373,6 @@ export async function exportEditedPdf(
   const outDoc = await PDFDocument.create();
   const resolver = await createFontResolver(outDoc, provider);
 
-  // Map editor page key -> outDoc page index + pdf-lib page.
   const pageIndexByKey = new Map<string, number>();
   const libPageByKey = new Map<string, any>();
 
@@ -367,8 +386,8 @@ export async function exportEditedPdf(
       if (ep.rotateDelta % 360 !== 0) {
         try {
           libPage.setRotation(degrees(total));
-        } catch {
-          /* ignore */
+        } catch (e) {
+          warnings.push({ pageKey: ep.key, message: `Could not apply page rotation: ${errMsg(e)}` });
         }
       }
     } else {
@@ -410,7 +429,7 @@ export async function exportEditedPdf(
     for (const ov of list) {
       try {
         if (ov.kind === "whiteout") {
-          const { r, g, b } = hexToRgb01(ov.colorHex);
+          const { r, g, b } = hexToRgb(ov.colorHex);
           libPage.drawRectangle({
             x: Math.max(0, ov.rect.x),
             y: Math.max(0, ov.rect.y),
@@ -463,7 +482,7 @@ export async function exportEditedPdf(
           // 1. Cover original block so old + new text never both show.
           const box = input.blockBoxById.get(edit.blockId);
           if (box) {
-            const { r, g, b } = hexToRgb01(edit.bgHex || "#ffffff");
+            const { r, g, b } = hexToRgb(edit.bgHex || "#ffffff");
             const textW = edit.text && edit.text.length > 0 ? safeMeasureTextWidth(font, edit.text, edit.fontSize) : 0;
             const coverW = Math.max(box.w + 2, textW + 4);
             libPage.drawRectangle({
@@ -493,6 +512,7 @@ export async function exportEditedPdf(
             align: edit.align,
             underline: edit.underline,
             fallbackFont: fallbackStandardFont,
+            onUndrawnLine: () => warn(`Edited text on page could not be drawn and was dropped`, edit),
           });
         } else if (ov.kind === "text") {
           const t = ov as AddTextOverlay;
@@ -511,11 +531,12 @@ export async function exportEditedPdf(
             align: t.align,
             underline: t.underline,
             fallbackFont: fallbackStandardFont,
+            onUndrawnLine: () => warn(`Added text on page could not be drawn and was dropped`, t),
           });
         } else if (ov.kind === "shape") {
-          const { r, g, b } = hexToRgb01(ov.strokeHex);
+          const { r, g, b } = hexToRgb(ov.strokeHex);
           const stroke = rgb(r, g, b);
-          const fill = ov.fillHex ? (() => { const c = hexToRgb01(ov.fillHex as string); return rgb(c.r, c.g, c.b); })() : undefined;
+          const fill = ov.fillHex ? (() => { const c = hexToRgb(ov.fillHex as string); return rgb(c.r, c.g, c.b); })() : undefined;
           const { x, y, w, h } = ov.rect;
           if (ov.shape === "rect") {
             libPage.drawRectangle({
@@ -548,7 +569,7 @@ export async function exportEditedPdf(
           }
         } else if (ov.kind === "draw") {
           if (ov.points.length < 2) continue;
-          const { r, g, b } = hexToRgb01(ov.strokeHex);
+          const { r, g, b } = hexToRgb(ov.strokeHex);
           const d = ov.points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ");
           try {
             libPage.drawSvgPath(d, {
@@ -577,7 +598,8 @@ export async function exportEditedPdf(
           } catch {
             try {
               img = await outDoc.embedPng(bytes);
-            } catch {
+            } catch (e) {
+              warn(`Image could not be embedded and was dropped from the export: ${errMsg(e)}`, ov);
               continue;
             }
           }
@@ -590,7 +612,7 @@ export async function exportEditedPdf(
             ys.push(ov.quads[i + 1]);
           }
           if (xs.length < 4) continue;
-          const { r, g, b } = hexToRgb01(ov.colorHex);
+          const { r, g, b } = hexToRgb(ov.colorHex);
           const subtype = ov.subtype === "highlight" ? "Highlight" : ov.subtype === "underline" ? "Underline" : "StrikeOut";
           const dict = outDoc.context.obj({
             Type: PDFName.of("Annot"),
@@ -658,16 +680,16 @@ export async function exportEditedPdf(
               rg.addOptionToPage(ov.value || "Option 1", libPage, { x: ov.rect.x, y: ov.rect.y, width: ov.rect.w, height: ov.rect.h });
               try {
                 rg.select(ov.value || "Option 1");
-              } catch {
-                /* ignore */
+              } catch (e) {
+                warn(`Could not select radio option "${ov.value}" for form field "${ov.name}": ${errMsg(e)}`, ov);
               }
             }
-          } catch {
-            /* best effort */
+          } catch (e) {
+            warn(`Form field "${ov.name}" could not be created and was dropped: ${errMsg(e)}`, ov);
           }
         }
-      } catch {
-        /* per-overlay best effort: never fail the whole export */
+      } catch (e) {
+        warn(`Overlay could not be applied and was dropped: ${errMsg(e)}`, ov);
       }
     }
     done += 1;
@@ -676,10 +698,11 @@ export async function exportEditedPdf(
 
   try {
     outDoc.getForm().updateFieldAppearances();
-  } catch {
-    /* no form */
+  } catch (e) {
+    warn(`Could not refresh form field appearances: ${errMsg(e)}`);
   }
 
   onProgress?.("Compressing PDF…");
-  return await outDoc.save({ useObjectStreams: true });
+  input.onWarnings?.(warnings);
+  return await savePdf(outDoc);
 }

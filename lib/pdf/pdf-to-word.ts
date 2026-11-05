@@ -1,21 +1,11 @@
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
-import { getPdfJs } from "./pdf-loader";
-
-export interface PdfToWordOptions {
-  mode?: "fidelity" | "flow";
-}
+import { openPdfJs } from "./core";
 
 /**
  * Converts a PDF's text layer into a .docx file.
  */
-export async function pdfToWord(
-  pdfBytes: Uint8Array,
-  options: PdfToWordOptions = {}
-): Promise<Uint8Array> {
-  const { mode = "flow" } = options;
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const doc = await task.promise;
+export async function pdfToWord(pdfBytes: Uint8Array): Promise<Uint8Array> {
+  const doc = await openPdfJs(pdfBytes);
   const totalPages = doc.numPages;
 
   const paragraphs: Paragraph[] = [];
@@ -25,7 +15,6 @@ export async function pdfToWord(
     const textContent = await page.getTextContent();
     const items = textContent.items as any[];
 
-    // sort by y desc then x
     const sorted = [...items].sort((a, b) => {
       const ay = a.transform[5], by = b.transform[5];
       if (Math.abs(ay - by) > 3) return by - ay;
@@ -57,7 +46,6 @@ export async function pdfToWord(
     }
     flushLine();
 
-    // Group lines into paragraphs (merge if same size and close)
     for (const ln of lines) {
       const size = ln.size;
       let heading: (typeof HeadingLevel)[keyof typeof HeadingLevel] | undefined;
@@ -74,7 +62,6 @@ export async function pdfToWord(
       );
     }
 
-    // page break between pages (optional)
     if (p < totalPages) {
       paragraphs.push(new Paragraph({ children: [new TextRun({ text: "", break: 1 })], pageBreakBefore: false }));
     }

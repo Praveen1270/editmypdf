@@ -9,19 +9,17 @@
     "test": "npx tsx tests/verify-tools.mjs",
     "test:edit-pdf": "node scripts/make-edit-pdf-test-pdfs.mjs && npx tsx tests/verify-edit-pdf.mjs",
     "test:markdown": "npx tsx tests/verify-markdown-coverage.mjs",
-    "lint": "next lint"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
     "@pdfsmaller/pdf-decrypt": "^1.0.1",
     "@pdfsmaller/pdf-encrypt": "^1.2.0",
-    "@tiptap/extension-underline": "^3.32.0",
     "@tiptap/react": "^3.32.0",
     "@tiptap/starter-kit": "^3.32.0",
     "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "docx": "^9.12.0",
-    "highlight.js": "^11.12.0",
     "jszip": "^3.10.2",
     "lucide-react": "^1.55.0",
     "mammoth": "^1.13.0",
@@ -45,6 +43,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.8.1",
     "typescript": "^5.7.3"
   }
 }

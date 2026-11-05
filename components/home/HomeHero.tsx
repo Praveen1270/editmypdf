@@ -9,14 +9,10 @@ import {
 } from "lucide-react";
 import { PDF_TOOLS } from "@/lib/tools-data";
 import { setActiveDocument } from "@/lib/active-document";
-import { getPdfInfo } from "@/lib/pdf/pdf-loader";
+import { readPdfFile, validatePdfFile } from "@/lib/files/intake";
 import { addRecentFile } from "@/lib/storage";
 
-interface HomeHeroProps {
-  onDocumentLoaded?: () => void;
-}
-
-export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
+export function HomeHero() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,26 +22,20 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
     if (!file) return;
     setErrorMessage(null);
 
-    if (!file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf") {
-      setErrorMessage("Please select a valid PDF document.");
-      return;
-    }
-
-    if (file.size > 150 * 1024 * 1024) {
-      setErrorMessage(`"${file.name}" exceeds the recommended 150MB browser RAM limit.`);
+    const validation = validatePdfFile(file);
+    if (!validation.ok) {
+      setErrorMessage(validation.error);
       return;
     }
 
     setIsLoading(true);
     try {
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      const info = await getPdfInfo(bytes);
+      const { bytes, pageCount } = await readPdfFile(file);
 
       const docData = {
         name: file.name,
         size: file.size,
-        pageCount: info.pageCount,
+        pageCount,
         bytes,
         file,
       };
@@ -55,12 +45,11 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
       addRecentFile({
         name: file.name,
         size: file.size,
-        pageCount: info.pageCount,
+        pageCount,
         toolId: "workspace",
         toolName: "Document Workspace",
       });
 
-      if (onDocumentLoaded) onDocumentLoaded();
     } catch (err: any) {
       console.error("Error reading PDF:", err);
       setErrorMessage(
@@ -106,7 +95,6 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
         onChange={handleInputChange}
       />
 
-      {/* Pill Badge */}
       <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3.5 py-1 text-xs font-medium text-zinc-900 dark:text-zinc-100 shadow-xs mb-4">
         <span className="flex h-2 w-2 rounded-full bg-black dark:bg-white" />
         <span className="font-bold text-black dark:text-white">100% Free & Private</span>
@@ -114,17 +102,14 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
         <span className="text-[#52504e] dark:text-[#d6d3d1]">Zero Server Uploads</span>
       </div>
 
-      {/* Primary Headline — Balanced Proportions */}
       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] font-extrabold tracking-tight text-black dark:text-white leading-[1.2]">
         Every tool you need to work with PDFs in one place
       </h1>
 
-      {/* Subtitle — Exact Requested Styles */}
       <p className="mt-3 text-[16px] leading-[25px] font-normal text-[#52504e] dark:text-[#d6d3d1] max-w-2xl mx-auto">
         Edit, convert, compress, merge, split, and sign PDF documents directly in your web browser. Completely free, no registration, no watermarks, and files stay strictly on your device.
       </p>
 
-      {/* Interactive Quick File Dropzone */}
       <div className="mt-6">
         <div
           onDrop={handleDrop}
@@ -165,7 +150,6 @@ export function HomeHero({ onDocumentLoaded }: HomeHeroProps) {
         )}
       </div>
 
-      {/* High-Contrast Privacy Statement & Fast Anchor Link */}
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 text-xs text-[#52504e] dark:text-[#d6d3d1]">
         <span className="inline-flex items-center gap-1.5 font-semibold text-black dark:text-white">
           <ShieldCheck className="h-4 w-4 stroke-[2]" />

@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import { loadPdf, savePdf, ProgressFn, PAGE_SIZES } from "./core";
 
 export type TargetPageSize = "a4" | "a3" | "letter" | "legal" | "custom";
 export type ResizeOrientation = "auto" | "portrait" | "landscape";
@@ -10,20 +11,13 @@ export interface ResizeOptions {
   customHeight?: number; // in points
 }
 
-const STANDARD_SIZES: Record<Exclude<TargetPageSize, "custom">, { width: number; height: number }> = {
-  a4: { width: 595.28, height: 841.89 },
-  a3: { width: 841.89, height: 1190.55 },
-  letter: { width: 612.0, height: 792.0 },
-  legal: { width: 612.0, height: 1008.0 },
-};
-
 /**
  * Resizes PDF pages to standard or custom dimensions with proportional content scaling.
  */
 export async function resizePdfPages(
   pdfBytes: Uint8Array,
   options: ResizeOptions,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: ProgressFn
 ): Promise<Uint8Array> {
   const { pageSize, orientation = "auto", customWidth = 612, customHeight = 792 } = options;
 
@@ -34,14 +28,14 @@ export async function resizePdfPages(
     }
     baseDimensions = { width: customWidth, height: customHeight };
   } else {
-    baseDimensions = STANDARD_SIZES[pageSize];
+    baseDimensions = PAGE_SIZES[pageSize];
   }
 
   if (!baseDimensions || baseDimensions.width <= 0 || baseDimensions.height <= 0) {
     throw new Error("Invalid target page size.");
   }
 
-  const srcDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const srcDoc = await loadPdf(pdfBytes);
   const outDoc = await PDFDocument.create();
   const totalPages = srcDoc.getPageCount();
 
@@ -49,7 +43,6 @@ export async function resizePdfPages(
     const srcPage = srcDoc.getPage(i);
     const { width: srcW, height: srcH } = srcPage.getSize();
 
-    // Determine target orientation
     let targetW = baseDimensions.width;
     let targetH = baseDimensions.height;
 
@@ -71,10 +64,8 @@ export async function resizePdfPages(
       }
     }
 
-    // Embed source page
     const embeddedPage = await outDoc.embedPage(srcPage);
 
-    // Compute proportional fit
     const scale = Math.min(targetW / srcW, targetH / srcH);
     const scaledW = srcW * scale;
     const scaledH = srcH * scale;
@@ -94,5 +85,5 @@ export async function resizePdfPages(
     }
   }
 
-  return await outDoc.save({ useObjectStreams: true });
+  return await savePdf(outDoc);
 }

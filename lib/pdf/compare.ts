@@ -28,13 +28,17 @@ export async function comparePdfDocuments(
   onProgress?: (step: string) => void
 ): Promise<CompareSummary> {
   if (onProgress) onProgress("Extracting text from Document A...");
-  const textA = await extractTextFromPdf(pdfA.bytes);
+  const resultA = await extractTextFromPdf(pdfA.bytes);
+  const textA = resultA.fullText;
+  const pageCountA = resultA.pages.length;
 
   if (onProgress) onProgress("Extracting text from Document B...");
-  const textB = await extractTextFromPdf(pdfB.bytes);
+  const resultB = await extractTextFromPdf(pdfB.bytes);
+  const textB = resultB.fullText;
+  const pageCountB = resultB.pages.length;
 
   if (onProgress) onProgress("Computing structural diff...");
-  const diffLines = computeLineDiff(textA.fullText, textB.fullText);
+  const diffLines = computeLineDiff(textA, textB);
 
   let addedCount = 0;
   let removedCount = 0;
@@ -46,10 +50,12 @@ export async function comparePdfDocuments(
     else identicalCount++;
   }
 
+  const wordsA = resultA.totalWords;
+  const wordsB = resultB.totalWords;
   const isIdentical =
     addedCount === 0 &&
     removedCount === 0 &&
-    textA.pages.length === textB.pages.length;
+    pageCountA === pageCountB;
 
   return {
     nameA: pdfA.name,
@@ -58,16 +64,16 @@ export async function comparePdfDocuments(
     sizeB: pdfB.bytes.byteLength,
     sizeFormattedA: formatFileSize(pdfA.bytes.byteLength),
     sizeFormattedB: formatFileSize(pdfB.bytes.byteLength),
-    pageCountA: textA.pages.length,
-    pageCountB: textB.pages.length,
-    wordsA: textA.totalWords,
-    wordsB: textB.totalWords,
+    pageCountA,
+    pageCountB,
+    wordsA,
+    wordsB,
     diffLines,
     addedCount,
     removedCount,
     identicalCount,
-    hasTextA: textA.hasText,
-    hasTextB: textB.hasText,
+    hasTextA: resultA.hasText,
+    hasTextB: resultB.hasText,
     isIdentical,
   };
 }

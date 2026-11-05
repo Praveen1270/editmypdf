@@ -1,5 +1,5 @@
-import { PDFDocument } from "pdf-lib";
 import { formatFileSize } from "@/lib/utils";
+import { loadPdf, PAGE_SIZES } from "./core";
 
 export interface PageDimensionInfo {
   pageNumber: number;
@@ -37,16 +37,11 @@ function detectFormatName(w: number, h: number): string {
   const min = Math.min(w, h);
   const max = Math.max(w, h);
 
-  // A4: 595 x 842
-  if (Math.abs(min - 595.28) < 15 && Math.abs(max - 841.89) < 15) return "A4";
-  // Letter: 612 x 792
-  if (Math.abs(min - 612.0) < 15 && Math.abs(max - 792.0) < 15) return "US Letter";
-  // Legal: 612 x 1008
-  if (Math.abs(min - 612.0) < 15 && Math.abs(max - 1008.0) < 15) return "US Legal";
-  // A3: 842 x 1191
-  if (Math.abs(min - 841.89) < 15 && Math.abs(max - 1190.55) < 15) return "A3";
-  // A5: 420 x 595
-  if (Math.abs(min - 419.53) < 15 && Math.abs(max - 595.28) < 15) return "A5";
+  if (Math.abs(min - PAGE_SIZES.a4.width) < 15 && Math.abs(max - PAGE_SIZES.a4.height) < 15) return "A4";
+  if (Math.abs(min - PAGE_SIZES.letter.width) < 15 && Math.abs(max - PAGE_SIZES.letter.height) < 15) return "US Letter";
+  if (Math.abs(min - PAGE_SIZES.legal.width) < 15 && Math.abs(max - PAGE_SIZES.legal.height) < 15) return "US Legal";
+  if (Math.abs(min - PAGE_SIZES.a3.width) < 15 && Math.abs(max - PAGE_SIZES.a3.height) < 15) return "A3";
+  if (Math.abs(min - PAGE_SIZES.a5.width) < 15 && Math.abs(max - PAGE_SIZES.a5.height) < 15) return "A5";
 
   return "Custom Size";
 }
@@ -55,7 +50,7 @@ export async function inspectPdfProperties(
   pdfBytes: Uint8Array,
   filename: string
 ): Promise<DocumentPropertiesReport> {
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const pageCount = doc.getPageCount();
 
   const pages: PageDimensionInfo[] = [];
@@ -102,7 +97,6 @@ export async function inspectPdfProperties(
     modificationDate: doc.getModificationDate()?.toISOString(),
   };
 
-  // Compile plain text audit report
   let report = "=====================================================\n";
   report += "           EDITMYPDF DOCUMENT PROPERTIES AUDIT          \n";
   report += "=====================================================\n\n";

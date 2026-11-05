@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PDF_TOOLS } from "./tools-data";
+import { getToolById } from "./tools-data";
 import { SITE_CONFIG } from "./site-config";
 
 export interface PageSeoConfig {
@@ -70,49 +70,24 @@ export function generatePageMetadata(config: PageSeoConfig): Metadata {
   };
 }
 
+/**
+ * Per-tool metadata, derived from the single registry (lib/tools-data.ts).
+ * The query-first SEO title lives on the ToolItem (`seoTitle`); tools without
+ * one fall back to "<name> - Free & Private in Your Browser".
+ *
+ * Throws on an unknown id: a mistyped tool id in a layout must fail loudly
+ * instead of silently publishing a generic "PDF Tool" page at canonical "/".
+ */
 export function generateToolMetadataById(toolId: string): Metadata {
-  const tool = PDF_TOOLS.find((t) => t.id === toolId);
+  const tool = getToolById(toolId);
   if (!tool) {
-    return generatePageMetadata({
-      title: `PDF Tool — ${SITE_CONFIG.name}`,
-      description: "Privacy-first PDF utility in your browser.",
-      canonical: "/",
-    });
+    throw new Error(
+      `generateToolMetadataById: unknown tool id "${toolId}" — no such entry in lib/tools-data.ts`
+    );
   }
 
-  // Titles follow SEO Title Optimization: [Primary query] - [Modifier/Benefit] (target 40-55 chars total with brand)
-  const queryFirstTitles: Record<string, { query: string; benefit: string }> = {
-    merge: { query: "Merge PDF Files Online", benefit: "Free & Private" },
-    split: { query: "Split PDF Online", benefit: "Free & Private" },
-    organize: { query: "Organize PDF Pages", benefit: "Reorder & Rotate" },
-    rotate: { query: "Rotate PDF Online", benefit: "Free & Instant" },
-    extract: { query: "Extract PDF Pages", benefit: "Save Specific Pages" },
-    compress: { query: "Compress PDF Online", benefit: "Reduce File Size Free" },
-    "pdf-to-images": { query: "Convert PDF to JPG & PNG", benefit: "Free & Fast" },
-    "images-to-pdf": { query: "Convert Images to PDF", benefit: "JPG, PNG to PDF" },
-    "pdf-to-text": { query: "PDF to Text Converter", benefit: "Extract Text Free" },
-    "pdf-to-grayscale": { query: "Convert PDF to Grayscale", benefit: "Black & White" },
-    "page-numbers": { query: "Add Page Numbers to PDF", benefit: "Free & Fast" },
-    "edit-pdf": { query: "Edit PDF Online", benefit: "Edit Text & Sign Free" },
-    watermark: { query: "Watermark PDF Online", benefit: "Custom Text Stamp" },
-    "add-text": { query: "Add Text to PDF", benefit: "Header, Notes & Footer" },
-    crop: { query: "Crop PDF Online", benefit: "Trim Margins Free" },
-    resize: { query: "Resize PDF Pages", benefit: "A4, Letter & Custom" },
-    protect: { query: "Password Protect PDF", benefit: "AES-256 Encryption" },
-    unlock: { query: "Unlock PDF Online", benefit: "Remove Password Free" },
-    "metadata-editor": { query: "PDF Metadata Editor", benefit: "Edit & Strip Tags" },
-    "page-counter": { query: "PDF Page Counter", benefit: "Inspect Dimensions" },
-    compare: { query: "Compare Two PDF Files", benefit: "Visual & Text Diff" },
-    whiteboard: { query: "Online Whiteboard", benefit: "Draw & Collaborate" },
-    "gst-invoice": { query: "GST Invoice Generator", benefit: "Tax Invoices" },
-  };
-
-  const titleConfig = queryFirstTitles[tool.id] || {
-    query: tool.name,
-    benefit: "Free & Private in Your Browser",
-  };
-
-  const fullTitle = `${titleConfig.query} - ${titleConfig.benefit}`;
+  // Titles follow SEO Title Optimization: [Primary query] - [Modifier/Benefit]
+  const fullTitle = tool.seoTitle ?? `${tool.name} - Free & Private in Your Browser`;
 
   return generatePageMetadata({
     title: fullTitle,

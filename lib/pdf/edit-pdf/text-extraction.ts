@@ -38,7 +38,7 @@ export function hexToRgb01(hex: string): { r: number; g: number; b: number } {
   };
 }
 
-export function rgb01ToHex(r: number, g: number, b: number): string {
+function rgb01ToHex(r: number, g: number, b: number): string {
   const q = (v: number) =>
     Math.max(0, Math.min(255, Math.round(v * 255)))
       .toString(16)
@@ -63,7 +63,7 @@ interface RunColor {
  * so every text-showing op counts as ONE run, except TJ arrays
  * (`showTextArray`) whose raw form still lists each string operand.
  */
-export function colorsForTextRuns(pdfjs: any, opList: any): RunColor[] {
+function colorsForTextRuns(pdfjs: any, opList: any): RunColor[] {
   const out: RunColor[] = [];
   if (!opList || !pdfjs?.OPS) return out;
   const OPS = pdfjs.OPS;
@@ -100,7 +100,7 @@ export function colorsForTextRuns(pdfjs: any, opList: any): RunColor[] {
 
 /* ---------------- existing image extraction ---------------- */
 
-export function extractImagesFromOpList(
+function extractImagesFromOpList(
   pdfjs: any,
   opList: any,
   pageIndex: number,

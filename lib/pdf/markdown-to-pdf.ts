@@ -1,5 +1,6 @@
 import MarkdownIt from "markdown-it";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { savePdf, PAGE_SIZES } from "./core";
 
 export interface MarkdownToPdfOptions {
   title?: string;
@@ -8,8 +9,6 @@ export interface MarkdownToPdfOptions {
   theme?: "github" | "serif" | "compact";
   margin?: number;
 }
-
-const PAGE = { a4: { w: 595.28, h: 841.89 }, letter: { w: 612, h: 792 } };
 
 /**
  * Renders Markdown to a paginated PDF using pdf-lib.
@@ -29,8 +28,8 @@ export async function markdownToPdf(
   const italic = await doc.embedFont(StandardFonts.HelveticaOblique);
   const mono = await doc.embedFont(StandardFonts.Courier);
 
-  const base = PAGE[pageSize];
-  const pw = base.w, ph = base.h;
+  const base = PAGE_SIZES[pageSize];
+  const pw = base.width, ph = base.height;
   const usableW = pw - 2 * margin;
 
   let page = doc.addPage([pw, ph]);
@@ -68,7 +67,6 @@ export async function markdownToPdf(
     if (line) flush(line);
   };
 
-  // Inline token rendering to plain text (strip inline markup to text)
   const inlineText = (tok: any): string => {
     if (tok.content) return tok.content;
     if (tok.children) return tok.children.map(inlineText).join("");
@@ -113,12 +111,10 @@ export async function markdownToPdf(
     }
     if (t.type === "bullet_list_open" || t.type === "ordered_list_open") {
       const ordered = t.type === "ordered_list_open";
-      // collect list items until close
       let j = i + 1;
       let itemNum = 1;
       while (j < tokens.length && tokens[j].type !== "bullet_list_close" && tokens[j].type !== "ordered_list_close") {
         if (tokens[j].type === "list_item_open") {
-          // find inline
           let k = j + 1;
           let itemText = "";
           while (k < tokens.length && tokens[k].type !== "list_item_close") {
@@ -135,8 +131,6 @@ export async function markdownToPdf(
           }
           const bullet = ordered ? `${itemNum}. ` : "• ";
           drawText(bullet + itemText.trim(), margin, fontSize, font, rgb(0, 0, 0), 0);
-          // indent continuation handled by drawText using margin; redo with indent
-          // (above draws at margin; for nested, keep simple)
           if (ordered) itemNum++;
           j = k + 1;
         } else {
@@ -144,13 +138,11 @@ export async function markdownToPdf(
         }
       }
       y -= 4;
-      // skip to close
       while (i < tokens.length && tokens[i].type !== "bullet_list_close" && tokens[i].type !== "ordered_list_close") i++;
       i++; // skip close
       continue;
     }
     if (t.type === "blockquote_open") {
-      // collect until close
       let j = i + 1;
       let quoteText = "";
       while (j < tokens.length && tokens[j].type !== "blockquote_close") {
@@ -165,15 +157,11 @@ export async function markdownToPdf(
           j++;
         }
       }
-      // draw with left bar
       const lines = quoteText.trim().split("\n");
       for (const ln of lines) {
         if (!ln.trim()) continue;
-        // measure
         drawText(ln, margin + 12, fontSize, italic, rgb(0.3, 0.3, 0.3));
       }
-      // draw vertical bar (approx)
-      // skip precise; just spacing
       y -= 4;
       while (i < tokens.length && tokens[i].type !== "blockquote_close") i++;
       i++;
@@ -187,7 +175,6 @@ export async function markdownToPdf(
       continue;
     }
     if (t.type === "table_open") {
-      // collect rows
       const tableRows: string[][] = [];
       let j = i + 1;
       while (j < tokens.length && tokens[j].type !== "table_close") {
@@ -204,19 +191,16 @@ export async function markdownToPdf(
             }
           }
           tableRows.push(cells);
-          // advance j to tr_close
           while (j < tokens.length && tokens[j].type !== "tr_close") j++;
           j++; // skip tr_close
         } else {
           j++;
         }
       }
-      // render table simply
       if (tableRows.length > 0) {
         const colCount = tableRows.reduce((m, r) => Math.max(m, r.length), 0);
         const colW = usableW / colCount;
         const rh = fontSize + 4;
-        // header
         if (tableRows.length > 0) {
           let x = margin;
           page.drawRectangle({ x: margin, y: y - rh + 2, width: usableW, height: rh, color: rgb(0.88, 0.88, 0.88) });
@@ -247,8 +231,7 @@ export async function markdownToPdf(
   }
 
   if (title) {
-    // prepend title on first page? We'll just ensure metadata
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

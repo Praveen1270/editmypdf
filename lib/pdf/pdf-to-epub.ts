@@ -1,5 +1,5 @@
-import { getPdfJs } from "./pdf-loader";
 import JSZip from "jszip";
+import { extractTextLines } from "./core";
 
 export interface PdfToEpubOptions {
   title?: string;
@@ -15,22 +15,10 @@ export async function convertPdfToEpub(
   options: PdfToEpubOptions = {}
 ): Promise<Uint8Array> {
   const { title = "Converted Book", author = "", splitEvery = 10 } = options;
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const doc = await task.promise;
-  const totalPages = doc.numPages;
 
-  // Extract text per page
-  const pageTexts: string[] = [];
-  for (let p = 1; p <= totalPages; p++) {
-    const page = await doc.getPage(p);
-    const tc = await page.getTextContent();
-    const text = (tc.items as any[]).map((i) => i.str).join(" ");
-    pageTexts.push(text);
-  }
-  await doc.destroy();
+  const pages = await extractTextLines(pdfBytes);
+  const pageTexts: string[] = pages.map((lines) => lines.join(" "));
 
-  // Split into chapters
   const chapters: { title: string; body: string }[] = [];
   let current: string[] = [];
   let chapIdx = 1;
@@ -43,7 +31,6 @@ export async function convertPdfToEpub(
     }
   }
 
-  // Build EPUB zip
   const zip = new JSZip();
   zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
   const metaInf = zip.folder("META-INF")!;
@@ -55,7 +42,6 @@ export async function convertPdfToEpub(
 </container>`);
 
   const oebps = zip.folder("OEBPS")!;
-  // nav
   const navItems = chapters.map((c, i) => `<li><a href="chap${i + 1}.xhtml">${escapeHtml(c.title)}</a></li>`).join("");
   oebps.file("nav.xhtml", `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>

@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { HelpCircle, Shield, FileQuestion, Bug, Sparkles, ExternalLink } from "lucide-react";
+import { SITE_CONFIG } from "@/lib/site-config";
 
-export const metadata = {
-  title: "Help & Support — EditMyPDF",
-  description:
-    "Self-service assistance, troubleshooting guidance, bug reporting channels, and architecture questions for EditMyPDF.",
-};
+// Page metadata lives in app/contact/layout.tsx only ("Contact & Support —
+// EditMyPDF"). Do not add a metadata export here: a page-level export would
+// win over the layout and the two titles would conflict again (H-10).
 
 export default function ContactPage() {
   return (
@@ -41,8 +40,8 @@ export default function ContactPage() {
             <div className="text-xs text-muted-foreground leading-relaxed">
               <span className="font-semibold text-foreground block mb-0.5">Direct contact</span>
               For privacy, security, or partnership questions, email{" "}
-              <a href="mailto:founder@editmypdf.co.in" className="font-semibold text-foreground hover:underline">
-                founder@editmypdf.co.in
+              <a href={`mailto:${SITE_CONFIG.contactEmail}`} className="font-semibold text-foreground hover:underline">
+                {SITE_CONFIG.contactEmail}
               </a>
               . We respond to every message.
             </div>
@@ -61,7 +60,7 @@ export default function ContactPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <a
-                href="https://github.com/Praveen1270/editmypdf/issues"
+                href={`${SITE_CONFIG.githubUrl}/issues`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex flex-col justify-between rounded-xl border border-border bg-surface-subtle/50 p-4 transition hover:border-foreground/40 hover:bg-surface"
@@ -86,7 +85,7 @@ export default function ContactPage() {
               </a>
 
               <a
-                href="https://github.com/Praveen1270/editmypdf/issues"
+                href={`${SITE_CONFIG.githubUrl}/issues`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex flex-col justify-between rounded-xl border border-border bg-surface-subtle/50 p-4 transition hover:border-foreground/40 hover:bg-surface"

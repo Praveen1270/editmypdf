@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { savePdf, PAGE_SIZES } from "./core";
 
 export type Experience = {
   title: string;
@@ -53,6 +54,7 @@ function sanitizeText(raw: string, font: any): string {
     .replace(/[\u2717\u2718]/g, "[ ]");
 
   let result = "";
+  let replaced = 0;
   for (let i = 0; i < normalized.length; i++) {
     const char = normalized[i];
     try {
@@ -60,7 +62,11 @@ function sanitizeText(raw: string, font: any): string {
       result += char;
     } catch {
       result += " ";
+      replaced++;
     }
+  }
+  if (replaced > 0) {
+    console.warn(`generateResumePdf: replaced ${replaced} character(s) the font cannot encode with spaces`);
   }
   return result;
 }
@@ -83,9 +89,8 @@ export async function generateResumePdf(
     ? await doc.embedFont(StandardFonts.TimesRomanItalic)
     : await doc.embedFont(StandardFonts.HelveticaOblique);
 
-  // A4 dimensions: 595.28 x 841.89 points
-  const pw = 595.28;
-  const ph = 841.89;
+  const pw = PAGE_SIZES.a4.width;
+  const ph = PAGE_SIZES.a4.height;
   const margin = 40;
   const usableW = pw - margin * 2;
 
@@ -130,7 +135,8 @@ export async function generateResumePdf(
       let width = 0;
       try {
         width = fontObj.widthOfTextAtSize(candidate, size);
-      } catch {
+      } catch (err) {
+        console.warn("generateResumePdf: could not measure text width, re-measuring sanitized text", err);
         const safeCandidate = sanitizeText(candidate, fontObj);
         width = fontObj.widthOfTextAtSize(safeCandidate, size);
       }
@@ -238,7 +244,6 @@ export async function generateResumePdf(
     });
     y -= size + 3;
 
-    // Divider line
     page.drawLine({
       start: { x: margin, y },
       end: { x: pw - margin, y },
@@ -260,7 +265,6 @@ export async function generateResumePdf(
         if (!exp.title && !exp.company) continue;
         ensureSpace(30);
 
-        // Job Title (Bold, Left) and Dates (Right aligned)
         const titleStr = sanitizeText(exp.title || "Position", boldFont);
         const datesStr = sanitizeText(
           exp.start && exp.end ? `${exp.start} - ${exp.end}` : exp.start || exp.end || "",
@@ -287,7 +291,6 @@ export async function generateResumePdf(
         }
         y -= 13;
 
-        // Company (Italic, Left)
         if (exp.company) {
           const companyStr = sanitizeText(exp.company, italicFont);
           page.drawText(companyStr, {
@@ -300,7 +303,6 @@ export async function generateResumePdf(
           y -= 13;
         }
 
-        // Bullets
         for (const bullet of exp.bullets || []) {
           if (!bullet.trim()) continue;
           ensureSpace(14);
@@ -383,5 +385,5 @@ export async function generateResumePdf(
     }
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

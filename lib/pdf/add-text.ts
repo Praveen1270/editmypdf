@@ -1,4 +1,5 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { StandardFonts, rgb } from "pdf-lib";
+import { loadPdf, savePdf, hexToRgb } from "./core";
 
 export type TextPositionPreset = "header" | "footer" | "center" | "custom";
 
@@ -11,22 +12,6 @@ export interface AddTextOptions {
   fontSize?: number;
   colorHex?: string;
   opacity?: number;
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  let clean = hex.replace("#", "");
-  if (clean.length === 3) {
-    clean = clean.split("").map((c) => c + c).join("");
-  }
-  const int = parseInt(clean, 16);
-  if (isNaN(int)) {
-    return { r: 0, g: 0, b: 0 };
-  }
-  return {
-    r: ((int >> 16) & 255) / 255,
-    g: ((int >> 8) & 255) / 255,
-    b: (int & 255) / 255,
-  };
 }
 
 /**
@@ -51,7 +36,7 @@ export async function addTextToPdf(
     throw new Error("Text content cannot be empty.");
   }
 
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const { r, g, b } = hexToRgb(colorHex);
   const color = rgb(r, g, b);
@@ -93,5 +78,5 @@ export async function addTextToPdf(
     });
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

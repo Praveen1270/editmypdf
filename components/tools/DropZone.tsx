@@ -4,7 +4,8 @@ import { useState, useRef, useEffect, DragEvent, ChangeEvent } from "react";
 import { UploadCloud, AlertCircle, FileText, ArrowRight } from "lucide-react";
 import { addRecentFile } from "@/lib/storage";
 import { PDF_TOOLS } from "@/lib/tools-data";
-import { getActiveDocument } from "@/lib/active-document";
+import { getActiveDocument, subscribeActiveDocument } from "@/lib/active-document";
+import { MAX_PDF_FILE_BYTES, validatePdfFile } from "@/lib/files/intake";
 import { formatFileSize } from "@/lib/utils";
 
 interface DropZoneProps {
@@ -20,7 +21,7 @@ interface DropZoneProps {
 export function DropZone({
   accept = ".pdf",
   multiple = false,
-  maxSizeBytes = 150 * 1024 * 1024,
+  maxSizeBytes = MAX_PDF_FILE_BYTES,
   onFilesSelected,
   title = "Drop your files here",
   subtitle = "or browse files",
@@ -31,17 +32,22 @@ export function DropZone({
   const [activeDocFile, setActiveDocFile] = useState<{ name: string; size: number; pageCount: number; file?: File } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Check for preloaded active document from homepage
   useEffect(() => {
-    const doc = getActiveDocument();
-    if (doc && accept.includes(".pdf")) {
-      setActiveDocFile({
-        name: doc.name,
-        size: doc.size,
-        pageCount: doc.pageCount,
-        file: doc.file,
-      });
-    }
+    const sync = () => {
+      const doc = getActiveDocument();
+      if (doc && accept.includes(".pdf")) {
+        setActiveDocFile({
+          name: doc.name,
+          size: doc.size,
+          pageCount: doc.pageCount,
+          file: doc.file,
+        });
+      } else {
+        setActiveDocFile(null);
+      }
+    };
+    sync();
+    return subscribeActiveDocument(sync);
   }, [accept]);
 
   const handleUseActiveDoc = () => {
@@ -50,7 +56,6 @@ export function DropZone({
       if (doc.file) {
         onFilesSelected([doc.file]);
       } else {
-        // Construct File from in-memory Uint8Array bytes
         const blob = new Blob([doc.bytes.buffer as ArrayBuffer], { type: "application/pdf" });
         const fileObj = new File([blob], doc.name, { type: "application/pdf" });
         onFilesSelected([fileObj]);
@@ -66,38 +71,42 @@ export function DropZone({
     const validFiles: File[] = [];
 
     for (const file of files) {
-      if (file.size > maxSizeBytes) {
-        setErrorMessage(
-          `"${file.name}" exceeds the recommended local memory limit (${Math.round(
-            maxSizeBytes / (1024 * 1024)
-          )}MB).`
-        );
-        return;
-      }
-
-      if (accept) {
-        const acceptedTokens = accept.split(",").map((s) => s.trim().toLowerCase());
-        const lowerName = file.name.toLowerCase();
-        const mimeType = (file.type || "").toLowerCase();
-
-        const matches = acceptedTokens.some((token) => {
-          if (token.startsWith(".")) {
-            return lowerName.endsWith(token);
-          }
-          if (token.endsWith("/*")) {
-            const prefix = token.replace("/*", "");
-            return mimeType.startsWith(prefix);
-          }
-          return mimeType === token;
-        });
-
-        if (!matches) {
-          if (accept === ".pdf") {
-            setErrorMessage(`"${file.name}" is not a valid PDF file.`);
-          } else {
-            setErrorMessage(`"${file.name}" does not match accepted format (${accept}).`);
-          }
+      if (accept === ".pdf") {
+        const result = validatePdfFile(file, maxSizeBytes);
+        if (!result.ok) {
+          setErrorMessage(result.error);
           return;
+        }
+      } else {
+        if (file.size > maxSizeBytes) {
+          setErrorMessage(
+            `"${file.name}" exceeds the recommended local memory limit (${Math.round(
+              maxSizeBytes / (1024 * 1024)
+            )}MB).`
+          );
+          return;
+        }
+
+        if (accept) {
+          const acceptedTokens = accept.split(",").map((s) => s.trim().toLowerCase());
+          const lowerName = file.name.toLowerCase();
+          const mimeType = (file.type || "").toLowerCase();
+
+          const matches = acceptedTokens.some((token) => {
+            if (token.startsWith(".")) {
+              return lowerName.endsWith(token);
+            }
+            if (token.endsWith("/*")) {
+              const prefix = token.replace("/*", "");
+              return mimeType.startsWith(prefix);
+            }
+            return mimeType === token;
+          });
+
+          if (!matches) {
+            setErrorMessage(`"${file.name}" does not match accepted format (${accept}).`);
+            return;
+          }
         }
       }
 
@@ -153,7 +162,6 @@ export function DropZone({
 
   return (
     <div className="w-full space-y-4">
-      {/* 1-Click Shortcut to use active preloaded document if available */}
       {activeDocFile && !multiple && (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/5 p-4 transition">
           <div className="flex items-center gap-3">
@@ -186,7 +194,6 @@ export function DropZone({
         </div>
       )}
 
-      {/* Main Drag-and-Drop Area */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

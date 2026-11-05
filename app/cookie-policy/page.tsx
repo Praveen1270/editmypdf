@@ -1,6 +1,7 @@
 import { Cookie, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { generatePageMetadata } from "@/lib/seo";
+import { TOOL_COUNT } from "@/lib/tools-data";
 
 export const metadata = generatePageMetadata({
   title: "Cookie & Storage Policy — EditMyPDF",
@@ -31,7 +32,7 @@ export default function CookiePolicyPage() {
           <div className="rounded-xl border border-border bg-surface-raised p-5 flex items-start gap-3">
             <CheckCircle2 className="h-5 w-5 text-text-primary shrink-0 mt-0.5" />
             <div className="text-xs text-text-secondary leading-relaxed">
-              <strong className="text-text-primary">Zero Tracking Cookies:</strong> EditMyPDF does not set any advertising, tracking, marketing, or profiling cookies on your computer. You can use all 57 PDF utilities without giving cookie consent or managing cookie preference banners because no tracking mechanisms exist.
+              <strong className="text-text-primary">Zero Tracking Cookies:</strong> EditMyPDF does not set any advertising, tracking, marketing, or profiling cookies on your computer. You can use all {TOOL_COUNT} PDF utilities without giving cookie consent or managing cookie preference banners because no tracking mechanisms exist.
             </div>
           </div>
 

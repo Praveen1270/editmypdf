@@ -6,6 +6,7 @@ import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
 import { ocrPdf, OcrResult } from "@/lib/pdf/ocr";
 import { downloadBytes } from "@/lib/files/download";
+import { useCopyFeedback } from "@/lib/hooks/use-copy-feedback";
 import { formatFileSize } from "@/lib/utils";
 
 const LANGS = [
@@ -31,7 +32,7 @@ export default function OcrPdfPage() {
   const [mode, setMode] = useState<"searchable-pdf" | "text">("searchable-pdf");
   const [dpi, setDpi] = useState(250);
   const [progress, setProgress] = useState<{ current: number; total: number; status?: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopyFeedback();
 
   const handleFileSelected = async (files: File[]) => {
     if (files.length === 0) return;
@@ -77,9 +78,7 @@ export default function OcrPdfPage() {
   const handleCopy = async () => {
     if (!result) return;
     try {
-      await navigator.clipboard.writeText(result.text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await copy(result.text);
     } catch {
       setErrorMessage("Clipboard copy failed.");
     }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { MakeItLastBadge } from "@/components/badges/MakeItLastBadge";
+import { SITE_CONFIG } from "@/lib/site-config";
 
 export function Footer() {
   return (
@@ -11,7 +12,7 @@ export function Footer() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
           {/* Brand Info & Privacy Guarantee Column */}
           <div className="col-span-2 pr-0 lg:pr-6">
-            <BrandLogo markSize={26} />
+            <BrandLogo />
             <p className="mt-3 text-xs leading-relaxed text-[#52504e] dark:text-[#d6d3d1] max-w-sm">
               EditMyPDF is a complete online PDF workspace for editing, organizing, converting, and managing PDF documents directly in your browser.
             </p>
@@ -26,10 +27,10 @@ export function Footer() {
             <p className="mt-2 text-[11px] text-[#52504e] dark:text-[#d6d3d1]">
               Contact:{" "}
               <a
-                href="mailto:founder@editmypdf.co.in"
+                href={`mailto:${SITE_CONFIG.contactEmail}`}
                 className="font-semibold text-black dark:text-white hover:underline"
               >
-                founder@editmypdf.co.in
+                {SITE_CONFIG.contactEmail}
               </a>
             </p>
 
@@ -176,7 +177,6 @@ export function Footer() {
               <Link href="/pdf-to-word" className="hover:text-black dark:hover:text-white transition-colors">PDF to Word</Link>
               <Link href="/pdf-to-powerpoint" className="hover:text-black dark:hover:text-white transition-colors">PDF to PowerPoint</Link>
               <Link href="/pdf-to-excel" className="hover:text-black dark:hover:text-white transition-colors">PDF to Excel</Link>
-              <Link href="/pdf-to-pdfa" className="hover:text-black dark:hover:text-white transition-colors">PDF to PDF/A</Link>
             </div>
           </div>
 

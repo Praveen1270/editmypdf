@@ -1,4 +1,4 @@
-import { getPdfJs } from "./pdf-loader";
+import { openPdfJs } from "./core";
 
 async function loadPptxGenJS() {
   // Let webpack bundle pptxgenjs. webpackIgnore made the browser try to
@@ -8,14 +8,8 @@ async function loadPptxGenJS() {
   return mod.default || mod;
 }
 
-export interface PdfToPptxOptions {
-  includeNotes?: boolean;
-}
-
-export async function pdfToPptx(pdfBytes: Uint8Array, options: PdfToPptxOptions = {}): Promise<Uint8Array> {
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const doc = await task.promise;
+export async function pdfToPptx(pdfBytes: Uint8Array): Promise<Uint8Array> {
+  const doc = await openPdfJs(pdfBytes);
   const totalPages = doc.numPages;
 
   const PptxGenJS = await loadPptxGenJS();
@@ -25,13 +19,11 @@ export async function pdfToPptx(pdfBytes: Uint8Array, options: PdfToPptxOptions 
     const page = await doc.getPage(p);
     const viewport = page.getViewport({ scale: 1 });
     const slide = pptx.addSlide();
-    // slide size follows page aspect ratio
     slide.background = { color: "FFFFFF" };
 
     const textContent = await page.getTextContent();
     const items = textContent.items as any[];
 
-    // group into lines
     const lines: { text: string; x: number; y: number; size: number }[] = [];
     let current: { text: string; x: number; y: number; size: number } | null = null;
     const sorted = [...items].sort((a, b) => {
@@ -55,8 +47,6 @@ export async function pdfToPptx(pdfBytes: Uint8Array, options: PdfToPptxOptions 
     // scale from PDF points to slide inches (slide is 10" wide default)
     const slideW = 10;
     const slideH = (viewport.height / viewport.width) * slideW;
-    pptx.defineLayout({ name: `L${p}`, width: slideW, height: slideH });
-    // can't change layout per slide easily; use default and position proportionally
     const sx = slideW / viewport.width;
     const sy = slideH / viewport.height;
 
@@ -75,12 +65,5 @@ export async function pdfToPptx(pdfBytes: Uint8Array, options: PdfToPptxOptions 
 
   const out = await pptx.write({ outputType: "uint8array" });
   await doc.destroy();
-  // Normalise the result so the download always gets raw PPTX bytes,
-  // even if a future pptxgenjs version returns a Blob/ArrayBuffer here.
-  if (out instanceof Uint8Array) return out;
-  if (out instanceof ArrayBuffer) return new Uint8Array(out);
-  if (typeof Blob !== "undefined" && out instanceof Blob) {
-    return new Uint8Array(await out.arrayBuffer());
-  }
-  return out as unknown as Uint8Array;
+  return out as Uint8Array;
 }

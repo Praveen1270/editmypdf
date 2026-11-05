@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import { getPdfJs } from "./pdf-loader";
+import { openPdfJs } from "./core";
 
 export interface PdfToExcelOptions {
   oneSheetPerPage?: boolean;
@@ -14,9 +14,7 @@ export async function pdfToExcel(
   options: PdfToExcelOptions = {}
 ): Promise<Uint8Array> {
   const { oneSheetPerPage = true } = options;
-  const pdfjs = await getPdfJs();
-  const task = pdfjs.getDocument({ data: pdfBytes.slice() });
-  const doc = await task.promise;
+  const doc = await openPdfJs(pdfBytes);
   const totalPages = doc.numPages;
 
   const wb = XLSX.utils.book_new();
@@ -26,14 +24,12 @@ export async function pdfToExcel(
     const textContent = await page.getTextContent();
     const items = textContent.items as any[];
 
-    // sort by y desc then x
     const sorted = [...items].sort((a, b) => {
       const ay = a.transform[5], by = b.transform[5];
       if (Math.abs(ay - by) > 3) return by - ay;
       return a.transform[4] - b.transform[4];
     });
 
-    // cluster into rows by y (tolerance 4pt)
     const rows: { y: number; cells: { x: number; text: string }[] }[] = [];
     for (const item of sorted) {
       const y = item.transform[5];
@@ -45,7 +41,6 @@ export async function pdfToExcel(
       row.cells.push({ x, text: str });
     }
 
-    // determine column boundaries by clustering x positions across all rows
     const xs: number[] = [];
     for (const r of rows) for (const c of r.cells) xs.push(c.x);
     xs.sort((a, b) => a - b);
@@ -55,11 +50,9 @@ export async function pdfToExcel(
       else colCenters[colCenters.length - 1] = (colCenters[colCenters.length - 1] + x) / 2;
     }
 
-    // build grid
     const grid: string[][] = rows.map((r) => {
       const out = new Array(colCenters.length).fill("");
       for (const c of r.cells) {
-        // find nearest col center
         let best = 0, bestDist = Infinity;
         for (let i = 0; i < colCenters.length; i++) {
           const d = Math.abs(colCenters[i] - c.x);
@@ -70,7 +63,6 @@ export async function pdfToExcel(
       return out;
     });
 
-    // remove empty rows
     const filtered = grid.filter((r) => r.some((c) => c.trim() !== ""));
     if (filtered.length === 0) continue;
 

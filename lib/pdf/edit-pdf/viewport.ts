@@ -49,12 +49,3 @@ export function screenScale(viewport: ViewportLike): number {
   const t = viewport.transform;
   return Math.hypot(t[0], t[1]);
 }
-
-/**
- * Rotation (degrees) of the viewport x-axis relative to PDF user space.
- * Used to orient overlay boxes so they sit exactly over rotated text/pages.
- */
-export function viewportRotationDeg(viewport: ViewportLike): number {
-  const t = viewport.transform;
-  return (Math.atan2(t[1], t[0]) * 180) / Math.PI;
-}

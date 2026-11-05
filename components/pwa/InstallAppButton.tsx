@@ -8,7 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
-export function InstallAppButton({ className = "", compact = false, id }: { className?: string; compact?: boolean; id?: string }) {
+export function InstallAppButton({ className = "", id }: { className?: string; id?: string }) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -16,7 +16,6 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
   const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if running in standalone mode (already installed)
     const checkStandalone = () => {
       const isStandaloneMode =
         window.matchMedia("(display-mode: standalone)").matches ||
@@ -26,7 +25,6 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
 
     checkStandalone();
 
-    // Check iOS
     const ua = window.navigator.userAgent;
     const isIOSDevice = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream;
     setIsIOS(isIOSDevice);
@@ -70,7 +68,6 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
     }
   };
 
-  // If already running inside installed standalone app, show subtle monochrome status
   if (isStandalone || installed) {
     return (
       <div id={id} className={`inline-flex h-9 items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 px-2.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 shrink-0 whitespace-nowrap ${className}`}>
@@ -90,10 +87,9 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
         className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 text-xs font-semibold text-black dark:text-white transition hover:border-black dark:hover:border-white focus:outline-none focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white shrink-0 whitespace-nowrap ${className}`}
       >
         <Download className="h-3.5 w-3.5" />
-        <span>{compact ? "Install" : "Install App"}</span>
+        <span>Install App</span>
       </button>
 
-      {/* Instructional Modal for iOS or manual install */}
       {showModal && (
         <div
           role="dialog"
@@ -129,7 +125,6 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
 
             <div className="mt-5 space-y-4 text-xs">
               {isIOS ? (
-                // iOS Safari Instructions
                 <div className="rounded-xl border border-border bg-surface-raised p-4 space-y-3">
                   <div className="flex items-center gap-2 font-semibold text-text-primary">
                     <Smartphone className="h-4 w-4" />
@@ -148,7 +143,6 @@ export function InstallAppButton({ className = "", compact = false, id }: { clas
                   </ol>
                 </div>
               ) : (
-                // Desktop or Android instructions
                 <div className="rounded-xl border border-border bg-surface-raised p-4 space-y-3">
                   <div className="flex items-center gap-2 font-semibold text-text-primary">
                     <Monitor className="h-4 w-4" />

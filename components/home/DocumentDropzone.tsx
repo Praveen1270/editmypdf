@@ -11,21 +11,12 @@ import {
   ArrowRight,
   Loader2,
   AlertCircle,
-  Minimize2,
-  LayoutGrid,
-  Scissors,
-  RotateCw,
-  Hash,
-  Stamp,
-  Type,
-  Crop,
-  Lock,
-  FileImage,
-  FileCode,
   PenLine,
 } from "lucide-react";
 import { formatFileSize } from "@/lib/utils";
-import { getPdfInfo } from "@/lib/pdf/pdf-loader";
+import { getToolsByIds } from "@/lib/tools-data";
+import { getToolIcon } from "@/lib/icons";
+import { readPdfFile, validatePdfFile } from "@/lib/files/intake";
 import {
   setActiveDocument,
   getActiveDocument,
@@ -35,20 +26,55 @@ import {
 } from "@/lib/active-document";
 import { addRecentFile } from "@/lib/storage";
 
-const QUICK_ACTIONS = [
-  { id: "edit-pdf", name: "Edit PDF", href: "/edit-pdf", icon: PenLine, desc: "Edit text & sign" },
-  { id: "compress", name: "Compress", href: "/compress-pdf", icon: Minimize2, desc: "Reduce file size" },
-  { id: "organize", name: "Organize Pages", href: "/organize-pdf", icon: LayoutGrid, desc: "Reorder & delete" },
-  { id: "split", name: "Split", href: "/split-pdf", icon: Scissors, desc: "Extract pages" },
-  { id: "rotate", name: "Rotate", href: "/rotate-pdf", icon: RotateCw, desc: "Fix orientation" },
-  { id: "page-numbers", name: "Page Numbers", href: "/add-page-numbers", icon: Hash, desc: "Number pages" },
-  { id: "watermark", name: "Watermark", href: "/watermark-pdf", icon: Stamp, desc: "Add stamp" },
-  { id: "add-text", name: "Add Text", href: "/add-text-to-pdf", icon: Type, desc: "Insert notes" },
-  { id: "crop", name: "Crop", href: "/crop-pdf", icon: Crop, desc: "Trim margins" },
-  { id: "pdf-to-images", name: "To Images", href: "/pdf-to-images", icon: FileImage, desc: "Export PNG/JPG" },
-  { id: "pdf-to-text", name: "To Text", href: "/pdf-to-text", icon: FileCode, desc: "Extract text" },
-  { id: "protect", name: "Protect", href: "/protect-pdf", icon: Lock, desc: "AES-256 encrypt" },
-];
+// Display labels/descriptions that differ from the registry names; href and
+// icon always come from the registry so a rename never strands this list.
+const QUICK_ACTION_LABELS: Record<string, string> = {
+  compress: "Compress",
+  organize: "Organize Pages",
+  split: "Split",
+  rotate: "Rotate",
+  "page-numbers": "Page Numbers",
+  watermark: "Watermark",
+  "add-text": "Add Text",
+  crop: "Crop",
+  "pdf-to-images": "To Images",
+  "pdf-to-text": "To Text",
+  protect: "Protect",
+};
+const QUICK_ACTION_DESCS: Record<string, string> = {
+  "edit-pdf": "Edit text & sign",
+  compress: "Reduce file size",
+  organize: "Reorder & delete",
+  split: "Extract pages",
+  rotate: "Fix orientation",
+  "page-numbers": "Number pages",
+  watermark: "Add stamp",
+  "add-text": "Insert notes",
+  crop: "Trim margins",
+  "pdf-to-images": "Export PNG/JPG",
+  "pdf-to-text": "Extract text",
+  protect: "AES-256 encrypt",
+};
+const QUICK_ACTIONS = getToolsByIds([
+  "edit-pdf",
+  "compress",
+  "organize",
+  "split",
+  "rotate",
+  "page-numbers",
+  "watermark",
+  "add-text",
+  "crop",
+  "pdf-to-images",
+  "pdf-to-text",
+  "protect",
+]).map((tool) => ({
+  id: tool.id,
+  name: QUICK_ACTION_LABELS[tool.id] ?? tool.name,
+  href: tool.href,
+  icon: getToolIcon(tool.icon),
+  desc: QUICK_ACTION_DESCS[tool.id] ?? "",
+}));
 
 export function DocumentDropzone() {
   const [activeDoc, setActiveDocState] = useState<ActiveDocumentState | null>(null);
@@ -58,7 +84,6 @@ export function DocumentDropzone() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Sync with active document singleton
   useEffect(() => {
     setActiveDocState(getActiveDocument());
     const unsub = subscribeActiveDocument(() => {
@@ -71,39 +96,30 @@ export function DocumentDropzone() {
     if (!file) return;
     setErrorMessage(null);
 
-    // Validate type
-    if (!file.name.toLowerCase().endsWith(".pdf") && file.type !== "application/pdf") {
-      setErrorMessage("Please select a valid PDF document.");
-      return;
-    }
-
-    // Limit check (150MB safe memory limit)
-    if (file.size > 150 * 1024 * 1024) {
-      setErrorMessage(`"${file.name}" exceeds the recommended 150MB browser RAM limit.`);
+    const validation = validatePdfFile(file);
+    if (!validation.ok) {
+      setErrorMessage(validation.error);
       return;
     }
 
     setIsLoading(true);
     try {
-      const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      const info = await getPdfInfo(bytes);
+      const { bytes, pageCount } = await readPdfFile(file);
 
       const docData = {
         name: file.name,
         size: file.size,
-        pageCount: info.pageCount,
+        pageCount,
         bytes,
         file,
       };
 
       setActiveDocument(docData);
 
-      // Track in recent files history
       addRecentFile({
         name: file.name,
         size: file.size,
-        pageCount: info.pageCount,
+        pageCount,
         toolId: "workspace",
         toolName: "Document Workspace",
       });
@@ -158,11 +174,9 @@ export function DocumentDropzone() {
         onChange={handleInputChange}
       />
 
-      {/* State 1: Active Loaded Document Workspace */}
       {activeDoc ? (
         <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-paper animate-in fade-in-50 duration-200">
-          {/* Header of Active Document */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-black dark:text-white">
                 <FileText className="h-6 w-6" />
@@ -215,8 +229,7 @@ export function DocumentDropzone() {
             </div>
           </div>
 
-          {/* Quick Actions Grid for Loaded Document */}
-          <div className="mt-6">
+              <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Choose an action for this document
@@ -289,13 +302,11 @@ export function DocumentDropzone() {
             </div>
           ) : (
             <>
-              {/* Minimal Document Icon */}
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-surface-subtle text-foreground transition-transform group-hover:scale-105 shadow-paper">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-surface-subtle text-foreground transition-transform group-hover:scale-105 shadow-paper">
                 <FileText className="h-7 w-7 text-muted-foreground group-hover:text-foreground transition-colors" />
               </div>
 
-              {/* Upload Prompts */}
-              <div className="mt-5">
+                      <div className="mt-5">
                 <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
                   Drop a PDF here
                 </h2>
@@ -304,8 +315,7 @@ export function DocumentDropzone() {
                 </p>
               </div>
 
-              {/* Action Button */}
-              <div className="mt-5">
+                      <div className="mt-5">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -319,8 +329,7 @@ export function DocumentDropzone() {
                 </button>
               </div>
 
-              {/* File details & privacy note */}
-              <div className="mt-6 flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
+                      <div className="mt-6 flex flex-col items-center gap-1.5 text-xs text-muted-foreground">
                 <p>Accepts standard PDF documents up to 150MB</p>
                 <div className="flex items-center gap-1.5 font-medium text-foreground/80">
                   <ShieldCheck className="h-3.5 w-3.5 text-black dark:text-white" />
@@ -332,7 +341,6 @@ export function DocumentDropzone() {
         </div>
       )}
 
-      {/* Error Message if any */}
       {errorMessage && (
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive font-medium">
           <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />

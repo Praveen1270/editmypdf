@@ -37,7 +37,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
 
   const renderTaskRef = useRef<any | null>(null);
 
-  // 1. Load PDF Document Proxy from bytes
   useEffect(() => {
     let isCancelled = false;
     setLoading(true);
@@ -77,16 +76,16 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
     };
   }, [pdfBytes, password]);
 
-  // Clean up doc proxy on unmount or replacement
   useEffect(() => {
     return () => {
       if (docProxy) {
-        docProxy.destroy().catch(() => {});
+        docProxy.destroy().catch((err: unknown) => {
+          console.warn("PdfOutputViewer: failed to destroy PDF document", err);
+        });
       }
     };
   }, [docProxy]);
 
-  // 2. Render Current Page
   const renderPage = useCallback(
     async (pageNum: number) => {
       if (!docProxy || !canvasRef.current || !containerRef.current) return;
@@ -95,7 +94,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
         try {
           renderTaskRef.current.cancel();
         } catch {
-          // ignore cancel error
         }
       }
 
@@ -105,7 +103,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
         const page = await docProxy.getPage(pageNum);
         const containerWidth = containerRef.current.clientWidth - 48;
 
-        // Compute effective scale
         const unscaledViewport = page.getViewport({ scale: 1.0 });
         let effectiveScale = scale;
 
@@ -152,7 +149,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
     }
   }, [docProxy, pageCount, currentPage, scale, fitMode, renderPage]);
 
-  // Handle page navigation
   const prevPage = () => {
     if (currentPage > 1) setCurrentPage((p) => p - 1);
   };
@@ -187,9 +183,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
           : "w-full max-w-full"
       } ${className}`}
     >
-      {/* Viewer Header / Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface px-3 py-2 text-xs">
-        {/* Left: Page navigation */}
         <div className="flex items-center gap-1.5">
           <button
             type="button"
@@ -216,7 +210,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
           </button>
         </div>
 
-        {/* Center: Zoom and Fit Controls */}
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -255,7 +248,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
           </button>
         </div>
 
-        {/* Right: Thumbnails & Fullscreen */}
         <div className="flex items-center gap-1">
           {pageCount > 1 && (
             <button
@@ -285,9 +277,7 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
         </div>
       </div>
 
-      {/* Main Preview Container */}
       <div className="relative flex flex-1 flex-col overflow-hidden sm:flex-row">
-        {/* Thumbnails Sidebar */}
         {showThumbnails && pageCount > 1 && docProxy && (
           <div className="w-full sm:w-44 shrink-0 border-b sm:border-b-0 sm:border-r border-border bg-surface p-2 overflow-y-auto max-h-48 sm:max-h-[500px]">
             <div className="grid grid-cols-4 sm:grid-cols-1 gap-2">
@@ -314,7 +304,6 @@ export function PdfOutputViewer({ pdfBytes, password, className = "" }: PdfOutpu
           </div>
         )}
 
-        {/* Canvas Display Viewport */}
         <div
           ref={containerRef}
           className="relative flex min-h-[360px] max-h-[640px] flex-1 items-center justify-center overflow-auto p-4 sm:p-6"

@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { savePdf, PAGE_SIZES } from "./core";
 
 export interface TableRenderOptions {
   title?: string;
@@ -10,8 +11,6 @@ export interface TableRenderOptions {
   fontSize?: number;
   hasHeader?: boolean;
 }
-
-const PAGE_SIZES = { a4: { w: 595.28, h: 841.89 }, letter: { w: 612, h: 792 } };
 
 /**
  * Renders a 2D grid of cells into a paginated PDF.
@@ -36,21 +35,19 @@ export async function renderTableToPdf(
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
 
   let base = PAGE_SIZES[pageSize];
-  let pw = base.w, ph = base.h;
+  let pw = base.width, ph = base.height;
   if (orientation === "landscape") [pw, ph] = [ph, pw];
 
   const margin = 40;
   const usableW = pw - 2 * margin;
 
   const colCount = rows.reduce((m, r) => Math.max(m, r.length), 0);
-  // normalize rows
   const normRows = rows.map((r) => {
     const out = [...r];
     while (out.length < colCount) out.push("");
     return out;
   });
 
-  // compute column widths based on content (char count), capped
   const colWidths = new Array(colCount).fill(0);
   for (const r of normRows) {
     for (let c = 0; c < colCount; c++) {
@@ -61,11 +58,8 @@ export async function renderTableToPdf(
   const totalChars = colWidths.reduce((s, w) => s + Math.max(4, w), 0);
   let widths = colWidths.map((w) => (Math.max(4, w) / totalChars) * usableW);
   if (fitToWidth) {
-    // already fits
   } else {
-    // allow overflow by scaling? keep as is
   }
-  // cap min width
   widths = widths.map((w) => Math.max(30, w));
 
   const headerRow = hasHeader && normRows.length > 0 ? normRows[0] : null;
@@ -76,7 +70,6 @@ export async function renderTableToPdf(
 
   const drawHeader = () => {
     if (!headerRow) return;
-    // header bg
     page.drawRectangle({ x: margin, y: y - rowHeight + 2, width: usableW, height: rowHeight, color: rgb(0.85, 0.85, 0.85) });
     let x = margin;
     for (let c = 0; c < colCount; c++) {
@@ -115,5 +108,5 @@ export async function renderTableToPdf(
     y -= rowHeight;
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }

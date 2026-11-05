@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageSquare, Loader2, Send, Upload, RefreshCw } from "lucide-react";
 import { ToolPageLayout } from "@/components/tools/ToolPageLayout";
 import { DropZone } from "@/components/tools/DropZone";
-import { streamGemini, extractPdfTextForContext, ChatMessage } from "@/lib/ai/gemini";
+import { streamGemini, extractPdfTextForContext, truncateContext, GEMINI_PRIVACY_NOTICE, ChatMessage } from "@/lib/ai/gemini";
 
 export default function ChatWithPdfPage() {
   const [files, setFiles] = useState<File[]>([]);
@@ -33,7 +33,7 @@ export default function ChatWithPdfPage() {
         const text = await extractPdfTextForContext(new Uint8Array(buf));
         parts.push(`===== DOCUMENT: ${f.name} =====\n${text}`);
       }
-      setContext(parts.join("\n\n"));
+      setContext(truncateContext(parts.join("\n\n")));
     } catch (err: any) {
       setErrorMessage(`Failed to extract text: ${err?.message || "Unknown error"}`);
     } finally {
@@ -52,7 +52,7 @@ export default function ChatWithPdfPage() {
     let reply = "";
     setMessages((m) => [...m, { role: "model", text: "" }]);
 
-    const system = `You are a helpful assistant answering questions about the provided documents. Answer only from the document content. Cite page numbers like [Page 3]. If the answer is not in the documents, say so.\n\nDOCUMENTS:\n${context.slice(0, 200000)}`;
+    const system = `You are a helpful assistant answering questions about the provided documents. Answer only from the document content. Cite page numbers like [Page 3]. If the answer is not in the documents, say so.\n\nDOCUMENTS:\n${context}`;
 
     const controller = new AbortController();
     try {
@@ -81,6 +81,7 @@ export default function ChatWithPdfPage() {
         <div className="flex flex-col gap-2">
           <label className="text-xs font-semibold">Gemini API key (kept in memory)</label>
           <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="AIza..." className="rounded-lg border border-border bg-surface-base px-3 py-1.5 text-xs" />
+          <p className="text-[11px] text-muted-foreground">{GEMINI_PRIVACY_NOTICE}</p>
         </div>
 
         {!context ? (

@@ -1,58 +1,25 @@
-export type ToolCategory = "organize" | "convert" | "layout" | "security";
+// ---------------------------------------------------------------------------
+// Single source of truth for every PDF tool / workflow on EditMyPDF.
+//
+// A "tool" is one entry here. The marketed count is TOOL_COUNT (entries,
+// including the 4 workflow presets); ROUTE_TOOL_COUNT counts only entries
+// with a real route (presets are query variants of /workflows).
+//
+// Everything else is derived from this file — never re-typed elsewhere:
+// routes (slug), sitemap, llms.txt, SEO titles, home-page lists, related
+// tools, the markdown registry, and the ToolContent guides.
+//
+// Rules for adding a tool:
+//   1. Add one entry below (id, slug, name, description, categoryId, icon,
+//      keywords, steps, features, limitations, faq). `href` is DERIVED from
+//      `slug` (or `preset`) — never authored here.
+//   2. Add the route directory `app/<slug>/` (slug != id in 23 cases — the
+//      registry is the only place that maps one to the other).
+//   3. Counts, sitemap, llms.txt, SEO and the home page pick it up
+//      automatically. Nothing else needs a hard-coded copy.
+// ---------------------------------------------------------------------------
 
-export type SidebarCategoryId =
-  | "scan-workflow"
-  | "page-management"
-  | "edit-annotate"
-  | "create-convert-pdf"
-  | "convert-other"
-  | "security-privacy"
-  | "collaborate-share"
-  | "business-tools";
-
-export interface SidebarCategoryDef {
-  id: SidebarCategoryId;
-  label: string;
-}
-
-export const SIDEBAR_CATEGORIES: SidebarCategoryDef[] = [
-  { id: "scan-workflow", label: "Scan & Workflow" },
-  { id: "page-management", label: "Page Management" },
-  { id: "edit-annotate", label: "Edit & Annotate" },
-  { id: "create-convert-pdf", label: "Create & Convert → PDF" },
-  { id: "convert-other", label: "Convert → Other" },
-  { id: "security-privacy", label: "Security & Privacy" },
-  { id: "collaborate-share", label: "Collaborate & Share" },
-  { id: "business-tools", label: "Business Tools" },
-];
-
-export interface ToolItem {
-  id: string;
-  name: string;
-  title: string;
-  href: string;
-  category: ToolCategory;
-  categoryName: string;
-  sidebarCategory: SidebarCategoryId;
-  description: string;
-  shortDesc: string;
-  iconName: string;
-  keywords: string[];
-  steps: { title: string; desc: string }[];
-  features: string[];
-  limitations: string[];
-  faq: { q: string; a: string }[];
-}
-
-export const CATEGORIES: { id: ToolCategory; name: string }[] = [
-  { id: "organize", name: "Organize PDFs" },
-  { id: "convert", name: "Convert and Compress" },
-  { id: "layout", name: "Edit Page Layout" },
-  { id: "security", name: "Secure and Inspect" },
-];
-
-export type MasterCategoryId =
-  | "all"
+export type ToolCategoryId =
   | "workflows"
   | "organize"
   | "optimize"
@@ -61,13 +28,14 @@ export type MasterCategoryId =
   | "security"
   | "intelligence";
 
-export interface MasterCategoryDef {
-  id: MasterCategoryId;
+/** One of the 8 master categories (the only category system). */
+export interface CategoryDef {
+  id: ToolCategoryId | "all";
   name: string;
   description: string;
 }
 
-export const MASTER_CATEGORIES: MasterCategoryDef[] = [
+export const CATEGORIES: CategoryDef[] = [
   { id: "all", name: "All Tools", description: "Complete browser-based PDF toolkit" },
   { id: "workflows", name: "Workflows", description: "Chained multi-step automated operations" },
   { id: "organize", name: "Organize PDF", description: "Merge, split, reorder, rotate, remove, and extract pages" },
@@ -78,104 +46,83 @@ export const MASTER_CATEGORIES: MasterCategoryDef[] = [
   { id: "intelligence", name: "PDF Intelligence", description: "AI summarizer, document translator, and smart extraction" },
 ];
 
-export function getMasterCategoryId(tool: ToolItem): MasterCategoryId {
-  const id = tool.id;
-  if (id === "workflows" || id.startsWith("workflow-")) return "workflows";
-  if (["merge", "split", "remove-pages", "extract", "organize", "scan-to-pdf", "rotate", "p2p-share", "whiteboard"].includes(id)) {
-    return "organize";
-  }
-  if (["compress", "repair", "ocr", "flatten", "page-counter", "privacy-scan", "fingerprint"].includes(id)) {
-    return "optimize";
-  }
-  if ([
-    "images-to-pdf", "word-to-pdf", "powerpoint-to-pdf", "excel-to-pdf", "html-to-pdf",
-    "pdf-to-images", "pdf-to-word", "pdf-to-powerpoint", "pdf-to-excel", "pdf-to-pdfa",
-    "pdf-to-text", "pdf-to-grayscale", "invert", "csv-to-pdf", "markdown-to-pdf",
-    "ebook-to-pdf", "pdf-to-epub", "pdf-to-html", "create-pdf"
-  ].includes(id)) {
-    return "convert";
-  }
-  if ([
-    "edit-pdf", "add-text", "watermark", "page-numbers", "crop", "resize",
-    "pdf-forms", "metadata-editor", "headers-footers", "latex-resume", "gst-invoice", "pos-billing"
-  ].includes(id)) {
-    return "edit";
-  }
-  if (["protect", "unlock", "sign-pdf", "redact", "compare"].includes(id)) {
-    return "security";
-  }
-  if (["ai-summarizer", "translate-pdf", "pdf-to-markdown", "chat-with-pdf"].includes(id)) {
-    return "intelligence";
-  }
-  return "organize";
-}
-
-
-export interface ToolDirectoryCategory {
+export interface ToolItem {
+  /** Stable id used by layouts, ToolPageLayout and the markdown registry. */
   id: string;
+  /** Route segment. Kept distinct from `id` where the URL differs (23 tools). */
+  slug: string;
+  /**
+   * Derived from `slug` (`/${slug}`) — or `/workflows?preset=<preset>` for
+   * workflow presets. Never authored; see `getToolHref` / `PDF_TOOLS` below.
+   */
+  href: string;
+  /** Workflow preset id (e.g. "merge-compress"). Only set on preset entries. */
+  preset?: string;
   name: string;
   description: string;
-  toolIds: string[];
+  categoryId: ToolCategoryId;
+  /** lucide icon name, resolved by the caller's icon map. */
+  icon: string;
+  keywords: string[];
+  steps: { title: string; desc: string }[];
+  features: string[];
+  limitations: string[];
+  faq: { q: string; a: string }[];
+  /** Query-first SEO title ("<query> - <benefit>"). Falls back in lib/seo.ts when absent. */
+  seoTitle?: string;
+  // --- Merged from the old lib/tool-content.ts (single copy lives here) ---
+  /** Display title for the ToolContent guide (old TOOL_CONTENT title). */
+  guideTitle?: string;
+  /** Long-form intro shown by ToolContent / markdown tool pages. */
+  intro?: string;
+  /** Plain-language how-to steps (old TOOL_CONTENT steps) for ToolContent. */
+  guideSteps?: string[];
+  tips?: string[];
+  notes?: string[];
+  privacy?: string;
+  valueProp?: string;
 }
 
-export const TOOL_CATEGORIES: ToolDirectoryCategory[] = [
-  {
-    id: "organize-pages",
-    name: "Organize pages",
-    description: "Reorder, combine, divide, and orient your documents",
-    toolIds: ["merge", "split", "organize", "rotate", "extract", "remove-pages"],
-  },
-  {
-    id: "edit-pdf",
-    name: "Edit PDF",
-    description: "Modify content, margins, page numbers, text, and properties",
-    toolIds: ["edit-pdf", "add-text", "watermark", "page-numbers", "crop", "resize", "metadata-editor", "sign-pdf", "pdf-forms"],
-  },
-  {
-    id: "convert-files",
-    name: "Convert files",
-    description: "Transform PDFs into image formats, plain text, or monochrome",
-    toolIds: ["pdf-to-images", "images-to-pdf", "pdf-to-text", "pdf-to-grayscale", "invert", "pdf-to-html", "scan-to-pdf", "pdf-to-epub", "ocr", "excel-to-pdf", "csv-to-pdf", "markdown-to-pdf", "html-to-pdf", "word-to-pdf", "pdf-to-word", "ebook-to-pdf", "create-pdf", "p2p-share", "whiteboard", "chat-with-pdf", "ai-summarizer", "pdf-to-excel", "headers-footers", "latex-resume", "pdf-to-powerpoint", "powerpoint-to-pdf", "pdf-to-markdown", "translate-pdf", "pdf-to-pdfa"],
-  },
-  {
-    id: "optimize",
-    name: "Optimize",
-    description: "Reduce file sizes, count pages, and compare document changes",
-    toolIds: ["compress", "page-counter", "compare", "workflows"],
-  },
-  {
-    id: "security",
-    name: "Security",
-    description: "AES-256 client-side encryption and password removal",
-    toolIds: ["protect", "unlock", "flatten", "redact", "privacy-scan", "repair", "fingerprint", "sign-pdf", "translate-pdf"],
-  },
-  {
-    id: "business",
-    name: "Business",
-    description: "Invoices, billing and receipts",
-    toolIds: ["gst-invoice", "pos-billing"],
-  },
-  {
-    id: "collaborate",
-    name: "Collaborate",
-    description: "Share and draw together",
-    toolIds: ["p2p-share", "whiteboard"],
-  },
+/** Canonical href for a tool: real route, or the /workflows preset URL. */
+export function getToolHref(tool: Pick<ToolItem, "slug" | "preset">): string {
+  return tool.preset ? `/workflows?preset=${tool.preset}` : `/${tool.slug}`;
+}
+
+/** True when the entry has its own route (workflow presets do not). */
+export function isRealToolRoute(tool: Pick<ToolItem, "preset">): boolean {
+  return !tool.preset;
+}
+
+/** The popular-tools list, as ids in display order (single copy). */
+export const POPULAR_TOOL_IDS: string[] = [
+  "merge",
+  "split",
+  "compress",
+  "edit-pdf",
+  "pdf-to-word",
+  "word-to-pdf",
+  "images-to-pdf",
+  "pdf-to-images",
+  "sign-pdf",
+  "protect",
+  "unlock",
+  "ocr",
+  "remove-pages",
+  "rotate",
+  "pdf-to-markdown",
+  "workflows",
 ];
 
-export const PDF_TOOLS: ToolItem[] = [
-  // --- Category: Workflows ---
+// Authored entries: everything except the derived `href`.
+const TOOL_ENTRIES: Omit<ToolItem, "href">[] = [
   {
     id: "workflow-merge-compress",
     name: "Merge & Compress",
-    title: "Merge & Compress PDF Workflow",
-    href: "/workflows?preset=merge-compress",
-    category: "organize",
-    categoryName: "Workflows",
-    sidebarCategory: "scan-workflow",
+    slug: "workflows",
+    preset: "merge-compress",
+    categoryId: "workflows",
     description: "Combine multiple PDFs in sequence, then losslessly optimize file size in browser RAM.",
-    shortDesc: "Merge multiple documents then compress output.",
-    iconName: "Layers",
+    icon: "Layers",
     keywords: ["workflow", "merge compress", "combine optimize", "pipeline"],
     steps: [{ title: "Upload", desc: "Select 2 or more PDFs." }, { title: "Run", desc: "Merge and compress in memory." }, { title: "Download", desc: "Save optimized single PDF." }],
     features: ["Zero upload memory execution", "Sequential merge", "Stream compression"],
@@ -185,14 +132,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "workflow-compress-protect",
     name: "Compress & Protect",
-    title: "Compress & Protect PDF Workflow",
-    href: "/workflows?preset=compress-protect",
-    category: "security",
-    categoryName: "Workflows",
-    sidebarCategory: "scan-workflow",
+    slug: "workflows",
+    preset: "compress-protect",
+    categoryId: "workflows",
     description: "Optimize document size and apply AES-256 client-side password protection in one step.",
-    shortDesc: "Compress document size and encrypt with AES-256.",
-    iconName: "Lock",
+    icon: "Lock",
     keywords: ["workflow", "compress protect", "encrypt compress", "secure pdf"],
     steps: [{ title: "Upload", desc: "Select PDF to optimize." }, { title: "Password", desc: "Enter encryption password." }, { title: "Run", desc: "Compress and encrypt." }],
     features: ["AES-256 encryption", "Stream compression", "Private and instant"],
@@ -202,14 +146,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "workflow-rotate-numbers",
     name: "Rotate & Add Numbers",
-    title: "Rotate & Add Page Numbers Workflow",
-    href: "/workflows?preset=rotate-numbers",
-    category: "layout",
-    categoryName: "Workflows",
-    sidebarCategory: "scan-workflow",
+    slug: "workflows",
+    preset: "rotate-numbers",
+    categoryId: "workflows",
     description: "Permanently rotate all pages and stamp clean sequential page numbers.",
-    shortDesc: "Fix page orientation and stamp page numbers.",
-    iconName: "RotateCw",
+    icon: "RotateCw",
     keywords: ["workflow", "rotate number", "page numbers", "orientation"],
     steps: [{ title: "Upload", desc: "Select PDF document." }, { title: "Configure", desc: "Choose angle and placement." }, { title: "Run", desc: "Rotate and number pages." }],
     features: ["Multi-angle rotation", "Sequential page numbers", "Custom placement"],
@@ -219,32 +160,25 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "workflow-flatten-sanitize",
     name: "Flatten & Sanitize",
-    title: "Flatten & Sanitize Metadata Workflow",
-    href: "/workflows?preset=flatten-sanitize",
-    category: "security",
-    categoryName: "Workflows",
-    sidebarCategory: "scan-workflow",
+    slug: "workflows",
+    preset: "flatten-sanitize",
+    categoryId: "workflows",
     description: "Flatten interactive AcroForms & annotations and scrub personal author metadata for secure public distribution.",
-    shortDesc: "Flatten form fields and wipe personal metadata.",
-    iconName: "Shield",
+    icon: "Shield",
     keywords: ["workflow", "flatten sanitize", "metadata scrub", "secure sharing"],
     steps: [{ title: "Upload", desc: "Select PDF document." }, { title: "Run", desc: "Flatten forms and scrub metadata." }, { title: "Download", desc: "Save clean confidential PDF." }],
     features: ["Form field flattening", "Metadata scrubbing", "Print-ready output"],
     limitations: ["Flattened forms can no longer be edited interactively"],
     faq: [{ q: "What metadata is removed?", a: "Title, author, subject, creator, and producer tags." }],
   },
-  // --- Category 1: Organize PDFs ---
   {
     id: "merge",
     name: "Merge PDF",
-    title: "Merge PDF Files Online — 100% Free & Private",
-    href: "/merge-pdf",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "page-management",
+    seoTitle: "Merge PDF Files Online - Free & Private",
+    slug: "merge-pdf",
+    categoryId: "organize",
     description: "Combine multiple PDF documents into a single organized file with customizable page order. Processed locally in your browser.",
-    shortDesc: "Combine multiple PDFs into one document.",
-    iconName: "Files",
+    icon: "Files",
     keywords: ["merge", "combine", "join", "pdf", "concatenate", "unite"],
     steps: [
       { title: "Select Files", desc: "Choose or drag and drop 2 or more PDF documents into the upload area." },
@@ -269,14 +203,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "split",
     name: "Split PDF",
-    title: "Split PDF — Extract Pages or Ranges Privately",
-    href: "/split-pdf",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "page-management",
+    seoTitle: "Split PDF Online - Free & Private",
+    slug: "split-pdf",
+    categoryId: "organize",
     description: "Extract specific page ranges or split every page into separate individual documents packaged into a convenient ZIP file.",
-    shortDesc: "Extract pages or divide a document.",
-    iconName: "Scissors",
+    icon: "Scissors",
     keywords: ["split", "extract", "separate", "ranges", "pages", "divide"],
     steps: [
       { title: "Upload PDF", desc: "Select or drop the document you wish to divide." },
@@ -300,14 +231,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "organize",
     name: "Organize PDF Pages",
-    title: "Organize PDF Pages — Reorder, Duplicate & Delete Pages",
-    href: "/organize-pdf",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "page-management",
+    seoTitle: "Organize PDF Pages - Reorder & Rotate",
+    slug: "organize-pdf",
+    categoryId: "organize",
     description: "Visual PDF page organizer. View page thumbnails, reorder page sequence, duplicate pages, or delete unwanted pages.",
-    shortDesc: "Reorder, duplicate, or delete pages visually.",
-    iconName: "LayoutGrid",
+    icon: "LayoutGrid",
     keywords: ["organize", "reorder", "delete pages", "duplicate pages", "rearrange", "sort"],
     steps: [
       { title: "Upload Document", desc: "Drop your PDF into the organizer to load high-resolution visual thumbnails." },
@@ -332,14 +260,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "rotate",
     name: "Rotate PDF",
-    title: "Rotate PDF Pages — 90°, 180°, 270° Orientation",
-    href: "/rotate-pdf",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "page-management",
+    seoTitle: "Rotate PDF Online - Free & Instant",
+    slug: "rotate-pdf",
+    categoryId: "organize",
     description: "Permanently adjust page rotation by 90°, 180°, or 270°. Select individual pages or rotate all pages at once with live thumbnail previews.",
-    shortDesc: "Correct page orientation permanently.",
-    iconName: "RotateCw",
+    icon: "RotateCw",
     keywords: ["rotate", "turn", "orientation", "landscape", "portrait", "flip"],
     steps: [
       { title: "Select PDF", desc: "Drop the PDF whose pages need orientation adjustments." },
@@ -363,14 +288,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "extract",
     name: "Extract PDF Pages",
-    title: "Extract PDF Pages — Save Specific Pages to New PDF",
-    href: "/extract-pdf-pages",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "page-management",
+    seoTitle: "Extract PDF Pages - Save Specific Pages",
+    slug: "extract-pdf-pages",
+    categoryId: "organize",
     description: "Extract specific pages from a PDF document into a clean new document or individual files. Select pages visually or by range.",
-    shortDesc: "Save selected pages into a new PDF.",
-    iconName: "FolderOutput",
+    icon: "FolderOutput",
     keywords: ["extract", "pick pages", "select pages", "separate", "save pages"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document from which you want to extract pages." },
@@ -391,19 +313,14 @@ export const PDF_TOOLS: ToolItem[] = [
       { q: "Are original files affected?", a: "No, extraction generates a brand-new file. Your original file remains untouched." },
     ],
   },
-
-  // --- Category 2: Convert and Compress ---
   {
     id: "compress",
     name: "Compress PDF",
-    title: "Compress PDF — Reduce PDF File Size Locally",
-    href: "/compress-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "scan-workflow",
+    seoTitle: "Compress PDF Online - Reduce File Size Free",
+    slug: "compress-pdf",
+    categoryId: "optimize",
     description: "Reduce PDF document file size with three selectable compression presets while preserving vectors and text. Honest size accounting.",
-    shortDesc: "Reduce file size without quality loss.",
-    iconName: "Minimize2",
+    icon: "Minimize2",
     keywords: ["compress", "shrink", "reduce", "optimize", "smaller", "downsize"],
     steps: [
       { title: "Upload PDF", desc: "Choose the document you wish to compress." },
@@ -427,14 +344,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-images",
     name: "PDF to Images",
-    title: "PDF to Images — Convert PDF Pages to PNG or JPG",
-    href: "/pdf-to-images",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "Convert PDF to JPG & PNG - Free & Fast",
+    slug: "pdf-to-images",
+    categoryId: "convert",
     description: "Convert PDF pages into high-resolution PNG or JPG images with custom scaling. Download individually or as a ZIP package.",
-    shortDesc: "Export PDF pages as PNG or JPG images.",
-    iconName: "Image",
+    icon: "Image",
     keywords: ["pdf to image", "pdf to png", "pdf to jpg", "convert", "export", "extract photos"],
     steps: [
       { title: "Upload PDF", desc: "Select the document whose pages you want to turn into images." },
@@ -458,14 +372,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "excel-to-pdf",
     name: "Excel to PDF",
-    title: "Excel to PDF — Convert Spreadsheets",
-    href: "/excel-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Excel to PDF Converter Online - Free & Private",
+    slug: "excel-to-pdf",
+    categoryId: "convert",
     description: "Convert XLSX/XLS spreadsheets to PDF, keeping tables, colours and merged cells approximated.",
-    shortDesc: "Convert Excel spreadsheets to PDF.",
-    iconName: "FileSpreadsheet",
+    icon: "FileSpreadsheet",
     keywords: ["excel to pdf", "xlsx to pdf", "spreadsheet", "table"],
     steps: [
       { title: "Upload", desc: "Drop an .xlsx or .xls file." },
@@ -474,19 +385,38 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Multiple sheets", "Auto column widths", "Pagination", "Fit to width"],
     limitations: ["Complex formatting and charts are approximated."],
-    faq: [{ q: "Are formulas evaluated?", a: "Cached values are used." }],
+    faq: [
+      { q: "Will my formulas be kept?", a: "The PDF shows calculated values, not formulas. That's the point: it's a read-only copy." },
+      { q: "Can I convert only one sheet?", a: "Yes - remove other sheets first or select the sheet if the option is shown." },
+      { q: "Is it free?", a: "Yes, with no sign-up." },
+    ],
+    guideTitle: "Convert Excel spreadsheets to PDF",
+    intro: "Turn an .xlsx or .xls workbook into a shareable PDF that looks the same on every device. PDFs are ideal for sending reports, price lists and invoices because the recipient can't accidentally change a formula or break the layout.",
+    guideSteps: [
+      "Click \"Choose file\" or drag your Excel workbook into the box.",
+      "Check the preview and, if offered, pick which sheets to include.",
+      "Press Convert.",
+      "Download your PDF.",
+    ],
+    tips: [
+      "Set a print area in Excel first so only the cells you want appear.",
+      "Use \"Fit all columns on one page\" in Excel's page setup to avoid tables splitting across pages.",
+      "Wide tables usually look best in landscape orientation.",
+    ],
+    notes: [
+      "Accepts .xlsx and .xls.",
+      "Very large workbooks depend on your device's memory, so convert one sheet at a time for huge files.",
+    ],
+    privacy: "Conversion happens in your browser, so your spreadsheet isn't uploaded to our servers.",
   },
   {
     id: "csv-to-pdf",
     name: "CSV to PDF",
-    title: "CSV to PDF — Convert CSV to Table",
-    href: "/csv-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "CSV to PDF Converter Online - Free & Private",
+    slug: "csv-to-pdf",
+    categoryId: "convert",
     description: "Convert CSV files into a clean, paginated PDF table with detected headers.",
-    shortDesc: "Convert CSV files to a PDF table.",
-    iconName: "Table",
+    icon: "Table",
     keywords: ["csv to pdf", "csv", "table", "comma separated"],
     steps: [
       { title: "Upload", desc: "Drop a .csv file." },
@@ -495,19 +425,35 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Delimiter auto-detection", "Header detection", "Pagination"],
     limitations: ["Very wide tables may split across pages."],
-    faq: [{ q: "Which delimiters are supported?", a: "Comma, semicolon, tab and pipe." }],
+    faq: [
+      { q: "Why do my columns look jumbled?", a: "Usually the wrong delimiter; try semicolon or tab." },
+      { q: "Can I style the table?", a: "Basic formatting is applied automatically; for custom styling, open the CSV in Excel and use the Excel to PDF tool." },
+      { q: "Is my data uploaded?", a: "No." },
+    ],
+    guideTitle: "Turn CSV data into a clean, printable PDF",
+    intro: "CSV files are plain text and hard to read or print. This tool lays your comma-separated data out as a formatted table in a PDF, so it's ready to share, print or archive.",
+    guideSteps: [
+      "Select or drop your .csv file.",
+      "Confirm the delimiter (comma, semicolon or tab) if asked.",
+      "Preview the table.",
+      "Click Convert and download the PDF.",
+    ],
+    notes: [
+      "The first row is treated as the header.",
+      "Exports from Excel in some regions use semicolons instead of commas; choose the matching delimiter if columns look merged.",
+      "UTF-8 files display non-English text most reliably.",
+      "Very wide tables are scaled or split across pages to stay readable.",
+    ],
+    privacy: "Your data stays on your device.",
   },
   {
     id: "markdown-to-pdf",
     name: "Markdown to PDF",
-    title: "Markdown to PDF — Convert Markdown to PDF",
-    href: "/markdown-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Markdown to PDF Converter Online - Free & Private",
+    slug: "markdown-to-pdf",
+    categoryId: "convert",
     description: "Convert Markdown files or pasted text into a formatted, paginated PDF.",
-    shortDesc: "Convert Markdown to a formatted PDF.",
-    iconName: "FileCode",
+    icon: "FileCode",
     keywords: ["markdown to pdf", "md to pdf", "markdown", "md"],
     steps: [
       { title: "Paste or Upload", desc: "Paste Markdown or upload a .md file." },
@@ -521,14 +467,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "html-to-pdf",
     name: "HTML to PDF",
-    title: "HTML to PDF — Convert HTML to PDF",
-    href: "/html-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "HTML to PDF Converter Online - Free & Private",
+    slug: "html-to-pdf",
+    categoryId: "convert",
     description: "Convert an uploaded HTML file or pasted code into a PDF with CSS preserved.",
-    shortDesc: "Convert HTML to a PDF.",
-    iconName: "Code2",
+    icon: "Code2",
     keywords: ["html to pdf", "html", "web page to pdf"],
     steps: [
       { title: "Paste or Upload", desc: "Paste HTML or upload a .html file." },
@@ -542,14 +485,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "word-to-pdf",
     name: "Word to PDF",
-    title: "Word to PDF — Convert DOCX to PDF",
-    href: "/word-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Word to PDF Converter Online - Free & Private",
+    slug: "word-to-pdf",
+    categoryId: "convert",
     description: "Convert DOC and DOCX Word documents to PDF, keeping headings, lists and tables.",
-    shortDesc: "Convert Word documents to PDF.",
-    iconName: "FileType",
+    icon: "FileType",
     keywords: ["word to pdf", "docx to pdf", "doc to pdf", "word"],
     steps: [
       { title: "Upload", desc: "Drop a .docx file." },
@@ -558,19 +498,37 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Headings and lists", "Tables", "Images (embedded as data URIs by mammoth)"],
     limitations: ["Complex layouts and tracked changes are approximated."],
-    faq: [{ q: "Are legacy .doc files supported?", a: "Only .docx is supported; convert .doc first." }],
+    faq: [
+      { q: "Will it keep my formatting?", a: "In most cases yes; very complex layouts should be checked after conversion." },
+      { q: "Is it free for long documents?", a: "Yes." },
+      { q: "Can I convert back?", a: "Use the PDF to Word tool, though results vary for complex layouts." },
+    ],
+    guideTitle: "Convert Word documents to PDF",
+    intro: "Send a resume, letter, assignment or contract that looks exactly as you wrote it. PDF keeps fonts, spacing and images fixed so the layout doesn't shift on someone else's screen or phone.",
+    guideSteps: [
+      "Upload your .docx or .doc file.",
+      "Wait a moment while it converts.",
+      "Download the PDF and check it opens correctly.",
+    ],
+    tips: [
+      "Use common fonts (Arial, Calibri, Times New Roman). If your document uses a rare font that isn't available, a substitute may be used.",
+      "Check tracked changes and comments: accept or remove them first if you don't want them to appear.",
+      "After converting, you can compress or password-protect the result using our other tools.",
+    ],
+    notes: [
+      "Text, headings, tables, images, bullet lists and page breaks are preserved. Headers, footers and page numbers are kept where the converter supports them.",
+      "Accepts .docx and .doc. Large documents with many embedded images depend on your device's memory.",
+    ],
+    privacy: "Files are handled in your browser and aren't stored.",
   },
   {
     id: "pdf-to-word",
     name: "PDF to Word",
-    title: "PDF to Word — Convert PDF to DOCX",
-    href: "/pdf-to-word",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to Word Converter Online - Free & Private",
+    slug: "pdf-to-word",
+    categoryId: "convert",
     description: "Convert a PDF's text into an editable Word document (.docx).",
-    shortDesc: "Convert PDF text to an editable Word file.",
-    iconName: "FileText",
+    icon: "FileText",
     keywords: ["pdf to word", "pdf to docx", "pdf to doc"],
     steps: [
       { title: "Upload", desc: "Drop a PDF." },
@@ -579,19 +537,36 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Headings detected by font size", "Paragraphs and spacing", "Multi-page"],
     limitations: ["Complex layouts and images are not preserved."],
-    faq: [{ q: "Is text editable?", a: "Yes, output is a real .docx." }],
+    faq: [
+      { q: "Are fonts kept?", a: "Fonts are matched where available; otherwise a similar font is used." },
+      { q: "Will images be included?", a: "Yes." },
+      { q: "Can I convert a scanned PDF?", a: "Text won't be editable without OCR. Use the OCR PDF tool first for scanned documents." },
+    ],
+    guideTitle: "Convert PDF to editable Word (.docx)",
+    intro: "Need to change text in a PDF? Converting it to Word lets you edit paragraphs, fix typos and reuse content in a normal document.",
+    guideSteps: [
+      "Upload your PDF.",
+      "Click Convert.",
+      "Download the .docx and open it in Word, Google Docs or LibreOffice.",
+    ],
+    notes: [
+      "Best results: PDFs created from Word or Google Docs, with real selectable text and simple layouts.",
+      "Fair results: reports with images and tables; expect some manual tidying.",
+      "Weaker results: scanned pages, multi-column magazines and heavily designed brochures.",
+      "Quick check before converting: try selecting text in your PDF. If you can highlight words, the file has real text and will convert well. If you can't, it's a scan.",
+      "Input: .pdf. Output: .docx. Password-protected PDFs must be unlocked first.",
+    ],
+    privacy: "Your PDF is processed on your device and not retained.",
+    valueProp: "Converts the text, headings and images of your PDF into an editable .docx you can open in Word, Google Docs or LibreOffice - without uploading the file. Best results come from PDFs that were exported from a word processor (real text, simple layouts). Honest limitations: complex multi-column layouts, heavy design and scanned images of text may need manual cleanup, because a PDF stores positions, not paragraphs.",
   },
   {
     id: "ebook-to-pdf",
     name: "eBook to PDF",
-    title: "eBook to PDF — Convert EPUB to PDF",
-    href: "/ebook-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "EPUB to PDF Converter Online - Free & Private",
+    slug: "ebook-to-pdf",
+    categoryId: "convert",
     description: "Convert DRM-free EPUB e-books to a paginated PDF.",
-    shortDesc: "Convert EPUB e-books to PDF.",
-    iconName: "Book",
+    icon: "Book",
     keywords: ["ebook to pdf", "epub to pdf", "mobi to pdf"],
     steps: [
       { title: "Upload", desc: "Drop an .epub file." },
@@ -600,19 +575,34 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Chapter concatenation", "EPUB 3 support", "Title from metadata"],
     limitations: ["MOBI/AZW3 not supported; DRM-protected files are rejected."],
-    faq: [{ q: "Is DRM supported?", a: "No, DRM-protected files are rejected." }],
+    faq: [
+      { q: "Why does the layout differ from my reader app?", a: "eBooks adapt to the screen; a PDF fixes a page size." },
+      { q: "Can I change the font size?", a: "Not after conversion; PDF layout is fixed." },
+      { q: "Is the text still searchable?", a: "Yes." },
+    ],
+    guideTitle: "Convert eBooks to PDF",
+    intro: "Read an ebook on any device, print it, or annotate it by turning it into a PDF. Useful for study material, manuals and documents you own.",
+    guideSteps: [
+      "Upload your ebook file (e.g. .epub).",
+      "Choose page size if the option appears (A4 is a good default for printing).",
+      "Press Convert and download the PDF.",
+    ],
+    notes: [
+      "Reflowable ebooks have no fixed pages, so page breaks in the PDF are generated during conversion.",
+      "Cover image, chapter headings and embedded images are kept.",
+      "DRM-protected ebooks (for example many store-bought Kindle or Adobe books) can't be converted; use files you own without DRM.",
+      "EPUB is the main supported format. Large illustrated books use more memory.",
+    ],
+    privacy: "The conversion runs in your browser; your books aren't uploaded.",
   },
   {
     id: "fingerprint",
     name: "Fingerprint PDF",
-    title: "Fingerprint PDF — Trace Leaked Copies",
-    href: "/fingerprint-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Fingerprint PDF Online - Trace Leaks Free",
+    slug: "fingerprint-pdf",
+    categoryId: "optimize",
     description: "Add invisible per-recipient marks so a leaked copy can be traced to its source.",
-    shortDesc: "Trace leaked PDF copies to recipients.",
-    iconName: "Fingerprint",
+    icon: "Fingerprint",
     keywords: ["fingerprint", "trace", "leak", "watermark", "recipient"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document." },
@@ -626,14 +616,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "create-pdf",
     name: "Create PDF",
-    title: "Create PDF — Rich Text Editor",
-    href: "/create-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Create PDF Online - Free & Private",
+    slug: "create-pdf",
+    categoryId: "convert",
     description: "A writing surface with formatting, images and styles that exports straight to PDF.",
-    shortDesc: "Create a PDF from a rich text editor.",
-    iconName: "PenTool",
+    icon: "PenTool",
     keywords: ["create pdf", "rich text", "editor", "write pdf"],
     steps: [
       { title: "Write", desc: "Format your document." },
@@ -642,19 +629,36 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Headings, lists, tables, images", "Page setup", "Autosave to IndexedDB"],
     limitations: ["Advanced CSS layouts are approximated."],
-    faq: [{ q: "Is work saved?", a: "Drafts autosave locally." }],
+    faq: [
+      { q: "Do I need an account?", a: "No." },
+      { q: "Will there be a watermark?", a: "No." },
+      { q: "Can I edit it later?", a: "Yes, with the Edit PDF tool." },
+    ],
+    guideTitle: "Make a PDF from text, images or documents",
+    intro: "Create a new PDF in seconds without installing software. Combine images, type text, or start from a document and export it as a PDF.",
+    guideSteps: [
+      "Choose what you're starting with (text, images or a file).",
+      "Arrange content and pick page size and orientation.",
+      "Click Create and download the PDF.",
+    ],
+    tips: [
+      "Use A4 for India and most of the world, Letter for US documents.",
+      "Compress large photo PDFs afterwards with our Compress PDF tool to meet upload limits on government and job portals.",
+      "Reorder images before creating the PDF; page order follows your arrangement.",
+    ],
+    notes: [
+      "Images: JPG, PNG. File size depends on your device's memory.",
+    ],
+    privacy: "Everything is built on your device. Nothing is uploaded.",
   },
   {
     id: "p2p-share",
     name: "P2P Share",
-    title: "P2P Share — Send Files Directly",
-    href: "/p2p-share",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "collaborate-share",
+    seoTitle: "Share PDF Online Privately - P2P, No Upload",
+    slug: "p2p-share",
+    categoryId: "organize",
     description: "Send files directly from one browser to another with no server upload.",
-    shortDesc: "Send files peer-to-peer, no upload.",
-    iconName: "Share2",
+    icon: "Share2",
     keywords: ["p2p", "peer to peer", "share", "send files", "webrtc"],
     steps: [
       { title: "Sender", desc: "Pick files and get a code." },
@@ -668,14 +672,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "whiteboard",
     name: "Collaborative Whiteboard",
-    title: "Collaborative Whiteboard — Draw Together",
-    href: "/whiteboard",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "collaborate-share",
+    seoTitle: "Online Whiteboard - Draw & Collaborate",
+    slug: "whiteboard",
+    categoryId: "organize",
     description: "A shared drawing canvas: open a link, draw together, no sign-up.",
-    shortDesc: "Shared drawing canvas, no sign-up.",
-    iconName: "PenTool",
+    icon: "PenTool",
     keywords: ["whiteboard", "draw", "collaborate", "canvas", "sketch"],
     steps: [
       { title: "Host", desc: "Create a room and share the code." },
@@ -689,14 +690,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "chat-with-pdf",
     name: "Chat with PDF",
-    title: "Chat with PDF — Ask Questions",
-    href: "/chat-with-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "Chat With PDF Online - Ask Your PDF Free",
+    slug: "chat-with-pdf",
+    categoryId: "intelligence",
     description: "Ask questions about your PDFs; answers stream back with page citations. Requires a Gemini API key.",
-    shortDesc: "Chat with your PDFs (Gemini).",
-    iconName: "MessageSquare",
+    icon: "MessageSquare",
     keywords: ["chat with pdf", "ask pdf", "gemini", "ai", "questions"],
     steps: [
       { title: "Upload PDFs", desc: "Drop one or more PDFs." },
@@ -710,14 +708,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "ai-summarizer",
     name: "AI PDF Summarizer",
-    title: "AI PDF Summarizer",
-    href: "/ai-summarizer",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "AI PDF Summarizer Online - Summarize Free",
+    slug: "ai-summarizer",
+    categoryId: "intelligence",
     description: "Summarize a PDF with quick, bullet or detailed modes using Gemini.",
-    shortDesc: "Summarize a PDF with AI.",
-    iconName: "Sparkles",
+    icon: "Sparkles",
     keywords: ["summarize", "summary", "ai", "gemini", "tldr"],
     steps: [
       { title: "Upload", desc: "Drop a PDF." },
@@ -731,14 +726,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-excel",
     name: "PDF to Excel",
-    title: "PDF to Excel — Extract Tables to XLSX",
-    href: "/pdf-to-excel",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to Excel Converter Online - Free & Private",
+    slug: "pdf-to-excel",
+    categoryId: "convert",
     description: "Extract tables from a PDF into an Excel workbook.",
-    shortDesc: "Extract PDF tables to Excel.",
-    iconName: "Table",
+    icon: "Table",
     keywords: ["pdf to excel", "pdf to xlsx", "extract tables", "pdf to spreadsheet"],
     steps: [
       { title: "Upload", desc: "Drop a PDF." },
@@ -747,19 +739,35 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["One sheet per page", "Column clustering", "Editable output"],
     limitations: ["Complex multi-column layouts may need manual cleanup."],
-    faq: [{ q: "Are formulas preserved?", a: "Values are extracted as text/numbers." }],
+    faq: [
+      { q: "Does it merge all tables into one sheet?", a: "Tables from each page are placed in order; review the result." },
+      { q: "Are numbers kept as numbers?", a: "Numeric values are exported as numbers where detected." },
+      { q: "Is it private?", a: "Yes, processing is local." },
+    ],
+    guideTitle: "Extract tables from PDF to Excel",
+    intro: "Retyping tables from a PDF is slow and error-prone. This tool detects tables and exports them to a spreadsheet so you can sort, filter and calculate.",
+    guideSteps: [
+      "Upload your PDF.",
+      "Click Convert.",
+      "Download the .xlsx and check the columns.",
+    ],
+    notes: [
+      "Works best with: bank and card statements, invoices, price lists and financial reports with real selectable text; tables with visible lines or clearly aligned columns.",
+      "May need manual cleanup: merged cells and tables that break across pages; scanned documents (image-only PDFs); layouts where text wraps over multiple lines inside one cell.",
+      "Always check your numbers after converting, especially for accounting.",
+      "Input: .pdf with text. Output: .xlsx. Size depends on your device's memory.",
+    ],
+    privacy: "Your data stays on your device.",
+    valueProp: "Pulls tables out of a PDF into rows and columns you can sort and calculate. It works best on PDFs with real, ruled or clearly aligned tables, such as bank statements, invoices and reports. Tables that span pages are detected per page; merged cells and tables inside scanned images may need manual adjustment. Review totals after export before relying on the data.",
   },
   {
     id: "headers-footers",
     name: "Headers & Footers",
-    title: "Headers & Footers — Add Text to All Pages",
-    href: "/headers-footers",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Add Header & Footer to PDF - Free & Private",
+    slug: "headers-footers",
+    categoryId: "edit",
     description: "Add custom text, dates and page numbers at the top and bottom of every page.",
-    shortDesc: "Add headers and footers with tokens.",
-    iconName: "AlignJustify",
+    icon: "AlignJustify",
     keywords: ["headers", "footers", "page numbers", "tokens"],
     steps: [
       { title: "Upload", desc: "Drop a PDF." },
@@ -773,14 +781,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "images-to-pdf",
     name: "Images to PDF",
-    title: "Images to PDF — Convert JPG, PNG & WebP to PDF",
-    href: "/images-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Images to PDF Converter Online - Free & Private",
+    slug: "images-to-pdf",
+    categoryId: "convert",
     description: "Convert photos and graphics into a standardized PDF with custom page sizes, orientations, and margins.",
-    shortDesc: "Turn images into a single standardized PDF.",
-    iconName: "FileImage",
+    icon: "FileImage",
     keywords: ["image to pdf", "jpg to pdf", "png to pdf", "webp", "photo", "pictures"],
     steps: [
       { title: "Upload Images", desc: "Select multiple JPG, PNG, or WebP image files." },
@@ -805,14 +810,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "ocr",
     name: "OCR (Searchable PDF)",
-    title: "OCR PDF — Make Scanned PDFs Searchable",
-    href: "/ocr-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "OCR PDF Online - Searchable PDF Free",
+    slug: "ocr-pdf",
+    categoryId: "optimize",
     description: "Recognise text in scanned PDFs and create a searchable PDF with an invisible text layer, or export plain text.",
-    shortDesc: "Make scanned PDFs searchable and selectable.",
-    iconName: "ScanText",
+    icon: "ScanText",
     keywords: ["ocr", "searchable", "scanned", "text recognition", "tesseract"],
     steps: [
       { title: "Upload PDF", desc: "Drop a scanned or image-only PDF." },
@@ -826,14 +828,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-text",
     name: "PDF to Text",
-    title: "PDF to Text — Extract Text from PDF Documents",
-    href: "/pdf-to-text",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to Text Converter - Extract Text Free",
+    slug: "pdf-to-text",
+    categoryId: "convert",
     description: "Extract selectable text from PDF documents. Copy extracted text to your clipboard or download as a clean plain text (.txt) file.",
-    shortDesc: "Extract readable text to copy or download as TXT.",
-    iconName: "FileText",
+    icon: "FileText",
     keywords: ["pdf to text", "extract text", "read pdf", "txt", "copy text", "transcribe"],
     steps: [
       { title: "Upload Document", desc: "Drop your PDF to parse embedded text streams." },
@@ -858,14 +857,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-grayscale",
     name: "PDF to Grayscale",
-    title: "PDF to Grayscale — Convert Color PDFs to Black & White",
-    href: "/pdf-to-grayscale",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "Convert PDF to Grayscale - Black & White",
+    slug: "pdf-to-grayscale",
+    categoryId: "convert",
     description: "Convert color PDF documents to clean grayscale. Ideal for saving black-and-white printer ink and standardizing office documents.",
-    shortDesc: "Convert color PDFs to monochrome grayscale.",
-    iconName: "Palette",
+    icon: "Palette",
     keywords: ["grayscale", "black and white", "monochrome", "color to bw", "printer friendly"],
     steps: [
       { title: "Select PDF", desc: "Choose the color document you want to convert." },
@@ -886,19 +882,14 @@ export const PDF_TOOLS: ToolItem[] = [
       { q: "Will conversion blur small text?", a: "We render at high resolution (150 DPI) to ensure fine typography remains crisp." },
     ],
   },
-
-  // --- Category 3: Edit Page Layout ---
   {
     id: "page-numbers",
     name: "Add Page Numbers",
-    title: "Add Page Numbers to PDF Document",
-    href: "/add-page-numbers",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "edit-annotate",
+    seoTitle: "Add Page Numbers to PDF - Free & Fast",
+    slug: "add-page-numbers",
+    categoryId: "edit",
     description: "Insert customizable page numbers, templates, positions, and formatting into any PDF with live placement preview.",
-    shortDesc: "Add customizable numbering to PDF pages.",
-    iconName: "Hash",
+    icon: "Hash",
     keywords: ["page numbers", "pagination", "numbering", "footer", "header", "bates"],
     steps: [
       { title: "Upload PDF", desc: "Select the document you wish to number." },
@@ -923,14 +914,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "watermark",
     name: "Watermark PDF",
-    title: "Watermark PDF — Add Text Watermarks Privately",
-    href: "/watermark-pdf",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "edit-annotate",
+    seoTitle: "Watermark PDF Online - Custom Text Stamp",
+    slug: "watermark-pdf",
+    categoryId: "edit",
     description: "Stamp customized text watermarks across document pages with live opacity, rotation, and color control.",
-    shortDesc: "Add customized text watermarks to pages.",
-    iconName: "Stamp",
+    icon: "Stamp",
     keywords: ["watermark", "stamp", "brand", "draft", "confidential", "overlay"],
     steps: [
       { title: "Upload PDF", desc: "Drop the PDF you want to watermark." },
@@ -955,14 +943,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "edit-pdf",
     name: "Edit PDF",
-    title: "Edit PDF Online — Full Visual Editor, 100% Private",
-    href: "/edit-pdf",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "edit-annotate",
+    seoTitle: "Edit PDF Online - Edit Text & Sign Free",
+    slug: "edit-pdf",
+    categoryId: "edit",
     description: "Full visual PDF editor: click any text to edit it in place with matched fonts, plus whiteout, signatures, images, highlights, links, shapes and form fields. 100% private in-browser editing.",
-    shortDesc: "Edit text in place, sign, whiteout, highlight & annotate.",
-    iconName: "PenLine",
+    icon: "PenLine",
     keywords: ["edit pdf", "pdf editor", "edit pdf text in place", "whiteout pdf", "sign pdf", "highlight pdf", "add image to pdf", "pdf annotator", "fill pdf form"],
     steps: [
       { title: "Upload PDF", desc: "Drop a PDF (up to ~50 MB, password-protected OK). It opens in the visual editor with page thumbnails." },
@@ -1010,14 +995,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "add-text",
     name: "Add Text to PDF",
-    title: "Add Text to PDF — Place Text Overlays on Pages",
-    href: "/add-text-to-pdf",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "edit-annotate",
+    seoTitle: "Add Text to PDF - Header, Notes & Footer",
+    slug: "add-text-to-pdf",
+    categoryId: "edit",
     description: "Place custom text notes, annotations, dates, or signatures onto specific PDF pages with visual placement controls.",
-    shortDesc: "Add text overlays, notes, and annotations to pages.",
-    iconName: "Type",
+    icon: "Type",
     keywords: ["add text", "annotate", "type on pdf", "overlay", "fill pdf", "notes"],
     steps: [
       { title: "Upload PDF", desc: "Select the document you wish to add text onto." },
@@ -1041,14 +1023,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "crop",
     name: "Crop PDF",
-    title: "Crop PDF — Trim Page Margins & Canvas Boundaries",
-    href: "/crop-pdf",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "page-management",
+    seoTitle: "Crop PDF Online - Trim Margins Free",
+    slug: "crop-pdf",
+    categoryId: "edit",
     description: "Adjust page boundaries and trim unwanted margins using numeric margin controls. Apply to all pages or specific pages.",
-    shortDesc: "Trim margins and adjust page boundaries.",
-    iconName: "Crop",
+    icon: "Crop",
     keywords: ["crop", "trim", "margins", "cut pdf", "boundary", "resize margin"],
     steps: [
       { title: "Select PDF", desc: "Upload the document you want to crop." },
@@ -1072,14 +1051,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "resize",
     name: "Resize PDF Pages",
-    title: "Resize PDF Pages — Change Page Dimensions to A4, Letter, A3",
-    href: "/resize-pdf",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "page-management",
+    seoTitle: "Resize PDF Pages - A4, Letter & Custom",
+    slug: "resize-pdf",
+    categoryId: "edit",
     description: "Change PDF page dimensions to standard sizes like A4, US Letter, A3, or Legal with automatic content scaling.",
-    shortDesc: "Change page dimensions to A4, Letter, A3, etc.",
-    iconName: "Maximize",
+    icon: "Maximize",
     keywords: ["resize", "paper size", "a4 to letter", "a3", "scale pdf", "page dimension"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document whose page dimensions you want to modify." },
@@ -1100,19 +1076,14 @@ export const PDF_TOOLS: ToolItem[] = [
       { q: "Can I convert Letter to A4 for international printing?", a: "Yes, this is one of the most popular uses for this tool." },
     ],
   },
-
-  // --- Category 4: Secure and Inspect ---
   {
     id: "protect",
     name: "Protect PDF",
-    title: "Password Protect PDF — Standard AES-256 Encryption",
-    href: "/protect-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Password Protect PDF - AES-256 Encryption",
+    slug: "protect-pdf",
+    categoryId: "security",
     description: "Encrypt your PDF document locally with a password using industry-standard AES-256 (PDF 2.0 / ISO 32000-2) encryption.",
-    shortDesc: "Encrypt PDFs locally with a strong password.",
-    iconName: "Lock",
+    icon: "Lock",
     keywords: ["protect", "encrypt", "password", "lock", "security", "aes-256"],
     steps: [
       { title: "Upload PDF", desc: "Select the document you want to secure." },
@@ -1136,14 +1107,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "unlock",
     name: "Unlock PDF",
-    title: "Unlock PDF — Remove Password Security Privately",
-    href: "/unlock-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Unlock PDF Online - Remove Password Free",
+    slug: "unlock-pdf",
+    categoryId: "security",
     description: "Remove password protection and encryption from your PDF document using your password. Processed 100% locally in your browser.",
-    shortDesc: "Remove password protection using your password.",
-    iconName: "Unlock",
+    icon: "Unlock",
     keywords: ["unlock", "decrypt", "remove password", "open", "security", "decipher"],
     steps: [
       { title: "Upload Encrypted PDF", desc: "Drop your password-protected PDF." },
@@ -1167,14 +1135,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "metadata-editor",
     name: "PDF Metadata Editor",
-    title: "PDF Metadata Editor — View, Edit & Strip Document Properties",
-    href: "/pdf-metadata-editor",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "PDF Metadata Editor - Edit & Strip Tags",
+    slug: "pdf-metadata-editor",
+    categoryId: "edit",
     description: "Inspect and edit PDF metadata properties including Title, Author, Subject, Keywords, Creator, and Producer. Strip all metadata for privacy.",
-    shortDesc: "View, edit, or strip PDF metadata fields.",
-    iconName: "FileSliders",
+    icon: "FileSliders",
     keywords: ["metadata", "author", "title", "strip metadata", "sanitize", "properties", "exif"],
     steps: [
       { title: "Upload PDF", desc: "Drop your PDF to read embedded metadata fields." },
@@ -1198,14 +1163,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "page-counter",
     name: "PDF Page Counter",
-    title: "PDF Page Counter & Properties Inspector — Free Audit Tool",
-    href: "/pdf-page-counter",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "scan-workflow",
+    seoTitle: "PDF Page Counter - Inspect Dimensions",
+    slug: "pdf-page-counter",
+    categoryId: "optimize",
     description: "Inspect page counts, dimensions (pt, mm, in), standard paper sizes, encryption status, and metadata. Download a plain-text audit report.",
-    shortDesc: "Inspect page count, dimensions & document properties.",
-    iconName: "Binary",
+    icon: "Binary",
     keywords: ["page counter", "count pages", "inspect pdf", "dimensions", "file info", "audit"],
     steps: [
       { title: "Upload PDF", desc: "Select or drop your PDF document." },
@@ -1230,14 +1192,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "compare",
     name: "Compare PDFs",
-    title: "Compare PDFs — Side-by-Side Local Document Comparison",
-    href: "/compare-pdfs",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "collaborate-share",
+    seoTitle: "Compare Two PDF Files - Visual & Text Diff",
+    slug: "compare-pdfs",
+    categoryId: "security",
     description: "Load two PDF documents locally to compare page counts, file sizes, and text content line-by-line. Highlights detected differences.",
-    shortDesc: "Compare two PDFs for text and structural changes.",
-    iconName: "GitCompare",
+    icon: "GitCompare",
     keywords: ["compare", "diff", "difference", "compare documents", "revision", "changes"],
     steps: [
       { title: "Upload Both PDFs", desc: "Drop Document A (original) and Document B (modified)." },
@@ -1261,14 +1220,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "flatten",
     name: "Flatten PDF",
-    title: "Flatten PDF — Make Forms and Annotations Permanent",
-    href: "/flatten-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Flatten PDF Online - Free & Private",
+    slug: "flatten-pdf",
+    categoryId: "optimize",
     description: "Flatten form fields, annotations and scripts into fixed page content so the PDF can no longer be edited as a form.",
-    shortDesc: "Flatten forms, annotations and scripts into fixed content.",
-    iconName: "Layers",
+    icon: "Layers",
     keywords: ["flatten", "form", "fields", "annotations", "lock", "static"],
     steps: [
       { title: "Upload PDF", desc: "Drop a PDF with form fields or annotations." },
@@ -1291,14 +1247,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "redact",
     name: "Redact PDF",
-    title: "Redact PDF — Permanently Remove Sensitive Content",
-    href: "/redact-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Redact PDF Online - Remove Text Free",
+    slug: "redact-pdf",
+    categoryId: "security",
     description: "Permanently remove sensitive text and areas, leaving black boxes. Verifies no hidden text survives.",
-    shortDesc: "Permanently remove sensitive text and areas.",
-    iconName: "Eraser",
+    icon: "Eraser",
     keywords: ["redact", "blackout", "sensitive", "privacy", "remove text"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document to redact." },
@@ -1321,14 +1274,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "privacy-scan",
     name: "Privacy Risk Scanner",
-    title: "Privacy Risk Scanner — Find Hidden Data in PDFs",
-    href: "/privacy-scan",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "PDF Privacy Scanner Online - Check Risks Free",
+    slug: "privacy-scan",
+    categoryId: "optimize",
     description: "Scan for hidden metadata, scripts, attachments and image EXIF, then export a cleaned copy.",
-    shortDesc: "Find and remove hidden data before sharing.",
-    iconName: "ShieldAlert",
+    icon: "ShieldAlert",
     keywords: ["privacy", "metadata", "hidden", "scan", "sanitize", "exif"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document to scan." },
@@ -1351,14 +1301,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "invert",
     name: "Invert PDF Colours",
-    title: "Invert PDF Colours — Dark Mode, Sepia & Grayscale",
-    href: "/invert-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Invert PDF Colours Online - Dark Mode Free",
+    slug: "invert-pdf",
+    categoryId: "convert",
     description: "Create a permanent dark-mode, sepia or grayscale version of your PDF.",
-    shortDesc: "Dark mode, sepia and grayscale versions of a PDF.",
-    iconName: "Moon",
+    icon: "Moon",
     keywords: ["invert", "dark mode", "sepia", "grayscale", "colour"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document." },
@@ -1380,14 +1327,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "repair",
     name: "Repair PDF",
-    title: "Repair PDF — Recover Corrupted Documents",
-    href: "/repair-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Repair PDF Online - Fix Corrupted PDF",
+    slug: "repair-pdf",
+    categoryId: "optimize",
     description: "Recover content from corrupted, truncated or broken PDFs using multiple strategies.",
-    shortDesc: "Recover content from corrupted PDFs.",
-    iconName: "Wrench",
+    icon: "Wrench",
     keywords: ["repair", "recover", "corrupt", "broken", "fix", "damaged"],
     steps: [
       { title: "Upload PDF", desc: "Drop the damaged file." },
@@ -1410,14 +1354,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "scan-to-pdf",
     name: "Scan to PDF",
-    title: "Scan to PDF — Camera Document Scanner",
-    href: "/scan-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "Scan to PDF Online - Camera to PDF Free",
+    slug: "scan-to-pdf",
+    categoryId: "organize",
     description: "Use your camera as a document scanner: capture pages, enhance and export a PDF.",
-    shortDesc: "Scan documents with your camera to PDF.",
-    iconName: "ScanLine",
+    icon: "ScanLine",
     keywords: ["scan", "camera", "document scanner", "photo to pdf"],
     steps: [
       { title: "Open Camera", desc: "Allow camera access." },
@@ -1431,14 +1372,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-epub",
     name: "PDF to EPUB",
-    title: "PDF to EPUB — Convert PDFs to E-Books",
-    href: "/pdf-to-epub",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to EPUB Converter Online - Free & Private",
+    slug: "pdf-to-epub",
+    categoryId: "convert",
     description: "Convert a PDF into an EPUB e-book for Kindle, Kobo and Apple Books.",
-    shortDesc: "Convert PDF to an EPUB e-book.",
-    iconName: "BookOpen",
+    icon: "BookOpen",
     keywords: ["pdf to epub", "ebook", "kindle", "kobo", "epub"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document." },
@@ -1447,19 +1385,35 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Chapter splitting", "EPUB 3 structure", "Title/author metadata"],
     limitations: ["Complex layouts are flattened to paragraphs."],
-    faq: [{ q: "Is it DRM-free?", a: "Yes." }],
+    faq: [
+      { q: "Will images be included?", a: "Yes, as inline images." },
+      { q: "Can I read it on Kindle?", a: "Most Kindle apps accept EPUB via \"Send to Kindle\"." },
+      { q: "Is it free?", a: "Yes." },
+    ],
+    guideTitle: "Make a PDF readable on e-readers",
+    intro: "PDFs have fixed pages, which are awkward to read on small screens. Converting to EPUB lets text reflow to fit a phone, tablet or e-reader and lets you change font size.",
+    guideSteps: [
+      "Upload your PDF.",
+      "Click Convert.",
+      "Download the .epub and open it in Apple Books, Google Play Books, Kobo or Calibre.",
+    ],
+    notes: [
+      "Best for: novels, essays, articles and other text-focused PDFs.",
+      "Less suited to: textbooks with complex diagrams, math, multi-column magazines and scanned books. Page layout can't be preserved in a reflowable format, and some headers, footers or page numbers may appear in the text and need cleanup.",
+      "Use a PDF with real selectable text, not a scan.",
+      "Check chapter breaks after converting; they're detected from headings.",
+      "Input: .pdf. Output: .epub. Large books depend on your device's memory.",
+    ],
+    privacy: "Your file is processed on your device.",
   },
   {
     id: "pdf-to-html",
     name: "PDF to HTML",
-    title: "PDF to HTML — Convert PDFs to Web Pages",
-    href: "/pdf-to-html",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to HTML Converter Online - Free & Private",
+    slug: "pdf-to-html",
+    categoryId: "convert",
     description: "Convert a PDF into a single HTML file with positioned or reflowable text.",
-    shortDesc: "Convert PDF to a single HTML file.",
-    iconName: "Code",
+    icon: "Code",
     keywords: ["pdf to html", "html", "web page", "convert"],
     steps: [
       { title: "Upload PDF", desc: "Drop the document." },
@@ -1475,20 +1429,34 @@ export const PDF_TOOLS: ToolItem[] = [
       "Complex graphics are not converted to SVG.",
     ],
     faq: [
-      { q: "Is text selectable in output?", a: "Yes." },
+      { q: "Is the HTML clean enough to edit?", a: "It's readable; expect to tidy styles for production." },
+      { q: "Will links work?", a: "Yes, existing hyperlinks are kept." },
+      { q: "Is it private?", a: "Yes." },
     ],
+    guideTitle: "Convert PDF to HTML for the web",
+    intro: "Publish a PDF's content as a web page so it's searchable, accessible and mobile-friendly, instead of forcing visitors to download a file.",
+    guideSteps: [
+      "Upload your PDF.",
+      "Click Convert.",
+      "Download the HTML and open it in a browser to check it.",
+    ],
+    notes: [
+      "Text, headings, links and images are kept as web content. Output can be embedded in a site, a CMS or an email template.",
+      "Use cases: put a brochure, menu or price list on a website; make documents indexable by search engines; reuse report text in a blog or knowledge base.",
+      "Fidelity: text-based PDFs convert best. Precisely positioned designs can differ slightly in spacing, and you may want to adjust CSS afterwards. Scanned PDFs become images rather than text.",
+      "Input: .pdf. Output: .html with assets. Size depends on device memory.",
+    ],
+    privacy: "Your file stays on your device.",
+    valueProp: "Turns a PDF into HTML you can publish or embed, keeping text, headings and links as real, selectable page content rather than a flat image. Useful for putting a brochure, menu or report on a website, or making content searchable. Fidelity is highest for text-based PDFs; exact positioning of complex designs may differ slightly from the original.",
   },
   {
     id: "gst-invoice",
     name: "GST Invoice Generator",
-    title: "GST Invoice Generator — Create Tax Invoices",
-    href: "/gst-invoice",
-    category: "security",
-    categoryName: "Business Tools",
-    sidebarCategory: "business-tools",
+    seoTitle: "GST Invoice Generator - Tax Invoices",
+    slug: "gst-invoice",
+    categoryId: "edit",
     description: "Create GST-compliant tax invoices with CGST/SGST or IGST, then download a PDF with no watermark.",
-    shortDesc: "Create GST tax invoices and download PDF.",
-    iconName: "Receipt",
+    icon: "Receipt",
     keywords: ["gst", "invoice", "tax", "cgst", "sgst", "igst"],
     steps: [
       { title: "Seller Profile", desc: "Enter business details and GSTIN." },
@@ -1502,14 +1470,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pos-billing",
     name: "POS Billing",
-    title: "POS Billing — Point of Sale",
-    href: "/pos-billing",
-    category: "security",
-    categoryName: "Business Tools",
-    sidebarCategory: "business-tools",
+    seoTitle: "POS Billing Software Online - GST Receipts Free",
+    slug: "pos-billing",
+    categoryId: "edit",
     description: "Point-of-sale billing: products, cart, GST receipts and reports, usable offline.",
-    shortDesc: "POS billing with GST receipts.",
-    iconName: "ShoppingCart",
+    icon: "ShoppingCart",
     keywords: ["pos", "billing", "receipt", "shop", "cash register"],
     steps: [
       { title: "Products", desc: "Manage product catalogue." },
@@ -1518,19 +1483,36 @@ export const PDF_TOOLS: ToolItem[] = [
     ],
     features: ["Barcode search", "GST receipts", "Daily reports", "Offline"],
     limitations: ["Data clears if browser data is cleared; back up regularly."],
-    faq: [{ q: "Does it upload data?", a: "No." }],
+    faq: [
+      { q: "Do I need an account?", a: "No." },
+      { q: "Is my sales data stored?", a: "Not on our servers." },
+    ],
+    guideTitle: "Create simple bills and receipts as PDFs",
+    intro: "Generate a clean, printable bill for your shop, stall or small business without installing billing software. Add items, quantities and prices, and the tool totals everything for you.",
+    guideSteps: [
+      "Enter your business name and contact details.",
+      "Add items with quantity and price.",
+      "Add tax or discount if needed.",
+      "Download or print the PDF.",
+    ],
+    tips: [
+      "Keep an invoice number sequence for your records.",
+      "Check GST details and rates before issuing bills to customers. This tool formats a bill; it doesn't replace accounting or tax advice.",
+      "Save PDFs in a dated folder for easy filing.",
+    ],
+    notes: [
+      "Good for: small retail shops, home businesses, freelancers and event stalls that need a quick receipt.",
+    ],
+    privacy: "Your data stays on your device.",
   },
   {
     id: "latex-resume",
     name: "LaTeX Resume",
-    title: "LaTeX Resume Builder — Free ATS-Friendly Resume",
-    href: "/latex-resume",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "LaTeX Resume Builder Online - ATS-Friendly PDF",
+    slug: "latex-resume",
+    categoryId: "edit",
     description: "Build an ATS-friendly resume with four typeset templates. Export PDF or .tex. Everything runs in your browser.",
-    shortDesc: "Build an ATS-friendly resume and export PDF or .tex.",
-    iconName: "FileText",
+    icon: "FileText",
     keywords: ["resume", "cv", "latex", "ats", "builder"],
     steps: [
       { title: "Open builder", desc: "A complete example resume is already loaded." },
@@ -1545,14 +1527,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "remove-pages",
     name: "Remove PDF Pages",
-    title: "Remove PDF Pages — Delete Pages from a PDF",
-    href: "/remove-pdf-pages",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "page-management",
+    seoTitle: "Remove PDF Pages Online - Delete Pages Free",
+    slug: "remove-pdf-pages",
+    categoryId: "organize",
     description: "Select pages to delete and export the remaining document.",
-    shortDesc: "Delete selected pages from a PDF.",
-    iconName: "Trash2",
+    icon: "Trash2",
     keywords: ["remove pages", "delete pages", "drop pages"],
     steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Select", desc: "Choose pages to remove." }, { title: "Download", desc: "Export remaining pages." }],
     features: ["Visual thumbnail selection", "Keeps remaining pages in order"],
@@ -1562,14 +1541,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "sign-pdf",
     name: "Sign PDF",
-    title: "Sign PDF — Add a Visual Signature",
-    href: "/sign-pdf",
-    category: "security",
-    categoryName: "Secure and Inspect",
-    sidebarCategory: "security-privacy",
+    seoTitle: "Sign PDF Online - Free & Private",
+    slug: "sign-pdf",
+    categoryId: "security",
     description: "Add a visual signature image to a page of your PDF.",
-    shortDesc: "Add a signature image to a PDF.",
-    iconName: "PenLine",
+    icon: "PenLine",
     keywords: ["sign", "signature", "visual signature"],
     steps: [{ title: "Upload PDF", desc: "Drop a PDF." }, { title: "Signature", desc: "Choose a PNG/JPG signature." }, { title: "Download", desc: "Export signed PDF." }],
     features: ["PNG and JPG signatures", "Page selection"],
@@ -1579,14 +1555,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-markdown",
     name: "PDF to Markdown",
-    title: "PDF to Markdown — Extract Text as Markdown",
-    href: "/pdf-to-markdown",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to Markdown Converter - Free & Private",
+    slug: "pdf-to-markdown",
+    categoryId: "intelligence",
     description: "Extract text from a PDF and format it as Markdown with headings.",
-    shortDesc: "Convert PDF text to Markdown.",
-    iconName: "FileCode",
+    icon: "FileCode",
     keywords: ["pdf to markdown", "markdown", "md"],
     steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Convert", desc: "Extract and format." }, { title: "Download", desc: "Export .md." }],
     features: ["Heading detection by font size", "Per-page sections"],
@@ -1596,14 +1569,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-to-powerpoint",
     name: "PDF to PowerPoint",
-    title: "PDF to PowerPoint — Convert PDF to PPTX",
-    href: "/pdf-to-powerpoint",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "PDF to PowerPoint Converter - Free & Private",
+    slug: "pdf-to-powerpoint",
+    categoryId: "convert",
     description: "Convert PDF pages into a PowerPoint presentation with extracted text.",
-    shortDesc: "Convert PDF to PPTX.",
-    iconName: "Presentation",
+    icon: "Presentation",
     keywords: ["pdf to powerpoint", "pdf to pptx"],
     steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Convert", desc: "Build PPTX." }, { title: "Download", desc: "Export .pptx." }],
     features: ["One slide per page", "Text positioning"],
@@ -1613,14 +1583,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "powerpoint-to-pdf",
     name: "PowerPoint to PDF",
-    title: "PowerPoint to PDF — Convert PPTX to PDF",
-    href: "/powerpoint-to-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "create-convert-pdf",
+    seoTitle: "PowerPoint to PDF Converter - Free & Private",
+    slug: "powerpoint-to-pdf",
+    categoryId: "convert",
     description: "Convert a PowerPoint presentation to PDF using extracted slide text.",
-    shortDesc: "Convert PPTX to PDF.",
-    iconName: "FileType",
+    icon: "FileType",
     keywords: ["powerpoint to pdf", "pptx to pdf"],
     steps: [{ title: "Upload", desc: "Drop a .pptx." }, { title: "Convert", desc: "Extract text." }, { title: "Download", desc: "Export PDF." }],
     features: ["One page per slide", "Text extraction"],
@@ -1630,14 +1597,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "pdf-forms",
     name: "PDF Forms",
-    title: "PDF Forms — Fill Interactive Forms",
-    href: "/pdf-forms",
-    category: "layout",
-    categoryName: "Edit Page Layout",
-    sidebarCategory: "edit-annotate",
+    seoTitle: "Fill PDF Forms Online - Free & Private",
+    slug: "pdf-forms",
+    categoryId: "edit",
     description: "Detect and fill interactive form fields, then save the completed document.",
-    shortDesc: "Fill PDF form fields.",
-    iconName: "FormInput",
+    icon: "FormInput",
     keywords: ["pdf forms", "fill form", "acroform"],
     steps: [{ title: "Upload", desc: "Drop a form PDF." }, { title: "Fill", desc: "Enter values." }, { title: "Download", desc: "Export filled PDF." }],
     features: ["Text, checkbox, radio, dropdown fields"],
@@ -1647,14 +1611,11 @@ export const PDF_TOOLS: ToolItem[] = [
   {
     id: "translate-pdf",
     name: "Translate PDF",
-    title: "Translate PDF — Extract Text for Translation",
-    href: "/translate-pdf",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
+    seoTitle: "Translate PDF Online - Free & Private",
+    slug: "translate-pdf",
+    categoryId: "intelligence",
     description: "Extract document text for translation without sending it to a service.",
-    shortDesc: "Extract PDF text for translation.",
-    iconName: "Languages",
+    icon: "Languages",
     keywords: ["translate pdf", "translation"],
     steps: [{ title: "Upload", desc: "Drop a PDF." }, { title: "Extract", desc: "Get text." }, { title: "Translate", desc: "Use your preferred tool." }],
     features: ["Local text extraction"],
@@ -1662,48 +1623,56 @@ export const PDF_TOOLS: ToolItem[] = [
     faq: [{ q: "Is text uploaded?", a: "No." }],
   },
   {
-    id: "pdf-to-pdfa",
-    name: "PDF to PDF/A",
-    title: "PDF to PDF/A — Archival Conversion",
-    href: "/pdf-to-pdfa",
-    category: "convert",
-    categoryName: "Convert and Compress",
-    sidebarCategory: "convert-other",
-    description: "Convert a PDF to a PDF/A archival document.",
-    shortDesc: "Convert PDF to PDF/A.",
-    iconName: "Archive",
-    keywords: ["pdf to pdfa", "pdf/a", "archive"],
-    steps: [{ title: "Status", desc: "See availability." }],
-    features: [],
-    limitations: ["Not implemented in this browser build; no fake conversion is performed."],
-    faq: [{ q: "Why not?", a: "Verifiable PDF/A conformance requires an archival validation engine not bundled here." }],
-  },
-  {
     id: "workflows",
     name: "Workflows",
-    title: "Workflows — Multi-Step PDF Tasks",
-    href: "/workflows",
-    category: "organize",
-    categoryName: "Organize PDFs",
-    sidebarCategory: "scan-workflow",
+    slug: "workflows",
+    categoryId: "workflows",
     description: "Run common multi-step PDF tasks such as merge then compress.",
-    shortDesc: "Multi-step PDF workflows.",
-    iconName: "Workflow",
+    icon: "Workflow",
     keywords: ["workflow", "merge compress", "pipeline"],
     steps: [{ title: "Select", desc: "Choose files." }, { title: "Run", desc: "Merge then compress." }, { title: "Download", desc: "Export result." }],
     features: ["Merge then compress workflow"],
     limitations: ["Additional workflows can be added."],
     faq: [{ q: "Is it local?", a: "Yes." }],
-  },
+  }
 ];
-export function getToolsBySidebarCategory(categoryId: SidebarCategoryId): ToolItem[] {
-  return PDF_TOOLS.filter((t) => t.sidebarCategory === categoryId);
+
+// ---------------------------------------------------------------------------
+// Derived registry + lookups. Nothing below is authored per-tool.
+// ---------------------------------------------------------------------------
+
+export const PDF_TOOLS: ToolItem[] = TOOL_ENTRIES.map((t) => ({
+  ...t,
+  href: getToolHref(t),
+}));
+
+/** Marketed tool count: every registry entry, presets included. */
+export const TOOL_COUNT = PDF_TOOLS.length;
+
+/** Real routes only: presets are query variants of /workflows, not routes. */
+export const ROUTE_TOOL_COUNT = PDF_TOOLS.filter(isRealToolRoute).length;
+
+export function getToolById(id: string): ToolItem | undefined {
+  return PDF_TOOLS.find((t) => t.id === id);
 }
 
-export function getSidebarCategoryCounts(): Record<SidebarCategoryId, number> {
-  const counts: Partial<Record<SidebarCategoryId, number>> = {};
-  for (const cat of SIDEBAR_CATEGORIES) {
-    counts[cat.id] = PDF_TOOLS.filter((t) => t.sidebarCategory === cat.id).length;
+export function getToolBySlug(slug: string): ToolItem | undefined {
+  return PDF_TOOLS.find((t) => !t.preset && t.slug === slug);
+}
+
+/** Tools in the order the ids are given; unknown ids are skipped. */
+export function getToolsByIds(ids: string[]): ToolItem[] {
+  const byId = new Map(PDF_TOOLS.map((t) => [t.id, t]));
+  const out: ToolItem[] = [];
+  for (const id of ids) {
+    const tool = byId.get(id);
+    if (tool) out.push(tool);
   }
-  return counts as Record<SidebarCategoryId, number>;
+  return out;
+}
+
+/** Tools in one master category; "all" returns every entry (presets included). */
+export function getToolsByCategory(categoryId: ToolCategoryId | "all"): ToolItem[] {
+  if (categoryId === "all") return [...PDF_TOOLS];
+  return PDF_TOOLS.filter((t) => t.categoryId === categoryId);
 }

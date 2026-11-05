@@ -1,4 +1,5 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { StandardFonts, rgb } from "pdf-lib";
+import { loadPdf, savePdf, hexToRgb } from "./core";
 
 export interface HeaderFooterSlots {
   headerLeft?: string;
@@ -20,11 +21,6 @@ export interface HeaderFooterOptions {
   title?: string;
 }
 
-function hexToRgb(hex: string) {
-  const h = hex.replace("#", "");
-  return rgb(parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255);
-}
-
 function expand(token: string, page: number, total: number, opts: HeaderFooterOptions): string {
   const date = new Date().toLocaleDateString();
   return token
@@ -40,7 +36,7 @@ export async function addHeadersFooters(
   options: HeaderFooterOptions
 ): Promise<Uint8Array> {
   const { slots, fontSize = 9, margin = 30, color = "#444444", skipFirstPage = false, startNumber = 1 } = options;
-  const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  const doc = await loadPdf(pdfBytes);
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const totalPages = doc.getPageCount();
 
@@ -49,7 +45,8 @@ export async function addHeadersFooters(
     const page = doc.getPage(i);
     const { width, height } = page.getSize();
     const pageNum = i + startNumber;
-    const col = hexToRgb(color);
+    const { r, g, b } = hexToRgb(color);
+    const col = rgb(r, g, b);
 
     const positions = [
       { slot: slots.headerLeft, x: margin, y: height - margin, align: "left" },
@@ -71,5 +68,5 @@ export async function addHeadersFooters(
     }
   }
 
-  return await doc.save({ useObjectStreams: true });
+  return await savePdf(doc);
 }
